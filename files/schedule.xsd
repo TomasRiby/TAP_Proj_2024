@@ -14,8 +14,8 @@
     <xs:complexType name="vivaType">
         <xs:sequence>
             <xs:element type="juriNameType" name="president"/>
-            <xs:element type="juriNameType" name="adviser"/>
-            <xs:element type="juriNameType" name="coadviser" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="juriNameType" name="advisor"/>
+            <xs:element type="juriNameType" name="coadvisor" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="juriNameType" name="supervisor" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="student" use="required"/>

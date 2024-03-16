@@ -31,9 +31,9 @@
     </xs:complexType>
     <xs:complexType name="vivaType">
         <xs:sequence>
-            <xs:element type="teacherRefType" name="president" maxOccurs="unbounded"/>
-            <xs:element type="teacherRefType" name="adviser" maxOccurs="unbounded"/>
-            <xs:element type="teacherOrExternalRefType" name="coadviser" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="teacherRefType" name="president"/>
+            <xs:element type="teacherRefType" name="advisor" maxOccurs="unbounded"/>
+            <xs:element type="teacherOrExternalRefType" name="coadvisor" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="teacherOrExternalRefType" name="supervisor" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="student" use="required"/>
@@ -77,16 +77,6 @@
         <xs:attribute type="xs:time" name="duration" use="required"/>
     </xs:complexType>
 
-    <xs:simpleType name="roomID">
-        <xs:restriction base="xs:ID">
-            <xs:pattern value="R[0-9]{3}"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="roomIDREF">
-        <xs:restriction base="xs:IDREF">
-            <xs:pattern value="R[0-9]{3}"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="teacherID">
         <xs:restriction base="xs:ID">
             <xs:pattern value="T[0-9]{3}"/>
@@ -105,19 +95,6 @@
     <xs:simpleType name="teacherOrExternalIDREF">
         <xs:restriction base="xs:IDREF">
             <xs:pattern value="[TE][0-9]{3}"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="teacherRoleType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="President"/>
-            <xs:enumeration value="Adviser"/>
-            <xs:enumeration value="CoAdviser"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="externalRoleType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="CoAdviser"/>
-            <xs:enumeration value="Supervisor"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="preferenceType">
