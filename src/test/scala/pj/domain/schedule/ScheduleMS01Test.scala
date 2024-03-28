@@ -8,16 +8,14 @@ import pj.xml.XML
 // TODO: Create the code to test a functional domain model for schedule creation.
 //       create files in the files/test/ms01 folder
 class ScheduleMS01Test extends AnyFunSuite:
-  //Isto é so random
   test("Just testing things"):
     //loads the file
     val result = FileIO.load("files/test/ms01/simple01.xml")
-    result match {
+    result match
       //if successful
       case Right(xml) =>
         //load resources
-        val resources = XML.fromNode(xml, "resources")
+        val resources = XML.fromNode(xml, "vivas")
         print(resources)
       case Left(error) =>
         println(s"Error loading XML file: $error")
-    }
