@@ -1,5 +1,17 @@
 package pj.domain
 
-class Availability(start: String, end:String, preference:String)
+import pj.typeUtils.integer.NonNegativeInt
+
+
+final case class Availability(
+                               start: NonNegativeInt,
+                               end: NonNegativeInt,
+                               preference: String
+                             )
+
+object Availability:
+  //Abaixo definimos as funções
+  def funcs() = ()
+
 
 

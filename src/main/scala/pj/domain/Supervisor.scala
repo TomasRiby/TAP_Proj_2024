@@ -1,5 +1,12 @@
 package pj.domain
 
-class Supervisor(id: String)
+final case class Supervisor(
+                            id: String,
+                            name:String,
+                           )
+
+object Supervisor:
+  //Abaixo definimos as funções
+  def funcs() = ()
 
 

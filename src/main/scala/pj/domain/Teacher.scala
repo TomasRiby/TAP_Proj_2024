@@ -1,5 +1,15 @@
 package pj.domain
 
-class Teacher(id: String, name:String, availability: Seq[Availability])
+final case class Teacher(
+                          id: String,
+                          name:String,
+                          availability: Seq[Availability]
+                          )
+
+object Teacher:
+  //Abaixo definimos as funções
+  def funcs() = ()
+
+
 
 

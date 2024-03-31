@@ -1,5 +1,12 @@
 package pj.domain
 
-class Advisor(id: String)
+final case class Advisor(
+                          id: String,
+                          name:String
+                        )
+
+object Advisor:
+  //Abaixo definimos as funções
+  def funcs() = ()
 
 

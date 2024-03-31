@@ -1,5 +1,10 @@
 package pj.domain
 
-class President(id: String)
+final case class President(
+                           id: String,
+                           name:String
+                          )
 
-
+object President:
+  //Abaixo definimos as funções
+  def funcs() = ()

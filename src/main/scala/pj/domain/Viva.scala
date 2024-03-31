@@ -1,5 +1,15 @@
 package pj.domain
 
-class Viva(student: String, title: String, president: President, advisor: Advisor, supervisor: Supervisor)
+final case class Viva(
+                       student: String,
+                       title: String,
+                       president: President,
+                       advisor: Advisor,
+                       supervisor: Supervisor
+                     )
+
+object Viva:
+  //Abaixo definimos as funções
+  def funcs() = ()
 
 
