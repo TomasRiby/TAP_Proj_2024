@@ -1,26 +1,23 @@
-package pj.domain.schedule
+package pj.domain
 
-import scala.language.adhocExtensions
-import org.scalatest.funsuite.AnyFunSuite
-import pj.domain.{Agenda, Availability, Teacher}
 import pj.io.FileIO
 import pj.xml.XML
 
-import scala.xml.Node
+import scala.xml.{Elem, Node}
 
-class ScheduleMS01Test extends AnyFunSuite:
+final case class Agenda()
 
-  test("Accessing all teachers more readably"):
-    val filePath = "files/assessment/ms01/valid_agenda_01_in.xml"
-    val teachersIdsResult = for {
-      xml <- FileIO.load(filePath)
+object Agenda:
+  def loadTeachers(xmlData: String): Any =
+    val teachersResult = for {
+      xml <- FileIO.load(xmlData)
       resources <- XML.fromNode(xml, "resources")
       teachers <- XML.fromNode(resources, "teachers")
     } yield extractTeachers(teachers)
 
     // Handle the result
-    teachersIdsResult match
-      case Right(ids) => ids.foreach(println(_))
+    teachersResult match
+      case Right(teachers) => teachers.foreach(println(_))
       case Left(error) => println(s"Error: $error")
 
   // Helper method to extract teacher IDs from the teachers node
@@ -41,7 +38,4 @@ class ScheduleMS01Test extends AnyFunSuite:
         preference <- XML.fromAttribute(node, "preference").toOption
       } yield Availability(start, end, preference)
     }
-  test("Test to see if it does the same thing"):
-    val agenda = Agenda.loadTeachers("files/assessment/ms01/valid_agenda_06_in.xml")
-
 

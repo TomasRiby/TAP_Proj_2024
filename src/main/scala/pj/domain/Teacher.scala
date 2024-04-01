@@ -1,5 +1,7 @@
 package pj.domain
 
+import scala.xml.Node
+
 final case class Teacher(
                           id: String,
                           name:String,
@@ -8,7 +10,7 @@ final case class Teacher(
 
 object Teacher:
   //Abaixo definimos as funções
-  def funcs() = ()
+  def funcs(): Nothing = ???
 
 
 

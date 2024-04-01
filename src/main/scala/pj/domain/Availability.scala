@@ -4,8 +4,8 @@ import pj.typeUtils.integer.NonNegativeInt
 
 
 final case class Availability(
-                               start: NonNegativeInt,
-                               end: NonNegativeInt,
+                               start: String,
+                               end: String,
                                preference: String
                              )
 
