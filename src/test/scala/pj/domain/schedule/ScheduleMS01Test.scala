@@ -2,20 +2,27 @@ package pj.domain.schedule
 
 import scala.language.adhocExtensions
 import org.scalatest.funsuite.AnyFunSuite
+import pj.domain.Teacher
 import pj.io.FileIO
 import pj.xml.XML
 
-// TODO: Create the code to test a functional domain model for schedule creation.
-//       create files in the files/test/ms01 folder
 class ScheduleMS01Test extends AnyFunSuite:
-  test("Just testing things"):
-    //loads the file
-    val result = FileIO.load("files/test/ms01/simple01.xml")
-    result match
-      //if successful
-      case Right(xml) =>
-        //load resources
-        val resources = XML.fromNode(xml, "vivas")
-        print(resources)
-      case Left(error) =>
-        println(s"Error loading XML file: $error")
+
+  test("Accessing all teachers more readably"):
+    val filePath = "files/assessment/ms01/valid_agenda_01_in.xml"
+    val teachersIdsResult = for {
+      xml <- FileIO.load(filePath)
+      resources <- XML.fromNode(xml, "resources")
+      teachers <- XML.fromNode(resources, "teachers")
+    } yield extractTeachersIds(teachers)
+
+    // Handle the result
+    teachersIdsResult match
+      case Right(ids) => ids.foreach(id => println(s"Teacher ID: $id"))
+      case Left(error) => println(s"Error: $error")
+
+  // Helper method to extract teacher IDs from the teachers node
+  def extractTeachersIds(teachers: scala.xml.Node): List[String] =
+    (teachers \ "teacher").flatMap { teacherNode =>
+      XML.fromAttribute(teacherNode, "id").toOption
+    }.toList
