@@ -1,7 +1,7 @@
 package pj.domain.schedule
 
 import org.scalatest.funsuite.AnyFunSuite
-import pj.domain.{Agenda, Availability, President, Teacher, Viva}
+import pj.domain.{Advisor, Agenda, Availability, DomainError, President, Supervisor, Teacher, Viva}
 import pj.io.FileIO
 import pj.xml.XML
 
@@ -31,29 +31,36 @@ class ExtractingVivaTest extends AnyFunSuite:
         advisor <- Some(extractAdvisor(node))
         supervisor <- Some(extractSupervisor(node))
 
-      } yield Viva(student, title, president,advisor,supervisor)
+      } yield Viva(student, title, president, advisor, supervisor)
     }
 
-  def extractPresident(presidentNode: Node): Seq[President] =
-    (presidentNode \ "president").flatMap { node =>
-      for {
-        id <- XML.fromAttribute(node, "id").toOption
-      } yield President(id)
-    }
+  def extractPresident(presidentNode: Node): President =
 
-  def extractAdvisor(presidentNode: Node): Seq[President] =
-    (presidentNode \ "advisor").flatMap { node =>
-      for {
-        id <- XML.fromAttribute(node, "id").toOption
-      } yield President(id)
-    }
+    val president = for {
+      presidentNode <- XML.fromNode(presidentNode, "president")
+      presidentId <- XML.fromAttribute(presidentNode, "id")
+    } yield presidentId
+    president match
+      case Right(ids) => President(ids)
 
-  def extractSupervisor(presidentNode: Node): Seq[President] =
-    (presidentNode \ "supervisor").flatMap { node =>
-      for {
-        id <- XML.fromAttribute(node, "id").toOption
-      } yield President(id)
-    }
+
+  def extractAdvisor(advisorNode: Node): Advisor =
+
+    val advisor = for {
+      advisorNode <- XML.fromNode(advisorNode, "advisor")
+      advisorId <- XML.fromAttribute(advisorNode, "id")
+    } yield advisorId
+    advisor match
+      case Right(id) => Advisor(id)
+
+  def extractSupervisor(supervisorNode: Node): Supervisor =
+
+    val supervisor = for {
+      supervisorNode <- XML.fromNode(supervisorNode, "president")
+      supervisorId <- XML.fromAttribute(supervisorNode, "id")
+    } yield supervisorId
+    supervisor match
+      case Right(id) => Supervisor(id)
 
 
 
