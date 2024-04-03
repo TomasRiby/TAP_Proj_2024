@@ -4,6 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.{Agenda, Availability, Teacher}
 import pj.io.FileIO
 import pj.xml.XML
+import pj.io.TeachersIO
 
 import scala.language.adhocExtensions
 import scala.xml.Node
@@ -42,7 +43,7 @@ class ExtractingTeacherTest extends AnyFunSuite:
 
 
   test("Test to see if it does the same thing"):
-    val ListTeachers = Agenda.loadTeachers("files/assessment/ms01/valid_agenda_05_in.xml")
+    val ListTeachers = TeachersIO.loadTeachers("files/assessment/ms01/valid_agenda_05_in.xml")
     println(ListTeachers)
 
 //    val trueValue = "List(Teacher(T001,Teacher 001,List(Availability(2024-05-30T13:30:00,2024-05-30T17:30:00,3), Availability(2024-05-30T09:00:00,2024-05-30T12:30:00,5))), Teacher(T002,Teacher 002,List(Availability(2024-05-30T14:30:00,2024-05-30T17:40:00,5), Availability(2024-05-30T10:30:00,2024-05-30T12:00:00,5))), Teacher(T003,Teacher 003,List(Availability(2024-05-30T08:30:00,2024-05-30T12:00:00,5))))"

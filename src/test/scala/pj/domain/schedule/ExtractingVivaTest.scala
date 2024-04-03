@@ -11,15 +11,15 @@ import scala.xml.Node
 class ExtractingVivaTest extends AnyFunSuite:
 
   test("Extracting Viva"):
-    val filePath = "files/assessment/ms01/valid_agenda_01_in.xml"
-    val vivaResult = for {
-      xml <- FileIO.load(filePath)
-      vivas <- XML.fromNode(xml, "vivas")
-    } yield extractVivas(vivas)
 
-    vivaResult match
-      case Right(ids) => ids.foreach(println(_))
-      case Left(error) => println(s"Error: $error")
+    def loadViva(xmlData: String): Seq[Viva] =
+      val vivaResult = for {
+        xml <- FileIO.load(xmlData)
+        vivas <- XML.fromNode(xml, "vivas")
+      } yield extractVivas(vivas)
+  
+      vivaResult match
+        case Right(ids) => ids
 
   // Helper method to extract teacher IDs from the teachers node
   private def extractVivas(vivasNode: Node): Seq[Viva] =

@@ -7,9 +7,8 @@ import scala.xml.{Elem, Node}
 
 final case class Agenda()
 
-object Agenda:
-  def loadTeachers(xmlData: String): Seq[Teacher] =
-    Teacher.loadTeachers(xmlData)
+object Agenda: 
+  ???
   
 
 
