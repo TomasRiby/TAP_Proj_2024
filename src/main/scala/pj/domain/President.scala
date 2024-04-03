@@ -1,8 +1,7 @@
 package pj.domain
 
 final case class President(
-                           id: String,
-                           name:String
+                           id: String
                           )
 
 object President:
