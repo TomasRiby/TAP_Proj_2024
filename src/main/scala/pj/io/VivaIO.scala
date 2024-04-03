@@ -1,6 +1,5 @@
 package pj.io
 
-import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.{Advisor, Agenda, Availability, DomainError, President, Supervisor, Teacher, Viva}
 import pj.io.FileIO
 import pj.xml.XML
