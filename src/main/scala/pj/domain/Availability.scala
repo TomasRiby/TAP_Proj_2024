@@ -11,6 +11,6 @@ final case class Availability(
                                preference: String
                              )
 
-
-
-
+object Availability:
+  def from(start: String, end: String, preference: String) =
+    new Availability(start: String, end: String, preference: String)

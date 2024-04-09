@@ -1,11 +1,9 @@
 package pj.domain
 
-final case class Advisor(
+final case class Advisor private(
                           id: String
                         )
 
 object Advisor:
-  //Abaixo definimos as funções
-  def funcs() = ()
-
-
+  def from(id: String) =
+    new Advisor(id: String)

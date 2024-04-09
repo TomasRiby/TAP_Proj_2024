@@ -1,9 +1,9 @@
 package pj.domain
 
-final case class President(
+final case class President private (
                            id: String
                           )
 
 object President:
-  //Abaixo definimos as funções
-  def funcs() = ()
+  def from(id: String) =
+    new President(id: String)

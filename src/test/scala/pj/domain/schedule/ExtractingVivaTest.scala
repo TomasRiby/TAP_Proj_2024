@@ -1,7 +1,7 @@
 package pj.domain.schedule
 
 import org.scalatest.funsuite.AnyFunSuite
-import pj.domain.{Advisor, Agenda, Availability, DomainError, President, Supervisor, Teacher, Viva}
+import pj.domain.{Advisor, Agenda, Availability, DomainError, President, Supervisor, Viva}
 import pj.io.FileIO
 import pj.xml.XML
 
@@ -41,7 +41,7 @@ class ExtractingVivaTest extends AnyFunSuite:
       presidentId <- XML.fromAttribute(presidentNode, "id")
     } yield presidentId
     president match
-      case Right(ids) => President(ids)
+      case Right(ids) => President.from(ids)
 
 
   def extractAdvisor(advisorNode: Node): Advisor =
@@ -51,7 +51,7 @@ class ExtractingVivaTest extends AnyFunSuite:
       advisorId <- XML.fromAttribute(advisorNode, "id")
     } yield advisorId
     advisor match
-      case Right(id) => Advisor(id)
+      case Right(id) => Advisor.from(id)
 
   def extractSupervisor(supervisorNode: Node): Supervisor =
 
@@ -60,7 +60,7 @@ class ExtractingVivaTest extends AnyFunSuite:
       supervisorId <- XML.fromAttribute(supervisorNode, "id")
     } yield supervisorId
     supervisor match
-      case Right(id) => Supervisor(id)
+      case Right(id) => Supervisor.from(id)
 
 
 

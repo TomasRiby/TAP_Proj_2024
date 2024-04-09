@@ -2,7 +2,7 @@ package pj.domain.schedule
 
 import scala.language.adhocExtensions
 import org.scalatest.funsuite.AnyFunSuite
-import pj.domain.{Agenda, Availability, Teacher}
+import pj.domain.{Agenda, Availability}
 import pj.io.FileIO
 import pj.xml.XML
 
