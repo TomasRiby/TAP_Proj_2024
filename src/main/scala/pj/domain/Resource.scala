@@ -1,14 +1,15 @@
 package pj.domain
 
 import pj.domain.Availability
+import pj.typeUtils.ResourceType
 
 final case class Resource private(
                                    id: String,
                                    name: String,
                                    availability: Seq[Availability],
-                                   resourceType: String)
+                                   resourceType: ResourceType)
 
 object Resource:
-  def from(id: String, name: String, availability: Seq[Availability], resourceType: String) =
-    new Resource(id: String, name: String, availability: Seq[Availability], resourceType: String)
+  def from(id: String, name: String, availability: Seq[Availability], resourceType: ResourceType) =
+    new Resource(id: String, name: String, availability: Seq[Availability], resourceType: ResourceType)
   
