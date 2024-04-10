@@ -42,5 +42,5 @@ class ExtractingResourcesTest extends AnyFunSuite:
 
 
   test("Test to see if it does the same thing"):
-    val ListTeachers = ResourceIO.loadTeachers("files/assessment/ms01/valid_agenda_01_in.xml")
+    val ListTeachers = ResourceIO.loadTeachers("files/test/ms01/invalid_studentDuplicate_in.xml")
     println(ListTeachers)
