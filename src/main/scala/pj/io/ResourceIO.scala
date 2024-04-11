@@ -1,59 +1,39 @@
 package pj.io
 
-import pj.domain.{Availability, Resource}
+import pj.domain.{Availability, External, Result, Teacher}
 import pj.xml.XML
 
 import scala.xml.Node
 
 object ResourceIO:
-  def loadTeachers(xmlData: String): Seq[Resource] =
-    val teachersResult = for {
+
+  def loadResources(xmlData: String): Result[Seq[External | Teacher]] =
+    for {
       xml <- FileIO.load(xmlData)
-      resources <- XML.fromNode(xml, "resources")
-      teachers <- XML.fromNode(resources, "teachers")
-    } yield extractTeachers(teachers)
+      resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
+      resultExternals <- XML.traverse(xml \\ "external", extractExternals)
+    } yield resultExternals ++ resultTeachers
 
-    // Handle the result
-    teachersResult match
-      case Right(teachers) => teachers
+  private def extractTeachers(teacherNode: Node): Result[Teacher] =
+    for
+      id <- XML.fromAttribute(teacherNode, "id")
+      name <- XML.fromAttribute(teacherNode, "name")
+      availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
+    yield Teacher.from(id, name, availability)
 
-  def loadExternals(xmlData: String): Seq[Resource] =
-    val externalsResult = for {
-      xml <- FileIO.load(xmlData)
-      resources <- XML.fromNode(xml, "resources")
-      externals <- XML.fromNode(resources, "externals")
-    } yield extractExternals(externals)
-
-    // Handle the result
-    externalsResult match
-      case Right(externals) => externals
+  private def extractExternals(externalNode: Node): Result[External] =
+    for
+      id <- XML.fromAttribute(externalNode, "id")
+      name <- XML.fromAttribute(externalNode, "name")
+      availability <- XML.traverse(externalNode \\ "availability", extractAvailabilities)
+    yield External.from(id, name, availability)
 
 
-  // Helper method to extract teacher IDs from the teachers node
-  private def extractTeachers(teachersNode: Node): Seq[Resource] =
-    (teachersNode \ "teacher").flatMap { node =>
-      for {
-        id <- XML.fromAttribute(node, "id").toOption
-        name <- XML.fromAttribute(node, "name").toOption
-        availability <- Some(extractAvailability(node))
-      } yield Resource.from(id, name, availability, "TEACHER")
-    }
-
-  private def extractExternals(externalNode: Node): Seq[Resource] =
-    (externalNode \ "external").flatMap { node =>
-      for {
-        id <- XML.fromAttribute(node, "id").toOption
-        name <- XML.fromAttribute(node, "name").toOption
-        availability <- Some(extractAvailability(node))
-      } yield Resource.from(id, name, availability, "EXTERNAL")
-    }
-
-  private def extractAvailability(availabilityNode: Node): Seq[Availability] =
-    (availabilityNode \ "availability").flatMap { node =>
-      for {
-        start <- XML.fromAttribute(node, "start").toOption
-        end <- XML.fromAttribute(node, "end").toOption
-        preference <- XML.fromAttribute(node, "preference").toOption
-      } yield Availability(start, end, preference)
-    }
+  private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
+    for
+      start <- XML.fromAttribute(availabilityNode, "start")
+      end <- XML.fromAttribute(availabilityNode, "end")
+      preference <- XML.fromAttribute(availabilityNode, "preference")
+    yield Availability.from(start, end, preference)
+  
   

@@ -1,59 +1,44 @@
 package pj.io
 
-import pj.domain.{Advisor, Agenda, Availability, DomainError, President, Supervisor, Viva}
-import pj.io.FileIO
+import pj.domain.*
 import pj.xml.XML
 
 import scala.language.adhocExtensions
 import scala.xml.Node
+
 object VivaIO:
 
-  def loadViva(xmlData: String): Seq[Viva] =
-        val vivaResult = for {
-          xml <- FileIO.load(xmlData)
-          vivas <- XML.fromNode(xml, "vivas")
-        } yield extractVivas(vivas)
+  def loadViva(xmlData: String): Result[Seq[Viva]] =
+    for {
+      xml <- FileIO.load(xmlData)
+      resultVivas <- XML.traverse(xml \\ "viva", extractViva)
+    } yield resultVivas
 
-        vivaResult match
-          case Right(ids) => ids
+  private def extractViva(vivaNode: Node): Result[Viva] =
+    for {
+      student <- XML.fromAttribute(vivaNode, "student")
+      title <- XML.fromAttribute(vivaNode, "title")
+      president <- extractPresident(vivaNode)
+      advisor <- extractAdvisor(vivaNode)
+      supervisor <- extractSupervisor(vivaNode)
 
-    // Helper method to extract teacher IDs from the teachers node
-  private def extractVivas(vivasNode: Node): Seq[Viva] =
-      (vivasNode \ "viva").flatMap { node =>
-        for {
-          student <- XML.fromAttribute(node, "student").toOption
-          title <- XML.fromAttribute(node, "title").toOption
-          president <- Some(extractPresident(node))
-          advisor <- Some(extractAdvisor(node))
-          supervisor <- Some(extractSupervisor(node))
+    } yield Viva(student, title, president, advisor, supervisor)
 
-        } yield Viva(student, title, president, advisor, supervisor)
-      }
-
-  def extractPresident(presidentNode: Node): President =
-
-      val president = for {
-        presidentNode <- XML.fromNode(presidentNode, "president")
-        presidentId <- XML.fromAttribute(presidentNode, "id")
-      } yield presidentId
-      president match
-        case Right(ids) => President.from(ids)
+  private def extractPresident(node: Node): Result[President] =
+    for {
+      president <- XML.fromNode(node, "president")
+      id <- XML.fromAttribute(president, "id")
+    } yield President.from(id)
 
 
-  def extractAdvisor(advisorNode: Node): Advisor =
+  private def extractAdvisor(node: Node): Result[Advisor] =
+    for {
+      advisor <- XML.fromNode(node, "advisor")
+      id <- XML.fromAttribute(advisor, "id")
+    } yield Advisor.from(id)
 
-      val advisor = for {
-        advisorNode <- XML.fromNode(advisorNode, "advisor")
-        advisorId <- XML.fromAttribute(advisorNode, "id")
-      } yield advisorId
-      advisor match
-        case Right(id) => Advisor.from(id)
-
-  def extractSupervisor(supervisorNode: Node): Supervisor =
-
-      val supervisor = for {
-        supervisorNode <- XML.fromNode(supervisorNode, "president")
-        supervisorId <- XML.fromAttribute(supervisorNode, "id")
-      } yield supervisorId
-      supervisor match
-        case Right(id) => Supervisor.from(id)
+  private def extractSupervisor(node: Node): Result[Supervisor] =
+    for {
+      supervisor <- XML.fromNode(node, "supervisor")
+      id <- XML.fromAttribute(supervisor, "id")
+    } yield Supervisor.from(id)
