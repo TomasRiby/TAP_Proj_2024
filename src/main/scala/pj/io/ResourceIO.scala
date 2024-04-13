@@ -1,6 +1,7 @@
 package pj.io
 
 import pj.domain.{Availability, External, Result, Teacher}
+import pj.typeUtils.opaqueTypes.opaqueTypes.*
 import pj.xml.XML
 
 import scala.xml.Node
@@ -16,24 +17,31 @@ object ResourceIO:
 
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for
-      id <- XML.fromAttribute(teacherNode, "id")
-      name <- XML.fromAttribute(teacherNode, "name")
+      idXml <- XML.fromAttribute(teacherNode, "id")
+      id <- TeacherId.createTeacherId(idXml)
+      nameXml <- XML.fromAttribute(teacherNode, "name")
+      name <- Name.createName(nameXml)
       availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
     yield Teacher.from(id, name, availability)
 
   private def extractExternals(externalNode: Node): Result[External] =
     for
-      id <- XML.fromAttribute(externalNode, "id")
-      name <- XML.fromAttribute(externalNode, "name")
+      xmlId <- XML.fromAttribute(externalNode, "id")
+      id <- ExternalId.createExternalId(xmlId)
+      nameXml <- XML.fromAttribute(externalNode, "name")
+      name <- Name.createName(nameXml)
       availability <- XML.traverse(externalNode \\ "availability", extractAvailabilities)
     yield External.from(id, name, availability)
 
 
   private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
     for
-      start <- XML.fromAttribute(availabilityNode, "start")
-      end <- XML.fromAttribute(availabilityNode, "end")
-      preference <- XML.fromAttribute(availabilityNode, "preference")
+      startXML <- XML.fromAttribute(availabilityNode, "start")
+      start <- Time.createTime(startXML)
+      endXML<- XML.fromAttribute(availabilityNode, "end")
+      end <- Time.createTime(endXML)
+      preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
+      preference <- Preference.createPreference(preferenceXML)
     yield Availability.from(start, end, preference)
   
   

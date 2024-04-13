@@ -6,6 +6,7 @@ enum DomainError:
 
   //Standart Error
   case Error(error: String)
+  case WrongFormat(error: String)
 
   //XML Errors
   case IOFileProblem(error: String)

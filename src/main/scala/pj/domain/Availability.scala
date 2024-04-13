@@ -1,16 +1,17 @@
 package pj.domain
 
+import pj.typeUtils.opaqueTypes.opaqueTypes.{Time, Preference}
 import pj.xml.XML
 
 import scala.xml.Node
 
 
 final case class Availability(
-                               start: String,
-                               end: String,
-                               preference: String
+                               start: Time,
+                               end: Time,
+                               preference: Preference
                              )
 
 object Availability:
-  def from(start: String, end: String, preference: String) =
-    new Availability(start: String, end: String, preference: String)
+  def from(start: Time, end: Time, preference: Preference) =
+    new Availability(start: Time, end: Time, preference: Preference)
