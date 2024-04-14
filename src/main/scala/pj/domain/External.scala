@@ -1,7 +1,6 @@
 package pj.domain
 
 import pj.domain.Availability
-import pj.typeUtils.ResourceType
 import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
 
 final case class External(

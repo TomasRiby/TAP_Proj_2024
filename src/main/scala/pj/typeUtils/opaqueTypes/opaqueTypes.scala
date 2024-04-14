@@ -11,22 +11,26 @@ object opaqueTypes:
   opaque type Time = String
   opaque type Preference = String
 
-  object TeacherId:
+  object ID:
     private val teacherIdPattern: Regex = "^T[0-9]{3}$".r
+    private val externalIdPattern: Regex = "^E[0-9]{3}$".r
+
+    def createRegularId(id: String): Result[ID] =
+      id match
+        case teacherIdPattern() => Right(id)
+        case externalIdPattern() => Right(id)
+        case _ => Left(DomainError.WrongFormat(s"ID '$id' should is in the Wrong"))
 
     def createTeacherId(id: String): Result[ID] =
       id match
         case teacherIdPattern() => Right(id)
-        case _ => Left(DomainError.WrongFormat(s"Teacher´s ID '$id' is in the wrong format. It should be in the *T001* format"))
-
-  object ExternalId:
-    private val externalIdPattern: Regex = "^E[0-9]{3}$".r
+        case _ => Left(DomainError.WrongFormat(s"Teacher´s ID '$id' should be in the *T001* format"))
 
     def createExternalId(id: String): Result[ID] =
       id match
         case externalIdPattern() => Right(id)
-        case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' is in the wrong format. It should be in the *E001* format"))
-
+        case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' should be in the *E001* format"))
+  
 
   object Name:
     private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
@@ -51,4 +55,4 @@ object opaqueTypes:
     def createPreference(preference: String): Result[Preference] =
       preference match
         case preferencePattern() => Right(preference)
-        case _ => Left(DomainError.WrongFormat(s"Preference '$preference' is in the wrong format."))
+        case _ => Left(DomainError.WrongFormat(s"Preference '$preference' should be a number between 1 and 5."))

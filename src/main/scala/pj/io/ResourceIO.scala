@@ -18,16 +18,17 @@ object ResourceIO:
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for
       idXml <- XML.fromAttribute(teacherNode, "id")
-      id <- TeacherId.createTeacherId(idXml)
+      id <- ID.createTeacherId(idXml)
       nameXml <- XML.fromAttribute(teacherNode, "name")
       name <- Name.createName(nameXml)
       availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
-    yield Teacher.from(id, name, availability)
+      teacher <- Teacher.from(id, name, availability, List(""))
+    yield teacher
 
   private def extractExternals(externalNode: Node): Result[External] =
     for
       xmlId <- XML.fromAttribute(externalNode, "id")
-      id <- ExternalId.createExternalId(xmlId)
+      id <- ID.createExternalId(xmlId)
       nameXml <- XML.fromAttribute(externalNode, "name")
       name <- Name.createName(nameXml)
       availability <- XML.traverse(externalNode \\ "availability", extractAvailabilities)

@@ -1,7 +1,9 @@
 package pj.domain
 
+import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+
 final case class President private(
-                                    id: String
+                                    id: ID
                                   )
 
 object President:
@@ -13,6 +15,6 @@ object President:
       case ids => Left(s"Encontrados IDs de presidentes duplicados: ${ids.mkString(", ")}")
 
 
-  def from(id: String) =
+  def from(id: ID): President =
     new President(id)
-    
+

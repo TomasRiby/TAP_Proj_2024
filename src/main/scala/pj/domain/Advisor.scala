@@ -1,9 +1,11 @@
 package pj.domain
 
+import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+
 final case class Advisor private(
-                          id: String
+                          id: ID
                         )
 
 object Advisor:
-  def from(id: String) =
-    new Advisor(id: String)
+  def from(id: ID) =
+    new Advisor(id: ID)

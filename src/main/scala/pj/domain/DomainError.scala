@@ -11,6 +11,6 @@ enum DomainError:
   //XML Errors
   case IOFileProblem(error: String)
   case XMLError(error: String)
-
+  case DuplicateError(error: String)
   case NonNegativeIntError(error: String)
   case PositiveIntError(error: String)

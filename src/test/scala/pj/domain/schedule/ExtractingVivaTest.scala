@@ -8,7 +8,7 @@ import scala.language.adhocExtensions
 class ExtractingVivaTest extends AnyFunSuite:
 
   test("Extracting Viva"):
-    println(VivaIO.loadViva("files/assessment/ms01/valid_agenda_06_in.xml"))
+    println(VivaIO.loadViva("files/assessment/ms01/valid_agenda_01_in.xml"))
 
 
 

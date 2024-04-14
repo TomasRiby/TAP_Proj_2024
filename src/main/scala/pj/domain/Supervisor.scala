@@ -1,9 +1,11 @@
 package pj.domain
 
+import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+
 final case class Supervisor private(
-                            id: String,
+                            id: ID,
                            )
 
 object Supervisor:
-  def from(id: String) =
-    new Supervisor(id: String)
+  def from(id: ID) =
+    new Supervisor(id: ID)
