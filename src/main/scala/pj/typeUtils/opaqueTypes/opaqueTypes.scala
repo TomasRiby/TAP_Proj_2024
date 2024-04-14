@@ -40,7 +40,7 @@ object opaqueTypes:
         case validNamePattern() => Right(name)
         case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
 
-
+//OffsetDateTime and LocalDateTime
   object Time:
     private val isoDateTimePattern: Regex = """^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$""".r
 

@@ -4,6 +4,7 @@ import pj.domain.{Availability, External, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.*
 import pj.xml.XML
 
+import java.time.LocalDateTime
 import scala.xml.Node
 
 object ResourceIO:
@@ -37,10 +38,8 @@ object ResourceIO:
 
   private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
     for
-      startXML <- XML.fromAttribute(availabilityNode, "start")
-      start <- Time.createTime(startXML)
-      endXML<- XML.fromAttribute(availabilityNode, "end")
-      end <- Time.createTime(endXML)
+      start <- XML.fromAttribute(availabilityNode, "start").map(LocalDateTime.parse)
+      end <- XML.fromAttribute(availabilityNode, "end").map(LocalDateTime.parse)
       preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
       preference <- Preference.createPreference(preferenceXML)
     yield Availability.from(start, end, preference)
