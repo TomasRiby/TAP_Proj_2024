@@ -3,12 +3,15 @@ package pj.typeUtils.opaqueTypes
 import pj.domain.{DomainError, Result}
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import scala.util.Try
 import scala.util.matching.Regex
 
 object opaqueTypes:
   opaque type ID = String
   opaque type Name = String
-  opaque type Time = String
+  opaque type Time = LocalDateTime
   opaque type Preference = String
 
   object ID:
@@ -30,7 +33,7 @@ object opaqueTypes:
       id match
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' should be in the *E001* format"))
-  
+
 
   object Name:
     private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
@@ -40,14 +43,14 @@ object opaqueTypes:
         case validNamePattern() => Right(name)
         case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
 
-//OffsetDateTime and LocalDateTime
+  //OffsetDateTime and LocalDateTime
   object Time:
-    private val isoDateTimePattern: Regex = """^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$""".r
 
     def createTime(time: String): Result[Time] =
-      time match
-        case isoDateTimePattern() => Right(time)
-        case _ => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format."))
+      val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+      Try(LocalDateTime.parse(time, formatter)) match
+        case scala.util.Success(parsedTime) => Right(parsedTime)
+        case scala.util.Failure(_) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
 
   object Preference:
     private val preferencePattern: Regex = "^[1-5]$".r

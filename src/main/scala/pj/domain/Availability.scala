@@ -9,11 +9,11 @@ import scala.xml.Node
 
 
 final case class Availability(
-                               start: LocalDateTime,
-                               end: LocalDateTime,
+                               start: Time,
+                               end: Time,
                                preference: Preference
                              )
 
 object Availability:
-  def from(start: LocalDateTime, end: LocalDateTime, preference: Preference) =
-    new Availability(start: LocalDateTime, end: LocalDateTime, preference: Preference)
+  def from(start: Time, end: Time, preference: Preference) =
+    new Availability(start: Time, end: Time, preference: Preference)

@@ -14,7 +14,7 @@ object ResourceIO:
       xml <- FileIO.load(xmlData)
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
       resultExternals <- XML.traverse(xml \\ "external", extractExternals)
-    } yield resultExternals ++ resultTeachers
+    } yield resultTeachers ++ resultExternals
 
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for
@@ -38,8 +38,10 @@ object ResourceIO:
 
   private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
     for
-      start <- XML.fromAttribute(availabilityNode, "start").map(LocalDateTime.parse)
-      end <- XML.fromAttribute(availabilityNode, "end").map(LocalDateTime.parse)
+      startXML <- XML.fromAttribute(availabilityNode, "start")
+      start <- Time.createTime(startXML)
+      endXML <- XML.fromAttribute(availabilityNode, "end")
+      end <- Time.createTime(endXML)
       preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
       preference <- Preference.createPreference(preferenceXML)
     yield Availability.from(start, end, preference)
