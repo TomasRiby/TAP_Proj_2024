@@ -10,8 +10,6 @@ final case class Teacher private(
 
 
 object Teacher:
-  def from(id: ID, name: Name, availability: Seq[Availability], lista: List[String]):Result[Teacher] =
-    if !lista.contains(id) then
-      Right(new Teacher(id: ID, name: Name, availability: Seq[Availability]))
-    else Left(DomainError.DuplicateError("There are two Teachers with the same id"))
+  def from(id: ID, name: Name, availability: Seq[Availability]):Teacher =
+    new Teacher(id: ID, name: Name, availability: Seq[Availability])
 

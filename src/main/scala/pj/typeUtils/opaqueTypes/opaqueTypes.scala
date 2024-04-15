@@ -1,10 +1,11 @@
 package pj.typeUtils.opaqueTypes
 
-import pj.domain.{DomainError, Result}
+import pj.domain.{DomainError, External, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.::
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -23,6 +24,17 @@ object opaqueTypes:
         case teacherIdPattern() => Right(id)
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"ID '$id' should is in the Wrong"))
+
+    def verifyId(resourceList: List[Teacher | External]): Result[Boolean] =
+      val idList = resourceList.map:
+        case teacher: Teacher => teacher.id
+        case external: External => external.id
+      val idSet = idList.toSet
+      if idList.size != idSet.size then
+        Left(DomainError.DuplicateError(s"Duplicate IDs found in the $idList"))
+      else
+        Right(true)
+
 
     def createTeacherId(id: String): Result[ID] =
       id match
@@ -58,4 +70,4 @@ object opaqueTypes:
     def createPreference(preference: String): Result[Preference] =
       preference match
         case preferencePattern() => Right(preference)
-        case _ => Left(DomainError.WrongFormat(s"Preference '$preference' should be a number between 1 and 5."))
+        case _ => Left(DomainError.WrongFormat(s"InvalidPreference($preference)"))

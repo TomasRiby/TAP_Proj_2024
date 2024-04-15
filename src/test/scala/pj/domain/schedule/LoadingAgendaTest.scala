@@ -24,12 +24,15 @@ class LoadingAgendaTest extends AnyFunSuite:
     files.foreach(files => println(AgendaIO.loadAgenda(files)))
 
   test("Test a single test file from the assessment directory"):
-    val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_02_in.xml"
+    val dir = "files/test/ms01/"
+    val fileName = "invalid_teacherDuplicate_in.xml"
     val filePath = dir + fileName
     val result = AgendaIO.loadAgenda(filePath)
 
-    result match
-      case Right(agenda) => println(agenda) 
-      case Left(error) => println(s"Erro ao carregar a agenda: $error")
+
+    println(result)
+
+//    result match
+//      case Right(agenda) => println(agenda)
+//      case Left(error) => println(s"Erro ao carregar a agenda: $error")
 

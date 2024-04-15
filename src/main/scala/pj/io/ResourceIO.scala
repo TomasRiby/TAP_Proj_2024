@@ -1,6 +1,6 @@
 package pj.io
 
-import pj.domain.{Availability, External, Result, Teacher}
+import pj.domain.{Availability, DomainError, External, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.*
 import pj.xml.XML
 
@@ -13,7 +13,9 @@ object ResourceIO:
     for {
       xml <- FileIO.load(xmlData)
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
+      _ <- ID.verifyId(resultTeachers)
       resultExternals <- XML.traverse(xml \\ "external", extractExternals)
+      _ <- ID.verifyId(resultExternals)
     } yield resultTeachers ++ resultExternals
 
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
@@ -23,8 +25,7 @@ object ResourceIO:
       nameXml <- XML.fromAttribute(teacherNode, "name")
       name <- Name.createName(nameXml)
       availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
-      teacher <- Teacher.from(id, name, availability, List(""))
-    yield teacher
+    yield Teacher.from(id, name, availability)
 
   private def extractExternals(externalNode: Node): Result[External] =
     for
