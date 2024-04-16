@@ -24,7 +24,7 @@ object opaqueTypes:
       id match
         case teacherIdPattern() => Right(id)
         case externalIdPattern() => Right(id)
-        case _ => Left(DomainError.WrongFormat(s"ID '$id' should is in the Wrong"))
+        case _ => Left(DomainError.WrongFormat(s"ID '$id' is in incorrect format"))
 
     def verifyId(resourceList: List[Teacher | External]): Result[Boolean] =
       val idList = resourceList.map:
