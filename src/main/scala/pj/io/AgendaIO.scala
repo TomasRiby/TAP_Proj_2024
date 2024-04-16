@@ -1,13 +1,16 @@
 package pj.io
 
-import pj.domain.{External, Result, Teacher, Viva}
+import pj.domain.{Agenda, External, Result, Teacher, Viva}
+import pj.xml.XML
 
 
 object AgendaIO:
-  def loadAgenda(xmlPath: String): Result[Seq[Teacher | External | Viva]] =
+  def loadAgenda(xmlPath: String): Result[Agenda] =
     println("------------------------------------------------------------------------")
     println(xmlPath)
     for {
       viva <- VivaIO.loadViva(xmlPath)
       resources <- ResourceIO.loadResources(xmlPath)
-    } yield viva ++ resources
+      loadXml <- FileIO.load(xmlPath)
+      durationXml <- XML.fromAttribute(loadXml, "duration")
+    } yield Agenda.from(viva,resources, durationXml)

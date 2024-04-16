@@ -1,6 +1,6 @@
 package pj.io
 
-import pj.domain.{Availability, DomainError, External, Result, Teacher}
+import pj.domain.{Availability, DomainError, External, Resource, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.*
 import pj.xml.XML
 
@@ -9,14 +9,14 @@ import scala.xml.Node
 
 object ResourceIO:
 
-  def loadResources(xmlData: String): Result[Seq[External | Teacher]] =
+  def loadResources(xmlData: String): Result[Resource] =
     for {
       xml <- FileIO.load(xmlData)
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
       _ <- ID.verifyId(resultTeachers)
       resultExternals <- XML.traverse(xml \\ "external", extractExternals)
       _ <- ID.verifyId(resultExternals)
-    } yield resultTeachers ++ resultExternals
+    } yield Resource.from(resultTeachers,resultExternals)
 
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for

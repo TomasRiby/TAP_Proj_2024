@@ -1,5 +1,6 @@
 package pj.typeUtils.opaqueTypes
 
+import pj.domain.DomainError.WrongFormat
 import pj.domain.{DomainError, External, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time
 
@@ -57,12 +58,18 @@ object opaqueTypes:
 
   //OffsetDateTime and LocalDateTime
   object Time:
+    private val timePattern = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    private val durationPattern: Regex = """^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$""".r
 
     def createTime(time: String): Result[Time] =
-      val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-      Try(LocalDateTime.parse(time, formatter)) match
+      Try(LocalDateTime.parse(time, timePattern)) match
         case scala.util.Success(parsedTime) => Right(parsedTime)
         case scala.util.Failure(_) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
+
+    def createDuration(duration: String): Result[Time] =
+      duration match
+        case durationPattern() => Right(LocalDateTime.parse(duration))
+        case _ => Left(DomainError.WrongFormat(s"Agenda Duration $duration is in the wrong format"))
 
   object Preference:
     private val preferencePattern: Regex = "^[1-5]$".r
