@@ -1,6 +1,7 @@
 package pj.domain
 
 import pj.domain.Availability
+import pj.io.ResourceIO
 import pj.typeUtils.opaqueTypes.opaqueTypes.*
 
 final case class Teacher private(
@@ -12,4 +13,4 @@ final case class Teacher private(
 object Teacher:
   def from(id: ID, name: Name, availability: Seq[Availability]):Teacher =
     new Teacher(id: ID, name: Name, availability: Seq[Availability])
-
+    

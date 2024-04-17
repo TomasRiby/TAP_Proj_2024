@@ -17,7 +17,11 @@ class MakingTheAlgorithm extends AnyFunSuite:
     val dir = "files/assessment/ms01/"
     val fileName = "valid_agenda_03_in.xml"
     val filePath = dir + fileName
-    val result = AgendaIO.loadAgenda(filePath)
+    val result = for {
+      fileLoaded <- FileIO.load(filePath)
+      result <- AgendaIO.loadAgenda(fileLoaded)
+    } yield result
+
 
     case class RoleAvailabilities(id: Any, availabilities: List[(ID, List[Availability])])
 
@@ -90,25 +94,29 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
       def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability]): Option[Availability] =
         // Function to find overlapping availability between two lists
-        def overlap(a1: List[Availability], a2: List[Availability]): List[Availability] =
+        def overlapThree(a1: List[Availability], a2: List[Availability], a3: List[Availability]): List[Availability] =
           for {
             avail1 <- a1
             avail2 <- a2
-            start = if (avail1.start.isAfter(avail2.start)) avail1.start else avail2.start
-            end = if (avail1.end.isBefore(avail2.end)) avail1.end else avail2.end
+            avail3 <- a3
+            start = List(avail1.start, avail2.start, avail3.start).foldLeft(avail1.start)((acc, x) => if (x.isAfter(acc)) x else acc)
+            end = List(avail1.end, avail2.end, avail3.end).foldLeft(avail1.end)((acc, x) => if (x.isBefore(acc)) x else acc)
             if start.isBefore(end)
-          } yield Availability(start, end, Preference.add(avail1.preference, avail2.preference))
-
-        // Find overlaps between president and advisor
-        val presAdvOverlap = overlap(presAvails, advAvails)
+          } yield Availability(start, end, Preference.add(Preference.add(avail1.preference, avail2.preference), avail3.preference))
 
         // Find overlaps between the result and supervisor
-        val totalOverlap = overlap(presAdvOverlap, supAvails)
+        val totalOverlap = overlapThree(presAvails, advAvails, supAvails)
 
         // Return the overlap with the highest preference sum
 
-        val result = totalOverlap.reduceOption((a, b) => if (Preference.maxPreference(a.preference, b.preference) == a.preference) a else b)
+        val result = totalOverlap.foldLeft(None: Option[Availability]) { (acc, avail) =>
+          acc match
+            case Some(a) if Preference.maxPreference(a.preference, avail.preference) == a.preference => acc
+            case _ => Some(avail)
+        }
+        println("-----------------------------------------------------")
         println(result)
+        println("-----------------------------------------------------")
         result
 
 
