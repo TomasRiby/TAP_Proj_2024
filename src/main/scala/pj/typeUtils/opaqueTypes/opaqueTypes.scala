@@ -85,5 +85,7 @@ object opaqueTypes:
         case preferencePattern() => Right(preference)
         case _ => Left(DomainError.WrongFormat(s"InvalidPreference($preference)"))
 
-    def minPreference(p1: Preference, p2: Preference): Preference =
-      if (p1 < p2) p1 else p2
+    def maxPreference(p1: Preference, p2: Preference): Preference =
+      if (p1 > p2) p1 else p2
+    def add(first:Preference, second: Preference):Preference=
+      first + second

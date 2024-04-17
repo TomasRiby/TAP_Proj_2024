@@ -15,7 +15,7 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
   test("Test a single test file from the assessment directory"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_01_in.xml"
+    val fileName = "valid_agenda_03_in.xml"
     val filePath = dir + fileName
     val result = AgendaIO.loadAgenda(filePath)
 
@@ -80,52 +80,40 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
 
       def ExtractAvail(scheduleViva: ScheduleViva): Any =
-        val list = scheduleViva.president.availabilities.flatMap(_._2) ++
-          scheduleViva.advisor.availabilities.flatMap(_._2) ++
-          scheduleViva.supervisor.availabilities.flatMap(_._2)
-        findCommonAvailability(list)
+        val presidentAval = scheduleViva.president.availabilities.flatMap(_._2)
+        println(presidentAval)
+        val advisorAval = scheduleViva.advisor.availabilities.flatMap(_._2)
+        println(advisorAval)
+        val supervisorAval = scheduleViva.supervisor.availabilities.flatMap(_._2)
+        println(supervisorAval)
+        findBestCombinedAvailability(presidentAval, advisorAval, supervisorAval)
 
-      //      def findConsensusAvailability(availabilities: List[Availability]): Option[Availability] =
-      ////        if (availabilities.isEmpty) return None
-      //
-      //        // Step 1: Sort by start time
-      //        val sortedAvailabilities = availabilities.sortBy(_.start)
-      //
-      //        // Step 2: Find overlapping intervals with minimum preference
-      //        sortedAvailabilities.reduceOption { (acc, next) =>
-      //          if (acc.end.isAfter(next.start)) // There is an overlap
-      //            val avail = Availability(
-      //              start = if (acc.start.isAfter(next.start)) acc.start else next.start, // Maximum of start times
-      //              end = if (acc.end.isBefore(next.end)) acc.end else next.end, // Minimum of end times
-      //              preference = Preference.minPreference(acc.preference, next.preference) // Minimum preference
-      //            )
-      //            println(avail)
-      //            avail
-      //          else
-      //            acc // No overlap, return the previous accumulation
-      //        }
-      def findCommonAvailability(availabilities: List[Availability]): Option[Availability] =
-        if (availabilities.isEmpty) None
-        else
-          // Step 1: Sort by start time
-          val sortedAvailabilities = availabilities.sortBy(_.start)
+      def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability]): Option[Availability] =
+        // Function to find overlapping availability between two lists
+        def overlap(a1: List[Availability], a2: List[Availability]): List[Availability] =
+          for {
+            avail1 <- a1
+            avail2 <- a2
+            start = if (avail1.start.isAfter(avail2.start)) avail1.start else avail2.start
+            end = if (avail1.end.isBefore(avail2.end)) avail1.end else avail2.end
+            if start.isBefore(end)
+          } yield Availability(start, end, Preference.add(avail1.preference, avail2.preference))
 
-          // Step 2: Use foldLeft to find overlapping intervals with the minimum preference
-          sortedAvailabilities.drop(1).foldLeft(sortedAvailabilities.headOption) { (currentOverlap, next) =>
-            currentOverlap.flatMap { acc =>
-              if (acc.end.isAfter(next.start)) // There is an overlap
-                val newStart = if (acc.start.isAfter(next.start)) acc.start else next.start
-                val newEnd = if (acc.end.isBefore(next.end)) acc.end else next.end
+        // Find overlaps between president and advisor
+        val presAdvOverlap = overlap(presAvails, advAvails)
 
-                if (newStart.isBefore(newEnd)) // Ensuring the new interval is valid
-                  val minPref = Preference.minPreference(acc.preference, next.preference)
-                  val result = Some(Availability(newStart, newEnd, minPref)) // Return new overlapping availability
-                  println(result)
-                  result
-                else None // End time before start time, no valid interval
-              else None // No overlap with the current availability
-            }
-          }
+        // Find overlaps between the result and supervisor
+        val totalOverlap = overlap(presAdvOverlap, supAvails)
+
+        // Return the overlap with the highest preference sum
+
+        val result = totalOverlap.reduceOption((a, b) => if (Preference.maxPreference(a.preference, b.preference) == a.preference) a else b)
+        println(result)
+        result
+
+
+
+
 
 
 
