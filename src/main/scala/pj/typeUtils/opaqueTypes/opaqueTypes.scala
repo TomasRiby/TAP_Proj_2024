@@ -2,11 +2,9 @@ package pj.typeUtils.opaqueTypes
 
 import pj.domain.DomainError.WrongFormat
 import pj.domain.{DomainError, External, Result, Teacher}
-import pj.typeUtils.opaqueTypes.opaqueTypes.Time
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.::
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -46,7 +44,7 @@ object opaqueTypes:
       id match
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' should be in the *E001* format"))
-
+  
 
   object Name:
     private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
@@ -56,7 +54,7 @@ object opaqueTypes:
         case validNamePattern() => Right(name)
         case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
 
-  //OffsetDateTime and LocalDateTime
+
   object Time:
     private val timePattern = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     private val durationPattern: Regex = """^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$""".r
