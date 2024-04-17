@@ -1,9 +1,9 @@
 package pj.domain.schedule
 
 import org.scalatest.funsuite.AnyFunSuite
-import pj.domain.{Agenda, Availability, Resource, Viva}
+import pj.domain.{Agenda, Availability, DomainError, Resource, Result, Viva}
 import pj.io.{AgendaIO, FileIO, ResourceIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Preference}
 import pj.xml.XML
 
 import java.io.File
@@ -18,6 +18,10 @@ class MakingTheAlgorithm extends AnyFunSuite:
     val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = AgendaIO.loadAgenda(filePath)
+
+    case class RoleAvailabilities(id: Any, availabilities: List[(ID, List[Availability])])
+
+    case class ScheduleViva(president: RoleAvailabilities, advisor: RoleAvailabilities, supervisor: RoleAvailabilities)
 
 
     result match
@@ -54,14 +58,13 @@ class MakingTheAlgorithm extends AnyFunSuite:
         }
         .toList
 
-      val groupedAvailabilitiesList = groupedTeacherList++groupedExternalList
+      val groupedAvailabilitiesList = groupedTeacherList ++ groupedExternalList
 
 
       // Example print to verify the structure
       val vivas = agenda.vivas
-      createSchedule(vivas, groupedAvailabilitiesList).foreach(println)
 
-      def createSchedule(vivas: Seq[Viva], teacherAvai: List[(ID, List[Availability])]): Seq[Any] =
+      def CreateSchedule(vivas: Seq[Viva], teacherAvai: List[(ID, List[Availability])]): Seq[ScheduleViva] =
         vivas.map { viva =>
           ScheduleViva(
             president = RoleAvailabilities(viva.president, teacherAvai.filter(_._1 == viva.president.id)),
@@ -70,9 +73,62 @@ class MakingTheAlgorithm extends AnyFunSuite:
           )
         }
 
-      case class RoleAvailabilities(id: Any, availabilities: List[(ID, List[Availability])])
+      val scheduleVivaList = CreateSchedule(vivas, groupedAvailabilitiesList)
 
-      case class ScheduleViva(president: RoleAvailabilities, advisor: RoleAvailabilities, supervisor: RoleAvailabilities)
+
+      scheduleVivaList.foreach(ExtractAvail)
+
+
+      def ExtractAvail(scheduleViva: ScheduleViva): Any =
+        val list = scheduleViva.president.availabilities.flatMap(_._2) ++
+          scheduleViva.advisor.availabilities.flatMap(_._2) ++
+          scheduleViva.supervisor.availabilities.flatMap(_._2)
+        findCommonAvailability(list)
+
+      //      def findConsensusAvailability(availabilities: List[Availability]): Option[Availability] =
+      ////        if (availabilities.isEmpty) return None
+      //
+      //        // Step 1: Sort by start time
+      //        val sortedAvailabilities = availabilities.sortBy(_.start)
+      //
+      //        // Step 2: Find overlapping intervals with minimum preference
+      //        sortedAvailabilities.reduceOption { (acc, next) =>
+      //          if (acc.end.isAfter(next.start)) // There is an overlap
+      //            val avail = Availability(
+      //              start = if (acc.start.isAfter(next.start)) acc.start else next.start, // Maximum of start times
+      //              end = if (acc.end.isBefore(next.end)) acc.end else next.end, // Minimum of end times
+      //              preference = Preference.minPreference(acc.preference, next.preference) // Minimum preference
+      //            )
+      //            println(avail)
+      //            avail
+      //          else
+      //            acc // No overlap, return the previous accumulation
+      //        }
+      def findCommonAvailability(availabilities: List[Availability]): Option[Availability] =
+        if (availabilities.isEmpty) None
+        else
+          // Step 1: Sort by start time
+          val sortedAvailabilities = availabilities.sortBy(_.start)
+
+          // Step 2: Use foldLeft to find overlapping intervals with the minimum preference
+          sortedAvailabilities.drop(1).foldLeft(sortedAvailabilities.headOption) { (currentOverlap, next) =>
+            currentOverlap.flatMap { acc =>
+              if (acc.end.isAfter(next.start)) // There is an overlap
+                val newStart = if (acc.start.isAfter(next.start)) acc.start else next.start
+                val newEnd = if (acc.end.isBefore(next.end)) acc.end else next.end
+
+                if (newStart.isBefore(newEnd)) // Ensuring the new interval is valid
+                  val minPref = Preference.minPreference(acc.preference, next.preference)
+                  val result = Some(Availability(newStart, newEnd, minPref)) // Return new overlapping availability
+                  println(result)
+                  result
+                else None // End time before start time, no valid interval
+              else None // No overlap with the current availability
+            }
+          }
+
+
+
 
 
 

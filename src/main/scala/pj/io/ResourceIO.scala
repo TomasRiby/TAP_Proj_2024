@@ -44,7 +44,7 @@ object ResourceIO:
       endXML <- XML.fromAttribute(availabilityNode, "end")
       end <- Time.createTime(endXML)
       preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
-      preference <- Preference.createPreference(preferenceXML)
+      preference <- Preference.createPreference(preferenceXML.toInt)
     yield Availability.from(start, end, preference)
   
   

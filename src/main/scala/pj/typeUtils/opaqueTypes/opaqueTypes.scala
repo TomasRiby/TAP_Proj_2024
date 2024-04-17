@@ -12,7 +12,7 @@ object opaqueTypes:
   opaque type ID = String
   opaque type Name = String
   opaque type Time = LocalDateTime
-  opaque type Preference = String
+  opaque type Preference = Int
 
   object ID:
     private val teacherIdPattern: Regex = "^T[0-9]{3}$".r
@@ -44,7 +44,7 @@ object opaqueTypes:
       id match
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' should be in the *E001* format"))
-  
+
 
   object Name:
     private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
@@ -59,6 +59,8 @@ object opaqueTypes:
     private val timePattern = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     private val durationPattern: Regex = """^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$""".r
 
+    implicit val timeOrdering: Ordering[Time] = Ordering.fromLessThan[Time]((t1, t2) => t1.isBefore(t2))
+
     def createTime(time: String): Result[Time] =
       Try(LocalDateTime.parse(time, timePattern)) match
         case scala.util.Success(parsedTime) => Right(parsedTime)
@@ -69,10 +71,19 @@ object opaqueTypes:
         case durationPattern() => Right(LocalDateTime.parse(duration))
         case _ => Left(DomainError.WrongFormat(s"Agenda Duration $duration is in the wrong format"))
 
+    extension (t: Time)
+      def isAfter(other: Time): Boolean = t.isAfter(other)
+      def isBefore(other: Time): Boolean = t.isBefore(other)
+      def plusDays(days: Long): Time = t.plusDays(days)
+      def minusHours(hours: Long): Time = t.minusHours(hours)
+
   object Preference:
     private val preferencePattern: Regex = "^[1-5]$".r
 
-    def createPreference(preference: String): Result[Preference] =
-      preference match
+    def createPreference(preference: Int): Result[Preference] =
+      preference.toString match
         case preferencePattern() => Right(preference)
         case _ => Left(DomainError.WrongFormat(s"InvalidPreference($preference)"))
+
+    def minPreference(p1: Preference, p2: Preference): Preference =
+      if (p1 < p2) p1 else p2
