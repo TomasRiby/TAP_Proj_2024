@@ -7,9 +7,3 @@ import pj.xml.XML
 
 import scala.language.adhocExtensions
 import scala.xml.Node
-
-class ExtractingResourcesTest extends AnyFunSuite:
-
-  test("Testy"):
-    println(ResourceIO.loadResources("files/assessment/ms01/valid_agenda_01_in.xml"))
-

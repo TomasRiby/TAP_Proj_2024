@@ -1,17 +1,16 @@
 package pj.io
 
 import pj.domain.*
-import pj.typeUtils.opaqueTypes.opaqueTypes.{Name, ID}
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
 import pj.xml.XML
 
 import scala.language.adhocExtensions
-import scala.xml.Node
+import scala.xml.{Elem, Node}
 
 object VivaIO:
 
-  def loadViva(xmlData: String): Result[Seq[Viva]] =
+  def loadViva(xml: Elem): Result[Seq[Viva]] =
     for {
-      xml <- FileIO.load(xmlData)
       resultVivas <- XML.traverse(xml \\ "viva", extractViva)
     } yield resultVivas
 

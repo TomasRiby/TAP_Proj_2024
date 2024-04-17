@@ -5,13 +5,12 @@ import pj.typeUtils.opaqueTypes.opaqueTypes.*
 import pj.xml.XML
 
 import java.time.LocalDateTime
-import scala.xml.Node
+import scala.xml.{Elem, Node}
 
 object ResourceIO:
 
-  def loadResources(xmlData: String): Result[Resource] =
+  def loadResources(xml: Elem): Result[Resource] =
     for {
-      xml <- FileIO.load(xmlData)
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
       _ <- ID.verifyId(resultTeachers)
       resultExternals <- XML.traverse(xml \\ "external", extractExternals)
