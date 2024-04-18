@@ -13,6 +13,7 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.18"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 // ScalaCheck
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0" % "test"
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.0" % "test"
 
 wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Equals, Wart.Nothing,
   Wart.Overloading, Wart.Recursion, Wart.StringPlusAny,
