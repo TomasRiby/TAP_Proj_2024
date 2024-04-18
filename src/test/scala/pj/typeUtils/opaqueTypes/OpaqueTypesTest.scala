@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name, Preference, Time}
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name, ODuration, Preference, Time}
 import pj.domain.{Availability, DomainError, Resource, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.Preference.createPreference
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time.createTime
@@ -69,3 +69,15 @@ class OpaqueTypesTest extends AnyFunSuite with Matchers:
     val validPreference = 99
     val prefRes = Preference.createPreference(validPreference)
     assert(prefRes.fold(_ => true, _ => false))
+
+//////// DURATION
+
+  test("should create a valid duration"):
+    val duration = "01:00:00"
+    val durRes = ODuration.createDuration(duration)
+    assert(durRes.fold(_ => false, _ => true))
+
+  test("should NOT create a invalid duration"):
+    val duration = "99"
+    val durRes = ODuration.createDuration(duration)
+    assert(durRes.fold(_ => true, _ => false))
