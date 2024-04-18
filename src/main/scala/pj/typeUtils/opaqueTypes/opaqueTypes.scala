@@ -18,7 +18,7 @@ object opaqueTypes:
     private val teacherIdPattern: Regex = "^T[0-9]{3}$".r
     private val externalIdPattern: Regex = "^E[0-9]{3}$".r
 
-    def createRegularId(id: String): Result[ID] =
+    def createRegularId(id: String): Either[DomainError, ID] =
       id match
         case teacherIdPattern() => Right(id)
         case externalIdPattern() => Right(id)
