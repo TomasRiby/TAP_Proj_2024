@@ -2,10 +2,12 @@ package pj.typeUtils.opaqueTypes
 
 import pj.domain.DomainError.WrongFormat
 import pj.domain.{DomainError, External, Result, Teacher}
+import pj.typeUtils.opaqueTypes.opaqueTypes.Time.timePattern
 
-import java.time.LocalDateTime
+import java.time.{Duration, LocalDateTime}
 import java.time.format.DateTimeFormatter
-import scala.util.Try
+import java.time.temporal.Temporal
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
 object opaqueTypes:
@@ -13,6 +15,7 @@ object opaqueTypes:
   opaque type Name = String
   opaque type Time = LocalDateTime
   opaque type Preference = Int
+  opaque type ODuration = Duration
 
   object ID:
     private val teacherIdPattern: Regex = "^T[0-9]{3}$".r
@@ -57,25 +60,36 @@ object opaqueTypes:
 
   object Time:
     private val timePattern = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-    private val durationPattern: Regex = """^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$""".r
 
     implicit val timeOrdering: Ordering[Time] = Ordering.fromLessThan[Time]((t1, t2) => t1.isBefore(t2))
 
     def createTime(time: String): Result[Time] =
       Try(LocalDateTime.parse(time, timePattern)) match
-        case scala.util.Success(parsedTime) => Right(parsedTime)
-        case scala.util.Failure(_) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
-
-    def createDuration(duration: String): Result[Time] =
-      duration match
-        case durationPattern() => Right(LocalDateTime.parse(duration))
-        case _ => Left(DomainError.WrongFormat(s"Agenda Duration $duration is in the wrong format"))
+        case Success(parsedTime) => Right(parsedTime)
+        case Failure(_) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
 
     extension (t: Time)
       def isAfter(other: Time): Boolean = t.isAfter(other)
       def isBefore(other: Time): Boolean = t.isBefore(other)
       def plusDays(days: Long): Time = t.plusDays(days)
       def minusHours(hours: Long): Time = t.minusHours(hours)
+      def toTemporal: Temporal = t: LocalDateTime
+
+
+  object ODuration:
+    private val durationPattern: Regex = """^(\d{2}):(\d{2}):(\d{2})$""".r
+
+    def createDuration(duration: String): Result[ODuration] =
+      duration match
+        case durationPattern(hours, minutes, seconds) =>
+          Try(Duration.parse(s"PT${hours}H${minutes}M${seconds}S")) match
+            case Success(parsedDuration) => Right(parsedDuration)
+            case Failure(_) => Left(DomainError.WrongFormat(s"Duration $duration is in the wrong format"))
+        case _ => Left(DomainError.WrongFormat(s"Duration $duration is in the wrong format"))
+
+    extension (t: ODuration)
+      def toDuration: Duration = t: ODuration
+
 
   object Preference:
     private val preferencePattern: Regex = "^[1-5]$".r
@@ -87,5 +101,19 @@ object opaqueTypes:
 
     def maxPreference(p1: Preference, p2: Preference): Preference =
       if (p1 > p2) p1 else p2
-    def add(first:Preference, second: Preference):Preference=
-      first + second
+
+    def add(first: Preference, second: Preference, third: Preference): Preference =
+      first + second + third
+
+    def toInt(p: Preference): Int = p
+
+    // Métodos de comparação usando a conversão implícita
+    extension (p: Preference)
+      def >=(other: Preference): Boolean = toInt(p) >= toInt(other)
+      def >(other: Preference): Boolean = toInt(p) > toInt(other)
+      def <(other: Preference): Boolean = toInt(p) < toInt(other)
+      def <=(other: Preference): Boolean = toInt(p) <= toInt(other)
+
+  // Define an Ordering instance using the toInt conversion
+    given Ordering[Preference] with
+      def compare(x: Preference, y: Preference): Int = toInt(x) - toInt(y)
