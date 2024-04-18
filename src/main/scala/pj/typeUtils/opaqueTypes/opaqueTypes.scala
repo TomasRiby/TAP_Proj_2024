@@ -104,3 +104,16 @@ object opaqueTypes:
 
     def add(first: Preference, second: Preference, third: Preference): Preference =
       first + second + third
+
+    def toInt(p: Preference): Int = p
+
+    // Métodos de comparação usando a conversão implícita
+    extension (p: Preference)
+      def >=(other: Preference): Boolean = toInt(p) >= toInt(other)
+      def >(other: Preference): Boolean = toInt(p) > toInt(other)
+      def <(other: Preference): Boolean = toInt(p) < toInt(other)
+      def <=(other: Preference): Boolean = toInt(p) <= toInt(other)
+
+  // Define an Ordering instance using the toInt conversion
+    given Ordering[Preference] with
+      def compare(x: Preference, y: Preference): Int = toInt(x) - toInt(y)
