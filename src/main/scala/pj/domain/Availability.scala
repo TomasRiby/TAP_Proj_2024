@@ -17,3 +17,8 @@ final case class Availability(
 object Availability:
   def from(start: Time, end: Time, preference: Preference) =
     new Availability(start: Time, end: Time, preference: Preference)
+
+  def intersects(availability1: Availability,availability2: Availability): Boolean =
+    (availability1.start.isBefore(availability2.end) && availability1.end.isAfter(availability2.start)) ||
+      (availability2.start.isBefore(availability1.end) && availability2.end.isAfter(availability1.start))
+

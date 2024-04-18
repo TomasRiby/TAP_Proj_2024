@@ -74,6 +74,7 @@ object opaqueTypes:
       def plusDays(days: Long): Time = t.plusDays(days)
       def minusHours(hours: Long): Time = t.minusHours(hours)
       def toTemporal: Temporal = t: LocalDateTime
+      def toLocalDateT: LocalDateTime = t: Time
 
 
   object ODuration:

@@ -8,6 +8,7 @@ import pj.xml.XML
 
 import java.io.File
 import java.time.{Duration, LocalDateTime}
+import scala.annotation.tailrec
 import scala.language.adhocExtensions
 import scala.xml.Node
 
@@ -15,7 +16,7 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
   test("Test a single test file from the assessment directory"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_01_in.xml"
+    val fileName = "valid_agenda_03_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -47,18 +48,17 @@ class MakingTheAlgorithm extends AnyFunSuite:
         }
       }
 
-      // Transform the flat list of tuples into a list where each element is a tuple (teacherId, List[Availability])
       val groupedTeacherList = teacherAvailabilities
-        .groupBy(_._1) // Group by teacherId
+        .groupBy(_._1)
         .map { case (teacherId, availList) =>
-          (teacherId, availList.map(_._2)) // Map to (teacherId, List of Availabilities)
+          (teacherId, availList.map(_._2))
         }
         .toList
 
       val groupedExternalList = externalAvailabilities
-        .groupBy(_._1) // Group by teacherId
+        .groupBy(_._1)
         .map { case (externalId, availList) =>
-          (externalId, availList.map(_._2)) // Map to (teacherId, List of Availabilities)
+          (externalId, availList.map(_._2))
         }
         .toList
 
@@ -79,23 +79,15 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
       val scheduleVivaList = CreateSchedule(vivas, groupedAvailabilitiesList)
 
-
-      scheduleVivaList.foreach(ExtractAvail)
-
-
-      def ExtractAvail(scheduleViva: ScheduleViva): Option[Availability] =
+      def ExtractAvail(scheduleViva: ScheduleViva): Result[List[Availability]]=
         val presidentAval = scheduleViva.president.availabilities.flatMap(_._2)
-        println(presidentAval)
         val advisorAval = scheduleViva.advisor.availabilities.flatMap(_._2)
-        println(advisorAval)
         val supervisorAval = scheduleViva.supervisor.availabilities.flatMap(_._2)
-        println(supervisorAval)
         val results = findBestCombinedAvailability(presidentAval, advisorAval, supervisorAval, duration)
+        results
 
-        // Process the list of results and return the first 'Right' result as an Option
-        results.collectFirst { case Right(availability) => availability }
 
-      def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability], requiredDuration: ODuration): List[Result[Availability]] =
+      def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability], requiredDuration: ODuration): Result[List[Availability]] =
         def overlapThree(a1: List[Availability], a2: List[Availability], a3: List[Availability], requiredDuration: ODuration): List[Availability] =
           for {
             avail1 <- a1
@@ -107,8 +99,47 @@ class MakingTheAlgorithm extends AnyFunSuite:
           } yield Availability(start, end, Preference.add(avail1.preference, avail2.preference, avail3.preference))
 
         val totalOverlap = overlapThree(presAvails, advAvails, supAvails, requiredDuration)
+        if (totalOverlap.isEmpty)
+          Left(DomainError.Error("No valid overlapping availabilities found"))
+        else
+          Right(totalOverlap)
 
-        val result = totalOverlap.map(avail => Right(avail)) // Convert each overlap to a Right, explicitly handling multiple valid results
+      def durationMatches(required: Duration, start: LocalDateTime, end: LocalDateTime): Boolean =
+        Duration.between(start, end) == required
 
-        println(result)
-        result
+      def noOverlaps(existing: List[Availability], candidate: Availability): Boolean =
+        !existing.exists(e => (e.start.isBefore(candidate.end) && e.end.isAfter(candidate.start)) ||
+          (candidate.start.isBefore(e.end) && candidate.end.isAfter(e.start)))
+
+      def selectMatchingAvailabilities(existing: List[Availability], candidates: List[Availability], requiredDuration: Duration): List[Availability] =
+        candidates.filter(candidate => noOverlaps(existing, candidate) && durationMatches(requiredDuration, candidate.start.toLocalDateT, candidate.end.toLocalDateT))
+
+      def processSchedules(schedules: List[Result[List[Availability]]], requiredDuration: Duration): List[Availability] =
+        @tailrec
+        def helper(schedules: List[Result[List[Availability]]], booked: List[Availability], acc: List[Availability]): List[Availability] =
+          println("--------------------------------")
+          println(booked)
+          println("--------------------------------")
+
+          schedules match
+            case Nil => acc
+            case Right(avails) :: tail =>
+              val validAvails = selectMatchingAvailabilities(booked, avails, requiredDuration)
+              helper(tail, booked ++ validAvails, acc ++ validAvails)
+            case Left(_) :: tail => helper(tail, booked, acc)
+
+        helper(schedules, List.empty, List.empty)
+
+
+      val result = scheduleVivaList.foldLeft(List.empty[Result[List[Availability]]]) { (acc, viva) =>
+        acc ++ List(ExtractAvail(viva))
+      }
+
+      val finalSelections = processSchedules(result,duration.toDuration)
+
+      println("------------------------------------------------------------------")
+//      println(result)
+      println("------------------------------------------------------------------")
+//      println(finalSelections)
+
+
