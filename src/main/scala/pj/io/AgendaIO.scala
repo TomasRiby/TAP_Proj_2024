@@ -1,6 +1,7 @@
 package pj.io
 
 import pj.domain.{Agenda, External, Result, Teacher, Viva}
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ODuration, Time}
 import pj.xml.XML
 
 import scala.xml.Elem
@@ -13,4 +14,16 @@ object AgendaIO:
       viva <- VivaIO.loadViva(xml)
       resources <- ResourceIO.loadResources(xml)
       durationXml <- XML.fromAttribute(xml, "duration")
-    } yield Agenda.from(viva,resources, durationXml)
+      duration <- ODuration.createDuration(durationXml)
+    } yield Agenda.from(viva,resources, duration)
+
+  def loadAgenda(xml: String): Result[Agenda] =
+
+    for {
+      loadXML <- FileIO.load(xml)
+      viva <- VivaIO.loadViva(loadXML)
+      resources <- ResourceIO.loadResources(loadXML)
+      durationXml <- XML.fromAttribute(loadXML, "duration")
+      _ = println(durationXml)
+      duration <- ODuration.createDuration(durationXml)
+    } yield Agenda.from(viva, resources, duration)

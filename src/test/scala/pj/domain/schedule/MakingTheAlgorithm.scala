@@ -3,11 +3,11 @@ package pj.domain.schedule
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.{Agenda, Availability, DomainError, Resource, Result, Viva}
 import pj.io.{AgendaIO, FileIO, ResourceIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Preference}
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 import pj.xml.XML
 
 import java.io.File
-import java.time.LocalDateTime
+import java.time.{Duration, LocalDateTime}
 import scala.language.adhocExtensions
 import scala.xml.Node
 
@@ -15,7 +15,7 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
   test("Test a single test file from the assessment directory"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_03_in.xml"
+    val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -65,8 +65,8 @@ class MakingTheAlgorithm extends AnyFunSuite:
       val groupedAvailabilitiesList = groupedTeacherList ++ groupedExternalList
 
 
-      // Example print to verify the structure
       val vivas = agenda.vivas
+      val duration = agenda.duration
 
       def CreateSchedule(vivas: Seq[Viva], teacherAvai: List[(ID, List[Availability])]): Seq[ScheduleViva] =
         vivas.map { viva =>
@@ -90,34 +90,33 @@ class MakingTheAlgorithm extends AnyFunSuite:
         println(advisorAval)
         val supervisorAval = scheduleViva.supervisor.availabilities.flatMap(_._2)
         println(supervisorAval)
-        findBestCombinedAvailability(presidentAval, advisorAval, supervisorAval)
+        findBestCombinedAvailability(presidentAval, advisorAval, supervisorAval, duration)
 
-      def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability]): Option[Availability] =
-        // Function to find overlapping availability between two lists
-        def overlapThree(a1: List[Availability], a2: List[Availability], a3: List[Availability]): List[Availability] =
+      def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability], requiredDuration: ODuration): Result[Availability] =
+  // Function to find overlapping availability among three lists and check duration
+        def overlapThree(a1: List[Availability], a2: List[Availability], a3: List[Availability], requiredDuration: ODuration): List[Availability] =
           for {
             avail1 <- a1
             avail2 <- a2
             avail3 <- a3
             start = List(avail1.start, avail2.start, avail3.start).foldLeft(avail1.start)((acc, x) => if (x.isAfter(acc)) x else acc)
             end = List(avail1.end, avail2.end, avail3.end).foldLeft(avail1.end)((acc, x) => if (x.isBefore(acc)) x else acc)
-            if start.isBefore(end)
-          } yield Availability(start, end, Preference.add(Preference.add(avail1.preference, avail2.preference), avail3.preference))
-
-        // Find overlaps between the result and supervisor
-        val totalOverlap = overlapThree(presAvails, advAvails, supAvails)
-
-        // Return the overlap with the highest preference sum
-
-        val result = totalOverlap.foldLeft(None: Option[Availability]) { (acc, avail) =>
-          acc match
-            case Some(a) if Preference.maxPreference(a.preference, avail.preference) == a.preference => acc
-            case _ => Some(avail)
-        }
-        println("-----------------------------------------------------")
+            if start.isBefore(end) && Duration.between(start.toTemporal, end.toTemporal).compareTo(requiredDuration.toDuration) >= 0
+          } yield Availability(start, end, Preference.add(avail1.preference, avail2.preference, avail3.preference))
+      
+        // Find overlaps among all three roles
+        val totalOverlap = overlapThree(presAvails, advAvails, supAvails, requiredDuration)
+      
+        // Return the overlap with the highest preference sum and adequate duration
+        val result = totalOverlap.foldLeft[Result[Availability]](Left(DomainError.Error("No valid overlapping availabilities found with sufficient duration"))):
+          (acc, avail) =>
+            acc match
+              case Right(a) if Preference.maxPreference(a.preference, avail.preference) == a.preference => acc
+              case _ => Right(avail)
         println(result)
-        println("-----------------------------------------------------")
         result
+
+
 
 
 
