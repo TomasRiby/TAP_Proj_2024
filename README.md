@@ -11,7 +11,7 @@
 
 ## Domain Model
 
-![img.png](./assets/domain-v2.png)
+![img.png](./assets/domain-v3.png)
       
 ## The Problem
 
