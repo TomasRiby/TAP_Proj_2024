@@ -3,10 +3,15 @@
 ## Index
 
 - [The Viva to be Scheduled Problem](#the-viva-to-be-scheduled-problemhe)
+  - [Domain Model]()
   - [The Problem](#the-problem)
   - [Objective](#objective)
   - [MS01 Summary](#ms01-summary)
 
+
+## Domain Model
+
+![img.png](./assets/domain-v2.png)
       
 ## The Problem
 
