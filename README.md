@@ -3,22 +3,15 @@
 ## Index
 
 - [The Viva to be Scheduled Problem](#the-viva-to-be-scheduled-problemhe)
-  - [Domain Model]()
   - [The Problem](#the-problem)
+  - [Domain Model](#domain-model)
   - [Objective](#objective)
-  - [MS01 Summary](#ms01-summary)
+  - [Milestones Development Process](#milestones-development-process)
+    - [MS01](#ms01)
+      - [Overview (Main Decisions)](#overview-main-decisions)
+      - [Possible alternatives](#possible-alternatives)
+      - [Possible future improvements](#possible-future-improvements)
 
-
-## Domain Model
-
-![img.png](./assets/domain-v3.png)
-
-The domain was created based on an analysis conducted on the input XML files for the problem's use case. 
-The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
-
-Both Teachers and Externals have availabilities that include start and end datetime, as well as the subject's preferences. 
-The Resources class was introduced to combine both Externals and Teachers, providing a unified structure for managing resource's availability.
-      
 ## The Problem
 
 This repository serves as the central hub for both the documentation and the source code of the project crafted for the "Técnicas Avançadas de Programação" (Advanced Programming Techniques) course, which is part of the Master’s in Computer Engineering curriculum at the Instituto Superior de Engenharia do Porto (ISEP).
@@ -26,9 +19,27 @@ The challenge at hand involves the intricate scheduling of Master of Science (MS
 
 This problem is classified as NP-hard, indicating that in its unconstrained form, it is intractable. However, applying specific constraints related to the availability of the involved entities (resources) can render the problem manageable, or "tractable." The initial phase of this project, which marks the first milestone, will start by addressing only a subset of these constraints. As the project progresses through its phases, particularly in milestones M1 and M3, it will gradually incorporate more constraints and refine the algorithms designed to optimize the scheduling process. These algorithms aim to progressively enhance the quality and feasibility of the scheduling solutions, illustrating a methodical approach to tackling this complex problem.
 
+## Domain Model
+
+![img.png](./assets/domain-v3.png)
+
+The domain was created based on an analysis conducted on the input XML files for the problem's use case.
+The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
+
+Both Teachers and Externals have availabilities that include start and end datetime, as well as the subject's preferences.
+The Resources class was introduced to combine both Externals and Teachers, providing a unified structure for managing resource's availability.
+
+
 ## Objective
 The main objective of this work is the design and development of an application using functional
 programming techniques.
 
-## MS01 Summary
-(TODO) - explain the algorithm
+## Milestones Development Process
+
+### MS01
+#### Overview (Main Decisions)
+The initial milestone of our project was developed using the Test Driven Development (TDD) methodology, a strategy particularly beneficial at the onset when the domain model concepts were still being defined and no code base existed. To foster robust development and minimize potential bugs from the outset, we prioritized writing unit tests that verified the accuracy and stability of our domain model before beginning the actual coding. Starting with these tests allowed us to mitigate possible bugs and clearly define the expected functionality of the code. This approach not only facilitated a clearer development process but also helped maintain the integrity of the domain model throughout the project’s progression. By continuously updating and referring to our comprehensive suite of unit tests, we were able to quickly identify and rectify defects arising from recent changes, ensuring a stable and reliable codebase.
+
+#### Possible alternatives
+
+#### Possible future improvements
