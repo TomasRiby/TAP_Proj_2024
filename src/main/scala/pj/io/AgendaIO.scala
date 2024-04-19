@@ -14,12 +14,11 @@ object AgendaIO:
       resources <- ResourceIO.loadResources(xml)
       durationXml <- XML.fromAttribute(xml, "duration")
       duration <- ODuration.createDuration(durationXml)
-    } yield Agenda.from(viva,resources, duration)
+    } yield Agenda.from(viva, resources, duration)
 
   def loadAgenda(xml: String): Result[Agenda] =
-    println("---------------------------")
+    println("--------------")
     println(xml)
-
     for {
       loadXML <- FileIO.load(xml)
       viva <- VivaIO.loadViva(loadXML)

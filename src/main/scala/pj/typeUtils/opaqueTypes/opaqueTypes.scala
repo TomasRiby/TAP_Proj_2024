@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.Temporal
 import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
+import scala.xml.Null
 
 object opaqueTypes:
   opaque type ID = String
@@ -53,9 +54,14 @@ object opaqueTypes:
     private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
 
     def createName(name: String): Result[Name] =
-      name match
-        case validNamePattern() => Right(name)
-        case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
+      if (name == "" || name.isBlank)
+        Left(DomainError.WrongFormat("Name can't be blank"))
+      else
+        name match
+          case validNamePattern() => Right(name)
+          case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
+
+        
 
 
   object Time:
