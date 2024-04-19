@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <error xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../scheduleError.xsd"
-        message="WrongFormat(Time '2024-T09:30:00' is in the wrong format. Expected ISO-8601 format.)"  />
+        message="WrongFormat(Hours must be less than 24, and minutes/seconds must be less than 60)"  />

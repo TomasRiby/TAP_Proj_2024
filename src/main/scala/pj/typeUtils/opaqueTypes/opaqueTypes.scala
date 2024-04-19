@@ -83,10 +83,17 @@ object opaqueTypes:
     def createDuration(duration: String): Result[ODuration] =
       duration match
         case durationPattern(hours, minutes, seconds) =>
-          Try(Duration.parse(s"PT${hours}H${minutes}M${seconds}S")) match
-            case Success(parsedDuration) => Right(parsedDuration)
-            case Failure(_) => Left(DomainError.WrongFormat(s"Duration $duration is in the wrong format"))
-        case _ => Left(DomainError.WrongFormat(s"Duration $duration is in the wrong format"))
+          val hrs = hours.toInt
+          val mins = minutes.toInt
+          val secs = seconds.toInt
+
+          if (hrs >= 24 || mins >= 60 || secs >= 60)
+            Left(DomainError.WrongFormat("Hours must be less than 24, and minutes/seconds must be less than 60"))
+          else
+            Try(Duration.parse(s"PT${hours}H${minutes}M${seconds}S")) match
+              case Success(parsedDuration) => Right(parsedDuration)
+              case Failure(_) => Left(DomainError.WrongFormat(s"Duration format is incorrect for value $duration"))
+        case _ => Left(DomainError.WrongFormat(s"Duration format must be HH:MM:SS"))
 
     extension (t: ODuration)
       def toDuration: Duration = t: ODuration
@@ -115,6 +122,6 @@ object opaqueTypes:
       def <(other: Preference): Boolean = toInt(p) < toInt(other)
       def <=(other: Preference): Boolean = toInt(p) <= toInt(other)
 
-  // Define an Ordering instance using the toInt conversion
+    // Define an Ordering instance using the toInt conversion
     given Ordering[Preference] with
       def compare(x: Preference, y: Preference): Int = toInt(x) - toInt(y)

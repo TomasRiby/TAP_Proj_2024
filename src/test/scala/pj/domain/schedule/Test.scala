@@ -14,14 +14,37 @@ import scala.xml.Node
 
 class Test extends AnyFunSuite:
 
-  test("Test a single test file from the assessment directory"):
+  test("aaaaaaa"):
     val dir = "files/test/ms01/"
-    val fileName = "invalid_external_Id_in.xml"
+    val fileName = "invalid_external_Name_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
       result <- ScheduleMS01.create(fileLoaded)
     } yield result
     println(result)
+
+  test("asasas"):
+    val dir = "files/test/ms01/"
+    val folder = new File(dir)
+    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
+    files.foreach(files => println(AgendaIO.loadAgenda(files)))
+
+  test("asasssasssa"):
+    val dir = "files/assessment/ms01/"
+    val folder = new File(dir)
+    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
+    files.foreach(files => println(AgendaIO.loadAgenda(files)))
+
+  test("asasasas"):
+    val dir = "files/assessment/ms01/"
+    val fileName = "valid_agenda_02_in.xml"
+    val filePath = dir + fileName
+    val result = AgendaIO.loadAgenda(filePath)
+
+
+    result match
+      case Right(agenda) => println(agenda)
+      case Left(error) => println(s"Erro ao carregar a agenda: $error")
 
 
