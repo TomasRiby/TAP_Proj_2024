@@ -24,13 +24,13 @@ class Test extends AnyFunSuite:
     } yield result
     println(result)
 
-  test("asasas"):
+  test("test"):
     val dir = "files/test/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
     files.foreach(files => println(AgendaIO.loadAgenda(files)))
 
-  test("asasssasssa"):
+  test("assessment"):
     val dir = "files/assessment/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
