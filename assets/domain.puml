@@ -1,0 +1,67 @@
+@startuml
+
+class Teacher {
+  id: ID
+  name: Name
+  availability: Seq[Availability]
+}
+
+class Availability {
+  start: Time
+  end: Time
+  preference: Preference
+}
+
+class Resource {
+  externals: List<External>
+  teacher: List<Teacher>
+}
+
+class External {
+  id: ID
+  name: Name
+  availability: Seq[Availability]
+}
+
+class Agenda {
+  vivas: Seq[Viva]
+  resource: Resource
+  duration: ODuration
+}
+
+class Viva {
+  student: Name
+  title: Name
+  president: President
+  advisor: Advisor
+  supervisor: Supervisor
+}
+
+class President {
+  id: ID
+}
+
+class Advisor {
+  id: ID
+}
+
+class Supervisor {
+  id: ID
+}
+
+class Coadvisor {
+  id: ID
+}
+
+Teacher "1" *-- "1..*" Availability
+External "1" *-- "1..*" Availability
+Resource "1" -- "0..*" External
+Resource "1" -- "1..*" Teacher
+Agenda "1" o-- "1" Resource
+Viva "1..*" -- "1" Agenda
+Viva "1" o-- "1..*" President
+Viva "0..*" -- "1..*" Advisor
+Viva "0..*" -- "1..*" Supervisor
+Viva "0..*" -- "1..*" Coadvisor
+
+@enduml
