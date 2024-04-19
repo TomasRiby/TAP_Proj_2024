@@ -20,9 +20,7 @@ class Test extends AnyFunSuite:
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
-      result <- AgendaIO.loadAgenda(fileLoaded)
-      algo <- Algorithm.makeTheAlgorithmHappen(result)
-      _ = println(algo)
-    } yield algo
+      result <- ScheduleMS01.create(fileLoaded)
+    } yield result
 
 

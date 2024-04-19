@@ -7,7 +7,7 @@ import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
 
 object Algorithm:
-  def makeTheAlgorithmHappen(agenda: Agenda): Result[Any] =
+  def makeTheAlgorithmHappen(agenda: Agenda): Result[List[Availability]] =
 
     // Given a structure representing teachers' availabilities
     val teacherAvailabilities = agenda.resources.teacher.flatMap { teacher =>
