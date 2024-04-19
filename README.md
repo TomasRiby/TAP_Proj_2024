@@ -2,7 +2,7 @@
 
 ## Index
 
-- [The Viva to be Scheduled Problem](#the-viva-to-be-scheduled-problemhe)
+- [The Viva to be Scheduled Problem](#the-viva-to-be-scheduled-problem)
   - [The Problem](#the-problem)
   - [Domain Model](#domain-model)
   - [Objective](#objective)
@@ -54,3 +54,17 @@ As for the algorithm, it...ß
 #### Possible alternatives
 
 #### Possible future improvements
+
+As we move forward, several areas stand out for enhancement.
+
+- **Incorporation of the role `Co-advisor`**: In the future the team intends to incorporate the role `Co-advisor` in the algorithm, since it was forgotten and this fail was noticed too late to act on it.
+
+- **Implementation of More Tests**: While our current test suite provides valuable coverage, more test will fortify the reliability of our software. Introducing functional tests to validate interactions between components will further validate the correctness of our codebase.
+
+- **Improvement of Project Structure**: Enhancing the organization and clarity of our project structure will improve development processes and facilitate collaboration among team members.
+
+- **Optimization of Code**: Identifying and addressing certain code duplication and inefficiencies within our codebase will enhance the efficiency and readability of our application.
+
+- **Creation of More Input Test Files**: Increasing our collection of input test files with more diverse agendas will enhance the comprehensiveness of our testing efforts. Also, with this, we can uncover more error cases that might otherwise go unnoticed, bolstering the resilience and adaptability of our software.
+
+By prioritizing these among other possible improvements, we aim to elevate the quality, reliability, and performance of our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of evolving requirements. 
