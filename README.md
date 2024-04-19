@@ -57,8 +57,21 @@ For each "viva", the `CreateSchedule` function creates a schedule attempting to 
 
 Furthermore, the `findBestCombinedAvailability` function is used to determine the best possible overlap of times considering the required participants and the specified duration. It searches for time intervals where all participants are available at the same time and that the interval is sufficient as per the specified duration.
 
-Finally, the `processSchedules` function processes all possible "viva" schedules to filter and select those that are not only feasible but also do not overlap with others already selected, ensuring the best allocation of times for all sessions. The list of selected times is then returned as the final result of the function, sorted by the start of each available time.
+Finally, the `processSchedules function processes all possible "viva" schedules to filter and select those that are not only feasible but also do not overlap with others already selected, ensuring the best allocation of times for all sessions. The list of selected times is then returned as the final result of the function, sorted by the start of each available time.
 #### Possible alternatives
+A trait can be thought of as an abstract interface that can be extended by other classes to implement its behavior. It allows for a flexible and modular approach to defining roles or behaviors in an application.
+We could have defined one to handle the different identities of the project.
+```
+sealed trait Identity {}
+
+case class President() extends Identity {}
+
+case class Adviser() extends Identity {}
+
+case class CoAdviser() extends Identity {}
+
+case class Supervisor() extends Identity {}
+```
 
 #### Possible future improvements
 
