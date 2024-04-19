@@ -23,6 +23,13 @@ This problem is classified as NP-hard, indicating that in its unconstrained form
 
 ![img.png](./assets/domain-v3.png)
 
+The domain was created based on an analysis conducted on the input XML files for the problem's use case.
+The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
+
+Both Teachers and Externals have availabilities that include start and end datetime, as well as the subject's preferences.
+The Resources class was introduced to combine both Externals and Teachers, providing a unified structure for managing resource's availability.
+
+
 ## Objective
 The main objective of this work is the design and development of an application using functional
 programming techniques.
