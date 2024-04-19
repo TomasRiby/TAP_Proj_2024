@@ -98,7 +98,7 @@ object opaqueTypes:
     def createPreference(preference: Int): Result[Preference] =
       preference.toString match
         case preferencePattern() => Right(preference)
-        case _ => Left(DomainError.WrongFormat(s"InvalidPreference($preference)"))
+        case _ => Left(DomainError.InvalidPreference(s"$preference"))
 
     def maxPreference(p1: Preference, p2: Preference): Preference =
       if (p1 > p2) p1 else p2

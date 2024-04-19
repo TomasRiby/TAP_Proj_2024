@@ -1,11 +1,17 @@
 package pj.io
 
 import scala.xml.Elem
-import pj.domain.{Availability, Result}
+import pj.domain.{Availability, DomainError, Result}
 import pj.xml.XML
 
 object ScheduleIO:
 
+  def createScheduleError(error: DomainError): Result[Elem] =
+    Right(
+      <error xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../scheduleError.xsd"
+             message={error.message}>
+      </error>
+    )
 
   def createScheduleXML(availabilities: List[Availability], totalPreference: Int): Result[Elem] = {
     Right(<schedule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schedule.xsd" totalPreference={totalPreference.toString}>
