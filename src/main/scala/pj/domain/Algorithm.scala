@@ -102,12 +102,12 @@ object Algorithm:
       acc ++ List(ExtractAvail(viva))
     }
 
-    val finalSelections = processSchedules(result, duration.toDuration)
+    val finalSelections = processSchedules(result, duration.toDuration).sortBy(_.start) //está a ordenar a preference 12 -> 13
 
-//    println("------------------------------------------------------------------")
-//    println(result)
-//    println("------------------------------------------------------------------")
-//    println(finalSelections)
+    //println("------------------------------------------------------------------")
+    //println(result)
+    //println("------------------------------------------------------------------")
+    //println(finalSelections)
     Right(finalSelections)
 
   

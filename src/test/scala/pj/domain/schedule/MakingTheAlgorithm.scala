@@ -16,7 +16,7 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
   test("Test a single test file from the assessment directory"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_03_in.xml"
+    val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -128,11 +128,11 @@ class MakingTheAlgorithm extends AnyFunSuite:
         acc ++ List(ExtractAvail(viva))
       }
 
-      val finalSelections = processSchedules(result, duration.toDuration)
+      val finalSelections = processSchedules(result, duration.toDuration).sortBy(_.start)
 
-      println("------------------------------------------------------------------")
-      println(result)
-      println("------------------------------------------------------------------")
+      //println("------------------------------------------------------------------")
+      //println(result)
+      //println("------------------------------------------------------------------")
       println(finalSelections)
 
 
