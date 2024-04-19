@@ -2,6 +2,7 @@ package pj.typeUtils.opaqueTypes
 
 import pj.domain.DomainError.WrongFormat
 import pj.domain.{DomainError, External, Result, Teacher}
+import pj.typeUtils.opaqueTypes.opaqueTypes.ID.createRegularId
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time.timePattern
 
 import java.time.{Duration, LocalDateTime}
@@ -38,6 +39,12 @@ object opaqueTypes:
       else
         Right(true)
 
+    def toInt(p: Preference): Int = p
+
+    val empty: ID = createRegularId("T000") match
+      case Right(id) => id
+      case Left(_) => "T000"
+
 
     def createTeacherId(id: String): Result[ID] =
       id match
@@ -62,6 +69,10 @@ object opaqueTypes:
           case _ => Left(DomainError.WrongFormat(s"Name '$name' is in the wrong format."))
 
         
+
+    val empty: Name = createName("") match
+      case Right(name) => name
+      case Left(_) => "Default"
 
 
   object Time:

@@ -7,37 +7,26 @@ import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
 
 object Algorithm:
-  def makeTheAlgorithmHappen(agenda: Agenda): Result[List[Availability]] =
+  def makeTheAlgorithmHappen(agenda: Agenda): Result[List[VivaResult]] =
 
-    // Given a structure representing teachers' availabilities
-    val teacherAvailabilities = agenda.resources.teacher.flatMap { teacher =>
-      teacher.availability.map { avail =>
-        (teacher.id, avail)
+    val groupedTeacherList = agenda.resources.teacher
+      .flatMap { teacher =>
+        teacher.availability.collect:
+          case avail => (teacher.id, avail)
       }
-    }
-    val externalAvailabilities = agenda.resources.external.flatMap { external =>
-      external.availability.map { avail =>
-        (external.id, avail)
-      }
-    }
-
-
-    val groupedTeacherList = teacherAvailabilities
       .groupBy(_._1)
-      .map { case (teacherId, availList) =>
-        (teacherId, availList.map(_._2))
-      }
+      .view
+      .mapValues(_.map(_._2))
       .toList
 
-    val groupedExternalList = externalAvailabilities
+    val groupedExternalList = agenda.resources.external
+      .flatMap(external => external.availability.map(avail => (external.id, avail)))
       .groupBy(_._1)
-      .map { case (externalId, availList) =>
-        (externalId, availList.map(_._2))
-      }
+      .view
+      .mapValues(_.map(_._2))
       .toList
 
     val groupedAvailabilitiesList = groupedTeacherList ++ groupedExternalList
-
 
     val vivas = agenda.vivas
     val duration = agenda.duration
@@ -47,7 +36,8 @@ object Algorithm:
         ScheduleViva.from(
           president = RoleAvailabilities.from(viva.president, teacherAvai.filter(_._1 == viva.president.id)),
           advisor = RoleAvailabilities.from(viva.advisor, teacherAvai.filter(_._1 == viva.advisor.id)),
-          supervisor = RoleAvailabilities.from(viva.supervisor, teacherAvai.filter(_._1 == viva.supervisor.id))
+          supervisor = RoleAvailabilities.from(viva.supervisor, teacherAvai.filter(_._1 == viva.supervisor.id)),
+          viva
         )
       }
 
@@ -59,7 +49,6 @@ object Algorithm:
       val supervisorAval = scheduleViva.supervisor.availabilities.flatMap(_._2)
       val results = findBestCombinedAvailability(presidentAval, advisorAval, supervisorAval, duration)
       results
-
 
     def findBestCombinedAvailability(presAvails: List[Availability], advAvails: List[Availability], supAvails: List[Availability], requiredDuration: ODuration): Result[List[Availability]] =
       def overlapThree(a1: List[Availability], a2: List[Availability], a3: List[Availability], requiredDuration: ODuration): List[Availability] =
@@ -97,17 +86,49 @@ object Algorithm:
     def noOverlaps(booked: List[Availability], candidate: Availability): Boolean =
       booked.forall(booked => !(booked.start.isBefore(candidate.end) && booked.end.isAfter(candidate.start)))
 
+    val result: Map[ScheduleViva, Result[List[Availability]]] = scheduleVivaList.map { viva =>
+      viva -> ExtractAvail(viva)
+    }.toMap
 
-    val result = scheduleVivaList.foldLeft(List.empty[Result[List[Availability]]]) { (acc, viva) =>
-      acc ++ List(ExtractAvail(viva))
-    }
+    //// president, advisor  1  required
+    //// coadvisor, supervisor 0..n optionl
 
-    val finalSelections = processSchedules(result, duration.toDuration).sortBy(_.start) //está a ordenar a preference 12 -> 13
+    val vivaResult: List[VivaResult] = scheduleVivaList.flatMap { viva =>
+      val president = agenda.resources.teacher.find(t =>
+        viva.president.id.toString.contains(t.id.toString))
+      val supervisor = agenda.resources.external.find(t => viva.supervisor.id.toString.contains(t.id.toString))
+      val advisor = agenda.resources.teacher.find(t => viva.advisor.id.toString.contains(t.id.toString))
 
+      (president, supervisor, advisor) match
+        case (Some(foundPres), Some(foundSuper), Some(foundAd)) =>
+          val advisors: List[External] = List(foundSuper)
+          val vivaSchedules = result.get(viva)
+
+          println("////////////////////")
+          println(vivaSchedules)
+          println("////////////////////")
+
+          vivaSchedules match
+            case Some(n) =>
+              val finalSelections = processSchedules(List(n), duration.toDuration).sortBy(_.start)
+              finalSelections.headOption.map { selection =>
+
+                Some(VivaResult.from(selection, foundPres, foundAd, advisors))
+              }.getOrElse(None)
+            case None =>
+              None
+        case _ =>
+          println("Professor não encontrado")
+          None
+    }.toList
+
+    println(vivaResult)
     //println("------------------------------------------------------------------")
     //println(result)
     //println("------------------------------------------------------------------")
     //println(finalSelections)
-    Right(finalSelections)
+//Right(vivaResult)
+
+    Right(vivaResult)
 
   

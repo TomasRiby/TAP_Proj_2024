@@ -15,8 +15,8 @@ import scala.xml.Node
 class Test extends AnyFunSuite:
 
   test("aaaaaaa"):
-    val dir = "files/test/ms01/"
-    val fileName = "invalid_external_Name_in.xml"
+    val dir = "files/assessment/ms01/"
+    val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -24,27 +24,27 @@ class Test extends AnyFunSuite:
     } yield result
     println(result)
 
-  test("test"):
-    val dir = "files/test/ms01/"
-    val folder = new File(dir)
-    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
-    files.foreach(files => println(AgendaIO.loadAgenda(files)))
-
-  test("assessment"):
-    val dir = "files/assessment/ms01/"
-    val folder = new File(dir)
-    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
-    files.foreach(files => println(AgendaIO.loadAgenda(files)))
-
-  test("asasasas"):
-    val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_02_in.xml"
-    val filePath = dir + fileName
-    val result = AgendaIO.loadAgenda(filePath)
-
-
-    result match
-      case Right(agenda) => println(agenda)
-      case Left(error) => println(s"Erro ao carregar a agenda: $error")
+//  test("test"):
+//    val dir = "files/test/ms01/"
+//    val folder = new File(dir)
+//    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
+//    files.foreach(files => println(AgendaIO.loadAgenda(files)))
+//
+//  test("assessment"):
+//    val dir = "files/assessment/ms01/"
+//    val folder = new File(dir)
+//    val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
+//    files.foreach(files => println(AgendaIO.loadAgenda(files)))
+//
+//  test("asasasas"):
+//    val dir = "files/assessment/ms01/"
+//    val fileName = "valid_agenda_02_in.xml"
+//    val filePath = dir + fileName
+//    val result = AgendaIO.loadAgenda(filePath)
+//
+//
+//    result match
+//      case Right(agenda) => println(agenda)
+//      case Left(error) => println(s"Erro ao carregar a agenda: $error")
 
 

@@ -15,5 +15,5 @@ object ScheduleMS01 extends Schedule:
     for {
       agenda <- AgendaIO.loadAgenda(xml)
       algorithm <- Algorithm.makeTheAlgorithmHappen(agenda)
-      elem <- ScheduleIO.createScheduleXML(algorithm, algorithm.map(algo => Preference.toInt(algo.preference)).sum)
+      elem <- ScheduleIO.createScheduleXML(algorithm, algorithm.map(vivaRes => Preference.toInt(vivaRes.availabilities.preference)).sum)
     } yield elem
