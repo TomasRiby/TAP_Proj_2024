@@ -30,11 +30,11 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
 
     result match
-      case Right(agenda) => extractAvailabilites(agenda)
+      case Right(agenda) => makeTheAlgorithmHappen(agenda)
       case Left(error) => println(s"Erro ao carregar a agenda: $error")
 
 
-    def extractAvailabilites(agenda: Agenda): Any =
+    def makeTheAlgorithmHappen(agenda: Agenda): Any =
 
       // Given a structure representing teachers' availabilities
       val teacherAvailabilities = agenda.resources.teacher.flatMap { teacher =>
@@ -79,7 +79,7 @@ class MakingTheAlgorithm extends AnyFunSuite:
 
       val scheduleVivaList = CreateSchedule(vivas, groupedAvailabilitiesList)
 
-      def ExtractAvail(scheduleViva: ScheduleViva): Result[List[Availability]]=
+      def ExtractAvail(scheduleViva: ScheduleViva): Result[List[Availability]] =
         val presidentAval = scheduleViva.president.availabilities.flatMap(_._2)
         val advisorAval = scheduleViva.advisor.availabilities.flatMap(_._2)
         val supervisorAval = scheduleViva.supervisor.availabilities.flatMap(_._2)
@@ -104,42 +104,35 @@ class MakingTheAlgorithm extends AnyFunSuite:
         else
           Right(totalOverlap)
 
-      def durationMatches(required: Duration, start: LocalDateTime, end: LocalDateTime): Boolean =
-        Duration.between(start, end) == required
-
-      def noOverlaps(existing: List[Availability], candidate: Availability): Boolean =
-        !existing.exists(e => (e.start.isBefore(candidate.end) && e.end.isAfter(candidate.start)) ||
-          (candidate.start.isBefore(e.end) && candidate.end.isAfter(e.start)))
-
-      def selectMatchingAvailabilities(existing: List[Availability], candidates: List[Availability], requiredDuration: Duration): List[Availability] =
-        candidates.filter(candidate => noOverlaps(existing, candidate) && durationMatches(requiredDuration, candidate.start.toLocalDateT, candidate.end.toLocalDateT))
-
       def processSchedules(schedules: List[Result[List[Availability]]], requiredDuration: Duration): List[Availability] =
         @tailrec
         def helper(schedules: List[Result[List[Availability]]], booked: List[Availability], acc: List[Availability]): List[Availability] =
-          println("--------------------------------")
-          println(booked)
-          println("--------------------------------")
-
           schedules match
             case Nil => acc
             case Right(avails) :: tail =>
-              val validAvails = selectMatchingAvailabilities(booked, avails, requiredDuration)
-              helper(tail, booked ++ validAvails, acc ++ validAvails)
+              avails.filter(a => durationMatches(requiredDuration, a.start.toLocalDateT, a.end.toLocalDateT) && noOverlaps(booked, a)) match
+                case selected :: _ => helper(tail, selected :: booked, selected :: acc)
+                case _ => helper(tail, booked, acc)
             case Left(_) :: tail => helper(tail, booked, acc)
 
         helper(schedules, List.empty, List.empty)
+
+      def durationMatches(required: Duration, start: LocalDateTime, end: LocalDateTime): Boolean =
+        Duration.between(start, end) == required
+
+      def noOverlaps(booked: List[Availability], candidate: Availability): Boolean =
+        booked.forall(booked => !(booked.start.isBefore(candidate.end) && booked.end.isAfter(candidate.start)))
 
 
       val result = scheduleVivaList.foldLeft(List.empty[Result[List[Availability]]]) { (acc, viva) =>
         acc ++ List(ExtractAvail(viva))
       }
 
-      val finalSelections = processSchedules(result,duration.toDuration)
+      val finalSelections = processSchedules(result, duration.toDuration)
 
       println("------------------------------------------------------------------")
-//      println(result)
+      println(result)
       println("------------------------------------------------------------------")
-//      println(finalSelections)
+      println(finalSelections)
 
 
