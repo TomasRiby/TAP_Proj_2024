@@ -50,7 +50,14 @@ To separate responsibilities and ease maintenance in case of issues, a class was
 The decision to group the concepts of teachers and externals was made due to the similarity in their data structure.
 Consolidating them into a single Resource simplifies computing their data for the final goal of the proposed problem, as there's no need to compare between two different data structures.
 
-As for the algorithm, it...ß
+As for the algorithm, the function `makeTheAlgorithmHappen` takes an agenda structure containing availability information of teachers and external agents, as well as details about "vivas" (likely an academic defense or presentation) and the expected duration for each event.
+Initially, the function extracts and groups the availabilities of teachers and external agents by their unique identifiers. It then uses these availabilities to attempt to schedule the "vivas", ensuring that the schedules of the president, advisor, and supervisor are synchronized without conflicts.
+
+For each "viva", the `CreateSchedule` function creates a schedule attempting to allocate times where all necessary participants are simultaneously available. The ExtractAvail function then looks for overlaps in the available times of the participants that meet the required duration for the "viva". If found, these overlaps are considered as feasible times.
+
+Furthermore, the `findBestCombinedAvailability` function is used to determine the best possible overlap of times considering the required participants and the specified duration. It searches for time intervals where all participants are available at the same time and that the interval is sufficient as per the specified duration.
+
+Finally, the `processSchedules` function processes all possible "viva" schedules to filter and select those that are not only feasible but also do not overlap with others already selected, ensuring the best allocation of times for all sessions. The list of selected times is then returned as the final result of the function, sorted by the start of each available time.
 #### Possible alternatives
 
 #### Possible future improvements
