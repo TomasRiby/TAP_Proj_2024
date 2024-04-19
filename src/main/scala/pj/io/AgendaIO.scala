@@ -8,8 +8,7 @@ import scala.xml.Elem
 
 
 object AgendaIO:
-  def loadAgenda(xml: Elem): Result[Agenda] =
-    
+  def loadAgenda(xml: Elem): Result[Agenda] = 
     for {
       viva <- VivaIO.loadViva(xml)
       resources <- ResourceIO.loadResources(xml)

@@ -15,12 +15,13 @@ import scala.xml.Node
 class Test extends AnyFunSuite:
 
   test("Test a single test file from the assessment directory"):
-    val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_01_in.xml"
+    val dir = "files/test/ms01/"
+    val fileName = "invalid_external_Id_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
       result <- ScheduleMS01.create(fileLoaded)
     } yield result
+    println(result)
 
 
