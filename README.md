@@ -38,8 +38,19 @@ programming techniques.
 
 ### MS01
 #### Overview (Main Decisions)
-The initial milestone of our project was developed using the Test Driven Development (TDD) methodology, a strategy particularly beneficial at the onset when the domain model concepts were still being defined and no code base existed. To foster robust development and minimize potential bugs from the outset, we prioritized writing unit tests that verified the accuracy and stability of our domain model before beginning the actual coding. Starting with these tests allowed us to mitigate possible bugs and clearly define the expected functionality of the code. This approach not only facilitated a clearer development process but also helped maintain the integrity of the domain model throughout the project’s progression. By continuously updating and referring to our comprehensive suite of unit tests, we were able to quickly identify and rectify defects arising from recent changes, ensuring a stable and reliable codebase.
+The initial milestone of our project was developed using the Test Driven Development (TDD) methodology, a strategy particularly beneficial at the onset when the domain model concepts were still being defined and no code base existed. 
+To foster robust development and minimize potential bugs from the outset, we prioritized writing unit tests that verified the accuracy and stability of our domain model before beginning the actual coding. 
+Starting with these tests allowed us to mitigate possible bugs and clearly define the expected functionality of the code. 
+This approach not only facilitated a clearer development process but also helped maintain the integrity of the domain model throughout the project’s progression. 
+By continuously updating and referring to our comprehensive suite of unit tests, we were able to quickly identify and rectify defects arising from recent changes, ensuring a stable and reliable codebase.
 
+The Classes were created in the `io` package for reading XML files and loading data into memory. 
+To separate responsibilities and ease maintenance in case of issues, a class was created for each context, such as `AgendaIO`, `VivaIO`, and finally `ResourceIO`, which encompasses the concepts of teachers and externals.
+
+The decision to group the concepts of teachers and externals was made due to the similarity in their data structure.
+Consolidating them into a single Resource simplifies computing their data for the final goal of the proposed problem, as there's no need to compare between two different data structures.
+
+As for the algorithm, it...ß
 #### Possible alternatives
 
 #### Possible future improvements
