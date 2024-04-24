@@ -25,7 +25,7 @@ class ResourceIOTest extends AnyFunSuite with Matchers:
 
     (result, startDate, endDate) match
       case (Right(resource), Right(sd), Right(ed)) =>
-        resource.external.foreach(ext => {
+        resource.foreach(ext => {
           ext.availability.foreach(av => {
             startDate match
               case Right(st) => assert(st === sd)

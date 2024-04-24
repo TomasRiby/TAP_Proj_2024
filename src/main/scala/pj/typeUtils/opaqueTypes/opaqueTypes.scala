@@ -1,7 +1,7 @@
 package pj.typeUtils.opaqueTypes
 
 import pj.domain.DomainError.WrongFormat
-import pj.domain.{DomainError, External, Result, Teacher}
+import pj.domain.{DomainError, External, Resource, Result, Teacher}
 import pj.typeUtils.opaqueTypes.opaqueTypes.Time.timePattern
 
 import java.time.{Duration, LocalDateTime}
@@ -28,10 +28,8 @@ object opaqueTypes:
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"ID '$id' is in incorrect format"))
 
-    def verifyId(resourceList: List[Teacher | External]): Result[Boolean] =
-      val idList = resourceList.map:
-        case teacher: Teacher => teacher.id
-        case external: External => external.id
+    def verifyId(resourceList: List[Resource]): Result[Boolean] =
+      val idList = resourceList.map(resource => resource.id)
       val idSet = idList.toSet
       if idList.size != idSet.size then
         Left(DomainError.DuplicateError(s"Duplicate IDs found in the $idList"))

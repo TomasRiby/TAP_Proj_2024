@@ -9,13 +9,11 @@ import scala.xml.{Elem, Node}
 
 object ResourceIO:
 
-  def loadResources(xml: Elem): Result[Resource] =
+  def loadResources(xml: Elem): Result[List[Resource]] =
     for {
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
-      _ <- ID.verifyId(resultTeachers)
-      resultExternals <- XML.traverse(xml \\ "external", extractExternals)
-      _ <- ID.verifyId(resultExternals)
-    } yield Resource.from(resultTeachers,resultExternals)
+      externalResults <- XML.traverse(xml \\ "external", extractExternals)
+    } yield resultTeachers ++ externalResults
 
   private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for

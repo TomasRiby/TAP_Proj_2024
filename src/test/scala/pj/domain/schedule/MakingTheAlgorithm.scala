@@ -37,12 +37,12 @@ class MakingTheAlgorithm extends AnyFunSuite:
     def makeTheAlgorithmHappen(agenda: Agenda): Any =
 
       // Given a structure representing teachers' availabilities
-      val teacherAvailabilities = agenda.resources.teacher.flatMap { teacher =>
+      val teacherAvailabilities = agenda.resources.flatMap { teacher =>
         teacher.availability.map { avail =>
           (teacher.id, avail)
         }
       }
-      val externalAvailabilities = agenda.resources.external.flatMap { external =>
+      val externalAvailabilities = agenda.resources.flatMap { external =>
         external.availability.map { avail =>
           (external.id, avail)
         }

@@ -40,12 +40,13 @@ object VivaIO:
       advisor <- XML.fromNode(node, "advisor")
       idXML <- XML.fromAttribute(advisor, "id")
       id <- ID.createRegularId(idXML)
-    } yield Advisor.from(id)
+      name <- Name.createName("vl")
+    } yield Advisor.from(id, name, List.empty[Availability])
 
   private def extractSupervisor(node: Node): Result[Supervisor] =
     for {
       supervisor <- XML.fromNode(node, "supervisor")
       idXML <- XML.fromAttribute(supervisor, "id")
       id <- ID.createRegularId(idXML)
-
-    } yield Supervisor.from(id)
+      name <- Name.createName("vl2")
+    } yield Supervisor.from(id, name, List.empty[Availability])
