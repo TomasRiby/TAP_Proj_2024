@@ -1,9 +1,58 @@
 package pj.io
 
 import pj.domain.*
+import pj.domain.myDomain.{OAvailability, OPeriod}
+import pj.domain.schedule.OResource
 import pj.io.AvailabilityIO.updateAvailabilities
+import pj.opaqueTypes.{OID, OName, OPreference, OTime}
+import pj.xml.XML
+
+import scala.xml.{Elem, Node}
 
 object ResourceIO:
+
+
+  def loadTeachers(xml: Elem): Result[List[OTeacher]] =
+    for {
+      resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
+      _ <- OID.verifyId(resultTeachers)
+    } yield resultTeachers
+
+  def loadExternals(xml: Elem): Result[List[OExternal]] =
+    for {
+      resultExternals <- XML.traverse(xml \\ "external", extractExternals)
+      _ <- OID.verifyId(resultExternals)
+    } yield resultExternals
+    
+
+  private def extractTeachers(teacherNode: Node): Result[OTeacher] =
+    for
+      idXml <- XML.fromAttribute(teacherNode, "id")
+      id <- OID.createTeacherId(idXml)
+      nameXml <- XML.fromAttribute(teacherNode, "name")
+      name <- OName.createName(nameXml)
+      availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
+    yield OTeacher.from(id, name, availability)
+
+  private def extractExternals(externalNode: Node): Result[OExternal] =
+    for
+      xmlId <- XML.fromAttribute(externalNode, "id")
+      id <- OID.createExternalId(xmlId)
+      nameXml <- XML.fromAttribute(externalNode, "name")
+      name <- OName.createName(nameXml)
+      availability <- XML.traverse(externalNode \\ "availability", extractAvailabilities)
+    yield OExternal.from(id, name, availability)
+
+  private def extractAvailabilities(availabilityNode: Node): Result[OAvailability] =
+    for
+      startXML <- XML.fromAttribute(availabilityNode, "start")
+      start <- OTime.createTime(startXML)
+      endXML <- XML.fromAttribute(availabilityNode, "end")
+      end <- OTime.createTime(endXML)
+      preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
+      preference <- OPreference.createPreference(preferenceXML.toInt)
+      period <- OPeriod.from(start, end)
+    yield OAvailability.from(period, preference)
 
   def updateTeachers(timeSlot: Interval, teachers: List[Teacher], vivaTeachers: List[Teacher]): Result[List[Teacher]] =
     val newTeachers = teachers.filter(teacher => !vivaTeachers.contains(teacher))

@@ -3,8 +3,11 @@ package pj.domain
 type Result[A] = Either[DomainError, A]
 
 enum DomainError:
+  case Error(error: String)
+  case WrongFormat(error: String)
   case IOFileProblem(error: String)
   case XMLError(error: String)
+  case DuplicateError(error: String)
 
 
   // Tested already
