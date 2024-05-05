@@ -1,28 +1,36 @@
 package pj.io
 
-import pj.domain.{Agenda, External, Result, Teacher, Viva}
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ODuration, Time}
-import pj.xml.XML
+import pj.domain.{Agenda, AgendaOut, Result, Time}
+import VivaIO.scheduleVivas
+import pj.xml.XML.{fromAttribute, fromNode, traverse}
+import pj.xml.XMLToDomain.{parseExternal, parseTeacher, parseViva}
 
 import scala.xml.Elem
 
 
 object AgendaIO:
-  def loadAgenda(xml: Elem): Result[Agenda] =
-    for {
-      viva <- VivaIO.loadViva(xml)
-      resources <- ResourceIO.loadResources(xml)
-      durationXml <- XML.fromAttribute(xml, "duration")
-      duration <- ODuration.createDuration(durationXml)
-    } yield Agenda.from(viva, resources, duration)
 
-  def loadAgenda(xml: String): Result[Agenda] =
-    println("--------------")
-    println(xml)
+  def createAgenda(xml: Elem): Result[Agenda] =
+    for
+      durationString <- fromAttribute(xml, "duration")
+      duration <- Time.from(durationString)
+
+      resources <- fromNode(xml, "resources")
+
+      teachersNode <- fromNode(resources, "teachers")
+      teachers <- traverse(teachersNode \ "teacher", node => parseTeacher(node))
+
+      externalsNode <- fromNode(resources, "externals")
+      externals <- traverse(externalsNode \ "external", node => parseExternal(node))
+
+      vivasNode <- fromNode(xml, "vivas")
+      vivas <- traverse(vivasNode \ "viva", node => parseViva(node, teachers, externals))
+
+      agenda <- Agenda.from(vivas, teachers, externals, duration)
+    yield agenda
+
+  def createAgendaOut(agenda: Agenda): Result[AgendaOut] =
     for {
-      loadXML <- FileIO.load(xml)
-      viva <- VivaIO.loadViva(loadXML)
-      resources <- ResourceIO.loadResources(loadXML)
-      durationXml <- XML.fromAttribute(loadXML, "duration")
-      duration <- ODuration.createDuration(durationXml)
-    } yield Agenda.from(viva, resources, duration)
+      vivas <- scheduleVivas(agenda)
+      agendaOut <- AgendaOut.from(vivas)
+    } yield agendaOut

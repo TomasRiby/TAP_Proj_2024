@@ -1,6 +1,7 @@
 package pj.domain.schedule
 
-import pj.domain.Result
+import pj.domain.{Resource, Result, Viva}
+
 import scala.xml.Elem
 
 trait Schedule:
