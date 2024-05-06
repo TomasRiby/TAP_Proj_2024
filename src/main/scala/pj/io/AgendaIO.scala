@@ -11,7 +11,7 @@ import scala.xml.Elem
 
 object AgendaIO:
 
-  def loadAgenda(xml: Elem): Result[Agenda] =
+  def loadAgenda(xml: Elem): Result[OAgenda] =
     for
 
       durationString <- fromAttribute(xml, "duration")
@@ -32,12 +32,12 @@ object AgendaIO:
 
 
       vivasNode <- fromNode(xml, "vivas")
-      vivas <- traverse(vivasNode \ "viva", node => parseViva(node, teachers, externals))
+      vivas <- traverse(vivasNode \ "viva", node => parseViva(node, lalaTeachers, lalaExternals))
 
-      agenda <- Agenda.from(vivas, teachers, externals, duration)
+      agenda <- OAgenda.from(vivas, lalaTeachers, lalaExternals, duration)
     yield agenda
 
-  def createAgendaOut(agenda: Agenda): Result[AgendaOut] =
+  def createAgendaOut(agenda: OAgenda): Result[AgendaOut] =
     for {
       vivas <- scheduleVivas(agenda)
       agendaOut <- AgendaOut.from(vivas)

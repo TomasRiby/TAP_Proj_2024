@@ -16,7 +16,7 @@ object DomainToXML {
     <coadvisor name={coadvisor.name.toString}/>
 
   private def vivaToXml(scheduledViva: VivaScheduled): Elem =
-    <viva student={scheduledViva.student.toString} title={scheduledViva.title.toString} start={scheduledViva.start.to.format(formatter)} end={scheduledViva.end.to.format(formatter)} preference={scheduledViva.preference.toString}>
+    <viva student={scheduledViva.student.toString} title={scheduledViva.title.toString} start={scheduledViva.start.toLocalDateT.format(formatter)} end={scheduledViva.end.toLocalDateT.format(formatter)} preference={scheduledViva.preference.toString}>
       <president name={scheduledViva.president.name.toString}/>
       <advisor name={scheduledViva.advisor.name.toString}/>
       {scheduledViva.coadvisors.map(coadvisorToXml)}

@@ -33,3 +33,6 @@ object OPreference:
   // Define an Ordering instance using the toInt conversion
   given Ordering[OPreference] with
     def compare(x: OPreference, y: OPreference): Int = toInt(x) - toInt(y)
+
+  given Conversion[OPreference, Int] with
+    def apply(op: OPreference): Int = toInt(op)

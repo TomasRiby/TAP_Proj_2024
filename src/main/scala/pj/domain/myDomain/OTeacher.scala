@@ -12,6 +12,8 @@ final case class OTeacher private(
                                    availability: List[OAvailability])
 
 
+
 object OTeacher:
   def from(id: OID, name: OName, availability: List[OAvailability]):OTeacher =
     new OTeacher(id: OID, name: OName, availability: List[OAvailability])
+

@@ -14,9 +14,13 @@ object OTime:
   implicit val timeOrdering: Ordering[OTime] = Ordering.fromLessThan[OTime]((t1, t2) => t1.isBefore(t2))
 
   def createTime(time: String): Result[OTime] =
-    Try(LocalDateTime.parse(time, timePattern)) match
-      case Success(parsedTime) => Right(parsedTime)
-      case Failure(_) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
+    Try(LocalDateTime.parse(time)) match
+      case Failure(exception) => Left(DomainError.InvalidDateTime(s"$time - Date should follow the format yyyy-mm-ddThh:mm:ss"))
+      case Success(value) => Right(value)
+
+  def createTime(dateTime: LocalDateTime): Result[OTime] =
+    Right(dateTime)
+
 
   extension (t: OTime)
     def isAfter(other: OTime): Boolean = t.isAfter(other)
@@ -26,3 +30,4 @@ object OTime:
     def minusHours(hours: Long): OTime = t.minusHours(hours)
     def toTemporal: Temporal = t: LocalDateTime
     def toLocalDateT: LocalDateTime = t: OTime
+    

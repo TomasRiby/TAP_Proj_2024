@@ -35,3 +35,7 @@ object OID:
     id match
       case externalIdPattern() => Right(id)
       case _ => Left(DomainError.WrongFormat(s"External´s ID '$id' should be in the *E001* format"))
+      
+  extension (id: OID)
+    def IDtoString: String = id
+    

@@ -58,10 +58,10 @@ final case class OPeriod private(start: OTime, end: OTime):
 object OPeriod:
   def from(start: OTime, end: OTime): Result[OPeriod] =
     for {
-      _ <- validateInterval(start, end)
+      _ <- validatePeriod(start, end)
     } yield OPeriod(start, end)
 
-  private def validateInterval(start: OTime, end: OTime): Result[Unit] =
+  private def validatePeriod(start: OTime, end: OTime): Result[Unit] =
     if (start.isBefore(end)) Right(())
     else Left(DomainError.InvalidInterval(s"$start - $end"))
 
