@@ -1,6 +1,6 @@
 package pj.domain.schedule
 
-import pj.domain.{Resource, Result, Viva}
+import pj.domain.{Result, Viva}
 
 import scala.xml.Elem
 

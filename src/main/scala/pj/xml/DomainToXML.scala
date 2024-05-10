@@ -9,16 +9,16 @@ object DomainToXML {
 
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-  private def supervisorToXml(supervisor: OExternal | OTeacher): Elem = supervisor match
-    case teacher: OTeacher =>
+  private def supervisorToXml(supervisor: External | Teacher): Elem = supervisor match
+    case teacher: Teacher =>
         <supervisor name={teacher.name.toString}/>
-    case external: OExternal =>
+    case external: External =>
         <supervisor name={external.name.toString}/>
 
-  private def coadvisorToXml(coadvisor: OExternal | OTeacher): Elem = coadvisor match
-    case teacher: OTeacher =>
+  private def coadvisorToXml(coadvisor: External | Teacher): Elem = coadvisor match
+    case teacher: Teacher =>
         <coadvisor name={teacher.name.toString}/>
-    case external: OExternal =>
+    case external: External =>
         <coadvisor name={external.name.toString}/>
 
   private def vivaToXml(scheduledViva: VivaScheduled): Elem =

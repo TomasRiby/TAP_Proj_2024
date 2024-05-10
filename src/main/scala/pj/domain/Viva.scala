@@ -1,5 +1,6 @@
 package pj.domain
 
+import pj.opaqueTypes.Name.Name
 import pj.opaqueTypes.OTime.OTime
 
 import scala.annotation.targetName
@@ -23,41 +24,41 @@ object Title:
 
 sealed trait Viva:
 
-  def president: OTeacher
+  def president: Teacher
 
-  def advisor: OTeacher
+  def advisor: Teacher
 
-  def supervisors: List[OExternal]
+  def supervisors: List[External]
 
-  def coadvisors: List[OTeacher | OExternal]
+  def coadvisors: List[Teacher | External]
 
 final case class VivaNotScheduled(student: Name, title: Title,
-                                  president: OTeacher, advisor: OTeacher,
-                                  supervisors: List[OExternal], coadvisors: List[OTeacher | OExternal]) extends Viva
+                                  president: Teacher, advisor: Teacher,
+                                  supervisors: List[External], coadvisors: List[Teacher | External]) extends Viva
 
 object VivaNotScheduled:
 
-  private def isValidPresident(president: OTeacher, teachers: List[OTeacher], title: String): Result[Unit] =
+  private def isValidPresident(president: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
     if (teachers.contains(president)) Right(())
     else Left(DomainError.InvalidPresidentId(s"The president $president is invalid for viva $title"))
 
-  private def isValidAdvisor(advisor: OTeacher, teachers: List[OTeacher], title: String): Result[Unit] =
+  private def isValidAdvisor(advisor: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
     if (teachers.contains(advisor)) Right(())
     else Left(DomainError.InvalidAdvisorId(s"The advisor $advisor is invalid for viva $title"))
 
-  private def isValidResource(resource: OTeacher | OExternal, resources: List[OTeacher | OExternal]): Boolean =
+  private def isValidResource(resource: Teacher | External, resources: List[Teacher | External]): Boolean =
     resources.contains(resource)
 
-  private def isValidResources(resources: List[OTeacher | OExternal], validList: List[OTeacher | OExternal], error: DomainError): Result[Unit] =
+  private def isValidResources(resources: List[Teacher | External], validList: List[Teacher | External], error: DomainError): Result[Unit] =
     if (resources.forall(resource => isValidResource(resource, validList))) Right(())
     else Left(error)
 
-  private def moreThanOneRole(ids: List[OTeacher | OExternal], title: String): Result[Unit] =
+  private def moreThanOneRole(ids: List[Teacher | External], title: String): Result[Unit] =
     if (ids.distinct.size.eq(ids.size)) Right(())
     else Left(DomainError.MoreThanOneRole(s"There are resources with more than one role for viva $title"))
 
-  def from(student: Name, title: Title, president: OTeacher, advisor: OTeacher,
-           supervisors: List[OExternal], coadvisors: List[OTeacher | OExternal], teachers: List[OTeacher], externals: List[OExternal]): Result[VivaNotScheduled] =
+  def from(student: Name, title: Title, president: Teacher, advisor: Teacher,
+           supervisors: List[External], coadvisors: List[Teacher | External], teachers: List[Teacher], externals: List[External]): Result[VivaNotScheduled] =
     for
       _ <- isValidPresident(president, teachers, title.toString)
       _ <- isValidAdvisor(advisor, teachers, title.toString)
@@ -66,21 +67,21 @@ object VivaNotScheduled:
       _ <- moreThanOneRole(president :: advisor :: supervisors ++ coadvisors, title.toString)
     yield VivaNotScheduled(student, title, president, advisor, supervisors, coadvisors)
 
-  def getResource(viva: VivaNotScheduled): Result[List[OTeacher | OExternal]] =
+  def getResource(viva: VivaNotScheduled): Result[List[Teacher | External]] =
     Right(viva.president :: viva.advisor :: viva.coadvisors ++ viva.supervisors)
 
-  def getVivaTeachers(resources: List[OTeacher | OExternal]): Result[List[OTeacher]] =
-    Right(resources.collect { case t: OTeacher => t })
+  def getVivaTeachers(resources: List[Teacher | External]): Result[List[Teacher]] =
+    Right(resources.collect { case t: Teacher => t })
 
-  def getVivaExternals(resources: List[OTeacher | OExternal]): Result[List[OExternal]] =
-    Right(resources.collect { case e: OExternal => e })
+  def getVivaExternals(resources: List[Teacher | External]): Result[List[External]] =
+    Right(resources.collect { case e: External => e })
 
 final case class VivaScheduled(student: Name, title: Title, start: OTime, end: OTime,
-                               preference: Int, president: OTeacher, advisor: OTeacher, coadvisors: List[OTeacher | OExternal],
-                               supervisors: List[OExternal]) extends Viva
+                               preference: Int, president: Teacher, advisor: Teacher, coadvisors: List[Teacher | External],
+                               supervisors: List[External]) extends Viva
 
 object VivaScheduled:
   def from(student: Name, title: Title, start: OTime, end: OTime,
-           preference: Int, president: OTeacher, advisor: OTeacher,
-           coadvisors: List[OTeacher | OExternal], supervisor: List[OExternal]): Result[VivaScheduled] =
+           preference: Int, president: Teacher, advisor: Teacher,
+           coadvisors: List[Teacher | External], supervisor: List[External]): Result[VivaScheduled] =
     Right(VivaScheduled(student, title, start, end, preference, president, advisor, coadvisors, supervisor))

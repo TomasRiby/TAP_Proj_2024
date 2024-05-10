@@ -5,11 +5,11 @@ import pj.domain.{DomainError, Result}
 import scala.util.matching.Regex
 
 
-object OName:
-  opaque type OName = String
+object Name:
+  opaque type Name = String
   private val validNamePattern: Regex = "^[a-zA-Z0-9 ]+$".r
 
-  def createName(name: String): Result[OName] =
+  def createName(name: String): Result[Name] =
     if (name == "" || name.isBlank)
       Left(DomainError.WrongFormat("Name can't be blank"))
     else

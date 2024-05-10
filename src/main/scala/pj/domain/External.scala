@@ -1,0 +1,16 @@
+package pj.domain
+
+import pj.domain.Availability
+import pj.io.ResourceIO
+import pj.opaqueTypes.ID.ID
+import pj.opaqueTypes.Name.Name
+
+final case class External private(
+                                   id: ID,
+                                   name: Name,
+                                   availability: List[Availability])
+
+
+object External:
+  def from(id: ID, name: Name, availability: List[Availability]): External =
+    new External(id: ID, name: Name, availability: List[Availability])

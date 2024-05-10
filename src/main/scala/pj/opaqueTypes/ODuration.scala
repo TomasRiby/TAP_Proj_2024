@@ -2,7 +2,7 @@ package pj.opaqueTypes
 
 import pj.domain.{DomainError, Result}
 
-import java.time.Duration
+import java.time.{Duration, LocalTime}
 import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
@@ -27,3 +27,4 @@ object ODuration:
 
   extension (t: ODuration)
     def toDuration: Duration = t: ODuration
+    def toLocalTime: LocalTime = LocalTime.of(t.toHours.toInt, t.toMinutes.toInt % 60, t.toSeconds.toInt % 60)

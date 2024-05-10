@@ -1,6 +1,10 @@
 package pj.domain
 
-final case class Agenda(vivas: List[VivaNotScheduled], teachers: List[Teacher], externals: List[External], duration: Time)
+import pj.domain.{DomainError, External, Teacher, Result, VivaNotScheduled, VivaScheduled}
+import pj.opaqueTypes.ODuration.ODuration
+import pj.opaqueTypes.OTime.OTime
+
+final case class Agenda(vivas: List[VivaNotScheduled], teachers: List[Teacher], externals: List[External], duration: ODuration)
 
 object Agenda:
 
@@ -12,7 +16,7 @@ object Agenda:
     if (list.distinctBy(property).size.ne(list.size)) Left(error)
     else Right(())
 
-  def from(vivas: List[VivaNotScheduled], teachers: List[Teacher], externals: List[External], duration: Time): Result[Agenda] =
+  def from(vivas: List[VivaNotScheduled], teachers: List[Teacher], externals: List[External], duration: ODuration): Result[Agenda] =
     for
       _ <- emptyList(vivas, DomainError.NoVivasInAgenda)
       _ <- emptyList(vivas, DomainError.NoTeachersInAgenda)

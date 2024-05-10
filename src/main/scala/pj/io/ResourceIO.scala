@@ -1,10 +1,10 @@
 package pj.io
 
 import pj.domain.*
-import pj.domain.myDomain.{OAvailability, OPeriod}
-import pj.domain.schedule.OResource
-import pj.io.OAvailabilityIO.updateAvailabilities
-import pj.opaqueTypes.{OID, OName, OPreference, OTime}
+import pj.domain.{Availability, Period}
+import pj.domain.Resource
+import pj.io.AvailabilityIO.updateAvailabilities
+import pj.opaqueTypes.{ID, Name, Preference, OTime}
 import pj.xml.XML
 
 import scala.xml.{Elem, Node}
@@ -12,53 +12,53 @@ import scala.xml.{Elem, Node}
 object ResourceIO:
 
 
-  def loadTeachers(xml: Elem): Result[List[OTeacher]] =
+  def loadTeachers(xml: Elem): Result[List[Teacher]] =
     for {
       resultTeachers <- XML.traverse(xml \\ "teacher", extractTeachers)
-      _ <- OID.verifyId(resultTeachers)
+      _ <- ID.verifyId(resultTeachers)
     } yield resultTeachers
 
-  def loadExternals(xml: Elem): Result[List[OExternal]] =
+  def loadExternals(xml: Elem): Result[List[External]] =
     for {
       resultExternals <- XML.traverse(xml \\ "external", extractExternals)
-      _ <- OID.verifyId(resultExternals)
+      _ <- ID.verifyId(resultExternals)
     } yield resultExternals
 
 
-  private def extractTeachers(teacherNode: Node): Result[OTeacher] =
+  private def extractTeachers(teacherNode: Node): Result[Teacher] =
     for
       idXml <- XML.fromAttribute(teacherNode, "id")
-      id <- OID.createTeacherId(idXml)
+      id <- ID.createTeacherId(idXml)
       nameXml <- XML.fromAttribute(teacherNode, "name")
-      name <- OName.createName(nameXml)
+      name <- Name.createName(nameXml)
       availability <- XML.traverse(teacherNode \\ "availability", extractAvailabilities)
-    yield OTeacher.from(id, name, availability)
+    yield Teacher.from(id, name, availability)
 
-  private def extractExternals(externalNode: Node): Result[OExternal] =
+  private def extractExternals(externalNode: Node): Result[External] =
     for
       xmlId <- XML.fromAttribute(externalNode, "id")
-      id <- OID.createExternalId(xmlId)
+      id <- ID.createExternalId(xmlId)
       nameXml <- XML.fromAttribute(externalNode, "name")
-      name <- OName.createName(nameXml)
+      name <- Name.createName(nameXml)
       availability <- XML.traverse(externalNode \\ "availability", extractAvailabilities)
-    yield OExternal.from(id, name, availability)
+    yield External.from(id, name, availability)
 
-  private def extractAvailabilities(availabilityNode: Node): Result[OAvailability] =
+  private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
     for
       startXML <- XML.fromAttribute(availabilityNode, "start")
       start <- OTime.createTime(startXML)
       endXML <- XML.fromAttribute(availabilityNode, "end")
       end <- OTime.createTime(endXML)
-      period <- OPeriod.from(start, end)
+      period <- Period.from(start, end)
       preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
-      preference <- OPreference.createPreference(preferenceXML.toInt)
-    yield OAvailability.from(period, preference)
+      preference <- Preference.createPreference(preferenceXML.toInt)
+    yield Availability.from(period, preference)
 
-  def updateTeachers(timeSlot: OPeriod, teachers: List[OTeacher], vivaTeachers: List[OTeacher]): Result[List[OTeacher]] =
+  def updateTeachers(timeSlot: Period, teachers: List[Teacher], vivaTeachers: List[Teacher]): Result[List[Teacher]] =
     val newTeachers = teachers.filter(teacher => !vivaTeachers.contains(teacher))
 
-    def updateTeachersAux(timeSlot: OPeriod, teachers: List[OTeacher]): Result[List[OTeacher]] =
-      teachers.foldLeft[Result[Vector[OTeacher]]](Right(Vector.empty[OTeacher])) { case (accRes, teacher) =>
+    def updateTeachersAux(timeSlot: Period, teachers: List[Teacher]): Result[List[Teacher]] =
+      teachers.foldLeft[Result[Vector[Teacher]]](Right(Vector.empty[Teacher])) { case (accRes, teacher) =>
         for
           acc <- accRes
 
@@ -72,16 +72,16 @@ object ResourceIO:
       case Right(value) => Right(value ++ newTeachers)
 
 
-  private def updateTeacher(timeSlot: OPeriod, teacher: OTeacher): Result[OTeacher] =
+  private def updateTeacher(timeSlot: Period, teacher: Teacher): Result[Teacher] =
     for {
       availabilities <- updateAvailabilities(timeSlot, teacher.availability)
-    } yield OTeacher.from(teacher.id, teacher.name, availabilities)
+    } yield Teacher.from(teacher.id, teacher.name, availabilities)
 
-  def updateExternals(timeSlot: OPeriod, externals: List[OExternal], vivaExternals: List[OExternal]): Result[List[OExternal]] =
+  def updateExternals(timeSlot: Period, externals: List[External], vivaExternals: List[External]): Result[List[External]] =
     val newExternals = externals.filter(external => !vivaExternals.contains(external))
 
-    def updateExternalsAux(timeSlot: OPeriod, externals: List[OExternal]): Result[List[OExternal]] =
-      externals.foldLeft[Result[Vector[OExternal]]](Right(Vector.empty[OExternal])) { case (accRes, external) =>
+    def updateExternalsAux(timeSlot: Period, externals: List[External]): Result[List[External]] =
+      externals.foldLeft[Result[Vector[External]]](Right(Vector.empty[External])) { case (accRes, external) =>
         for
           acc <- accRes
 
@@ -94,16 +94,16 @@ object ResourceIO:
       case Left(value) => Left(DomainError.ImpossibleSchedule)
       case Right(value) => Right(value ++ newExternals)
 
-  private def updateExternal(timeSlot: OPeriod, external: OExternal): Result[OExternal] =
+  private def updateExternal(timeSlot: Period, external: External): Result[External] =
     for {
       availabilities <- updateAvailabilities(timeSlot, external.availability)
-    } yield OExternal.from(external.id, external.name, availabilities)
+    } yield External.from(external.id, external.name, availabilities)
 
-  def calculatePreference(interval: OPeriod, resources: List[OTeacher | OExternal]): Result[Int] =
+  def calculatePreference(interval: Period, resources: List[Teacher | External]): Result[Int] =
     val res = resources.flatMap {
-      case teacher: OTeacher => teacher.availability
-      case external: OExternal => external.availability
+      case teacher: Teacher => teacher.availability
+      case external: External => external.availability
     }.filter(availability =>
-      interval.isPartOf(availability.OPeriod)
+      interval.isPartOf(availability.period)
     ).map(_.preference.toInteger).sum
     Right(res)
