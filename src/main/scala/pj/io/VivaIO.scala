@@ -17,7 +17,6 @@ object VivaIO:
       viva <- VivaNotScheduled.from(vivaNotScheduled.student, vivaNotScheduled.title, president, advisor, supervisors, coadvisors, teachers, externals)
     yield viva
 
-  //TODO MAKE A GENERIC THING FOR THIS YOU PIECE OF SHIT
   private def retrieveUpdatedTeacher(teacher: OTeacher, teachers: List[OTeacher]): Result[OTeacher] =
     teachers.find(t => t.id == teacher.id) match
       case Some(value) => Right(value)
@@ -25,7 +24,7 @@ object VivaIO:
 
   private def retrieveUpdatedCoadvisors(coadvisors: List[OTeacher | OExternal], teachers: List[OTeacher], externals: List[OExternal]): Result[List[OTeacher | OExternal]] =
     val updatedTeachers = teachers.filter(teacher => coadvisors.collect { case t: OTeacher => t.id }.contains(teacher.id))
-    val updatedExternals = externals.filter(external => coadvisors.collect { case e: External => e.id }.contains(external.id))
+    val updatedExternals = externals.filter(external => coadvisors.collect { case e: OExternal => e.id }.contains(external.id))
     Right(updatedTeachers ++ updatedExternals)
 
   private def retrieveUpdatedSupervisors(previous: List[OExternal], externals: List[OExternal]): Result[List[OExternal]] =

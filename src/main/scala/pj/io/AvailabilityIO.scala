@@ -55,7 +55,7 @@ object OAvailabilityIO:
       case teacher: OTeacher => teacher.availability
       case external: OExternal => external.availability
     }.filter { availability =>
-      resources.forall {
+      resources.forall:
         case teacher: OTeacher =>
           teacher.availability.exists { a2 =>
             val adjustedEnd = availability.OPeriod.start.toLocalDateT
@@ -74,7 +74,6 @@ object OAvailabilityIO:
             (availability.OPeriod.start.isAfter(a2.OPeriod.start) || availability.OPeriod.start.isEqual(a2.OPeriod.start)) &&
               (adjustedEnd.isBefore(a2.OPeriod.end.toLocalDateT) || adjustedEnd.isEqual(a2.OPeriod.end.toLocalDateT))
           }
-      }
     }
 
     val sortedAvailabilities = commonAvailabilities.sortBy(_.OPeriod.start)

@@ -9,18 +9,22 @@ object DomainToXML {
 
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-  private def supervisorToXml(supervisor: Resource): Elem =
-    <supervisor name={supervisor.name.toString}/>
+  private def supervisorToXml(supervisor: OExternal | OTeacher): Elem = supervisor match
+    case teacher: OTeacher =>
+        <supervisor name={teacher.name.toString}/>
+    case external: OExternal =>
+        <supervisor name={external.name.toString}/>
 
-  private def coadvisorToXml(coadvisor: Resource): Elem =
-    <coadvisor name={coadvisor.name.toString}/>
+  private def coadvisorToXml(coadvisor: OExternal | OTeacher): Elem = coadvisor match
+    case teacher: OTeacher =>
+        <coadvisor name={teacher.name.toString}/>
+    case external: OExternal =>
+        <coadvisor name={external.name.toString}/>
 
   private def vivaToXml(scheduledViva: VivaScheduled): Elem =
     <viva student={scheduledViva.student.toString} title={scheduledViva.title.toString} start={scheduledViva.start.toLocalDateT.format(formatter)} end={scheduledViva.end.toLocalDateT.format(formatter)} preference={scheduledViva.preference.toString}>
       <president name={scheduledViva.president.name.toString}/>
-      <advisor name={scheduledViva.advisor.name.toString}/>
-      {scheduledViva.coadvisors.map(coadvisorToXml)}
-      {scheduledViva.supervisors.map(supervisorToXml)}
+      <advisor name={scheduledViva.advisor.name.toString}/>{scheduledViva.coadvisors.map(coadvisorToXml)}{scheduledViva.supervisors.map(supervisorToXml)}
     </viva>
 
   def scheduleToXml(agenda: AgendaOut): Elem =

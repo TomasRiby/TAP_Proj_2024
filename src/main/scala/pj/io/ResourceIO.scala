@@ -105,5 +105,5 @@ object ResourceIO:
       case external: OExternal => external.availability
     }.filter(availability =>
       interval.isPartOf(availability.OPeriod)
-    ).map(_.preference.toInt).sum
+    ).map(_.preference.toInteger).sum
     Right(res)

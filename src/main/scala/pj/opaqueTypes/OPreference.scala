@@ -29,6 +29,7 @@ object OPreference:
     def >(other: OPreference): Boolean = toInt(p) > toInt(other)
     def <(other: OPreference): Boolean = toInt(p) < toInt(other)
     def <=(other: OPreference): Boolean = toInt(p) <= toInt(other)
+    def toInteger: Int = toInt(p)
 
   // Define an Ordering instance using the toInt conversion
   given Ordering[OPreference] with
