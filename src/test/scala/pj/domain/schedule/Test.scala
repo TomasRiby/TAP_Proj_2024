@@ -2,7 +2,7 @@ package pj.domain.schedule
 
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
-import pj.io.{AgendaIO, FileIO, ResourceIO}
+import pj.io.{AgendaIO, FileIO}
 import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 import pj.xml.XML
 

@@ -1,11 +1,11 @@
 package pj.domain
 
-import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
 
 final case class Resource private(
-                            teacher: List[Teacher], external: List[External]
+                            id: ID, name: Name, availabilities: List[Availability], resourceType: ResourseType
                            )
 
 object Resource:
-  def from(teacher: List[Teacher], external: List[External]) =
-    new Resource(teacher: List[Teacher], external: List[External])
+  def from(id: ID, name: Name, availabilities: List[Availability], resourceType: ResourseType) =
+    new Resource(id, name, availabilities, resourceType)

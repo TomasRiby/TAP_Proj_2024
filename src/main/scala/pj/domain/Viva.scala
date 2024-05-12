@@ -6,14 +6,12 @@ import pj.typeUtils.opaqueTypes.opaqueTypes.*
 final case class Viva private(
                                student: Name,
                                title: Name,
-                               president: President,
-                               advisor: Advisor,
-                               supervisor: Supervisor
+                               resources: List[Resource]
                              )
 
 object Viva:
   //Abaixo definimos as funções
-  def from(student: Name, title: Name, president: President, advisor: Advisor, supervisor: Supervisor) =
-    new Viva(student: Name, title: Name, president: President, advisor: Advisor, supervisor: Supervisor)
+  def from(student: Name, title: Name, resources: List[Resource]) =
+    new Viva(student: Name, title: Name, resources: List[Resource])
 
 
