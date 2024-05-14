@@ -4,7 +4,7 @@ import pj.domain.VivaNotScheduled.{getVivaExternals, getVivaTeachers}
 import pj.domain.*
 import pj.domain.Agenda
 import pj.io.AvailabilityIO.findEarliestCommonOAvailability
-import pj.io.ResourceIO.{calculatePreference, updateExternals, updateTeachers, getTeacher}
+import pj.io.ResourceIO.{calculatePreference, syncExternals, syncTeachers, get_Teacher}
 import pj.xml.XML
 import scala.xml.Node
 import pj.opaqueTypes.{ID, Name, Preference, OTime}
@@ -49,8 +49,8 @@ object VivaIO:
         preference <- calculatePreference(timeSlot, vivaResources)
         vivaTeachers <- getVivaTeachers(vivaResources)
         vivaExternals <- getVivaExternals(vivaResources)
-        updatedTeachers <- updateTeachers(timeSlot, teachers, vivaTeachers)
-        updatedExternals <- updateExternals(timeSlot, externals, vivaExternals)
+        updatedTeachers <- syncTeachers(timeSlot, teachers, vivaTeachers)
+        updatedExternals <- syncExternals(timeSlot, externals, vivaExternals)
         vivaScheduled <- VivaScheduled.from(viva.student, viva.title, timeSlot.start, timeSlot.end, preference, viva.president, viva.advisor, viva.coadvisors, viva.supervisors)
       } yield (vivasScheduled :+ vivaScheduled, updatedTeachers, updatedExternals)
     }
@@ -83,5 +83,5 @@ object VivaIO:
     for {
       roleNode <- XML.fromNode(vivaNode, role)
       roleId <- XML.fromAttribute(roleNode, "id")
-      teacher <- getTeacher(roleId, teachers)
+      teacher <- get_Teacher(roleId, teachers)
     } yield teacher

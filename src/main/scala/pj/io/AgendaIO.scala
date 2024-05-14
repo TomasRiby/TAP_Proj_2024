@@ -1,6 +1,6 @@
 package pj.io
 
-import pj.domain.{AgendaOut, Agenda, Result}
+import pj.domain.{ScheduleAgenda, Agenda, Result}
 import VivaIO.scheduleVivas
 import pj.opaqueTypes.ODuration
 import pj.opaqueTypes.OTime
@@ -22,8 +22,8 @@ object AgendaIO:
       agenda <- Agenda.from(vivas, loadedTeachers, loadedExternals, duration)
     yield agenda
 
-  def agenda_output(agenda: Agenda): Result[AgendaOut] =
+  def agenda_output(agenda: Agenda): Result[ScheduleAgenda] =
     for {
       vivas <- scheduleVivas(agenda)
-      agendaOut <- AgendaOut.from(vivas)
+      agendaOut <- ScheduleAgenda.from(vivas)
     } yield agendaOut

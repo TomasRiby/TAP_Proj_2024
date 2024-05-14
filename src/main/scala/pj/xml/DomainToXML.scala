@@ -27,7 +27,7 @@ object DomainToXML {
       <advisor name={scheduledViva.advisor.name.toString}/>{scheduledViva.coadvisors.map(coadvisorToXml)}{scheduledViva.supervisors.map(supervisorToXml)}
     </viva>
 
-  def scheduleToXml(agenda: AgendaOut): Elem =
+  def scheduleToXml(agenda: ScheduleAgenda): Elem =
     <schedule xsi:noNamespaceSchemaLocation="../../schedule.xsd" totalPreference={agenda.preference.toString} xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       {agenda.vivas.map(vivaToXml)}
     </schedule>
