@@ -1,7 +1,7 @@
 package pj.domain.schedule
 
 import pj.domain.Result
-import pj.io.AgendaIO.{loadAgenda, createAgendaOut}
+import pj.io.AgendaIO.{loadAgenda, agenda_output}
 import pj.xml.DomainToXML.scheduleToXml
 
 import scala.xml.Elem
@@ -13,10 +13,8 @@ object ScheduleMS01 extends Schedule:
   //       Use the xml.XML code to handle the xml elements
   //       Refer to https://github.com/scala/scala-xml/wiki/XML-Processing for xml creation
   def create(xml: Elem): Result[Elem] =
-    val result = for
-      agenda <- loadAgenda(xml)
-      agendaOut <- createAgendaOut(agenda)
-    yield agendaOut
-    result match
-      case Left(value) => Left(value)
-      case Right(value) => Right(scheduleToXml(value))
+    (for
+      AGENDA_INPUT <- loadAgenda(xml)
+      AGENDA_OUTPUT <- agenda_output(AGENDA_INPUT)
+    yield AGENDA_OUTPUT)
+      .map(scheduleToXml)
