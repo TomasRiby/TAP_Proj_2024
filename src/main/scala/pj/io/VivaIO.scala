@@ -34,23 +34,14 @@ object VivaIO:
     agenda.vivas.foldLeft[Result[(Vector[VivaScheduled], List[Teacher], List[External])]](Right((Vector.empty[VivaScheduled], agenda.teachers, agenda.externals))) { case (res, viva) =>
       for {
         valuesTuple <- res
-
-        // Update the viva
         updatedViva <- updateVivaNotScheduled(viva, valuesTuple._2, valuesTuple._3)
-
-        // Get the list of resources in the viva and calculate earliest timeslot
         vivaResources <- VivaNotScheduled.getResource(updatedViva)
         timeSlot <- findEarliestCommonOAvailability(vivaResources, agenda.duration)
-
-        // With the list of resources calculate the total preference
         preference <- calculatePreference(timeSlot, vivaResources)
-
-        // Update the teachers and externals
         vivaTeachers <- getVivaTeachers(vivaResources)
         vivaExternals <- getVivaExternals(vivaResources)
         updatedTeachers <- updateTeachers(timeSlot, valuesTuple._2, vivaTeachers)
         updatedExternals <- updateExternals(timeSlot, valuesTuple._3, vivaExternals)
-
         vivaScheduled <- VivaScheduled.from(viva.student, viva.title, timeSlot.start, timeSlot.end, preference, viva.president, viva.advisor, viva.coadvisors, viva.supervisors)
       } yield (valuesTuple._1 :+ vivaScheduled, updatedTeachers, updatedExternals)
     }.map(_._1.toList).map(_.sortBy(_.start.toLocalDateT))
