@@ -18,12 +18,10 @@ object Title:
       _ <- isValidTitle(title)
     } yield title
 
-  extension (string: Title)
-    @targetName("Title.TitleToString")
-    def TitleToString: String = string
+  extension (title: Title)
+    def toString: String = title
 
 sealed trait Viva:
-
   def president: Teacher
 
   def advisor: Teacher
@@ -32,19 +30,24 @@ sealed trait Viva:
 
   def coadvisors: List[Teacher | External]
 
-final case class VivaNotScheduled(student: Name, title: Title,
-                                  president: Teacher, advisor: Teacher,
-                                  supervisors: List[External], coadvisors: List[Teacher | External]) extends Viva
+final case class PreViva(
+                          student: Name,
+                          title: Title,
+                          president: Teacher,
+                          advisor: Teacher,
+                          supervisors: List[External],
+                          coadvisors: List[Teacher | External]
+                        ) extends Viva
 
-object VivaNotScheduled:
+object PreViva:
 
-  private def isValidPresident(president: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
+  private def isValidPresident(president: Teacher, teachers: List[Teacher], title: Title): Result[Unit] =
     if (teachers.contains(president)) Right(())
-    else Left(DomainError.VIVA_INVALID_PRESIDENT(s"The president $president is invalid for viva $title"))
+    else Left(DomainError.VIVA_INVALID_PRESIDENT(s"The president $president is invalid for viva ${title.toString}"))
 
-  private def isValidAdvisor(advisor: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
+  private def isValidAdvisor(advisor: Teacher, teachers: List[Teacher], title: Title): Result[Unit] =
     if (teachers.contains(advisor)) Right(())
-    else Left(DomainError.VIVA_INVALID_ADVISOR(s"The advisor $advisor is invalid for viva $title"))
+    else Left(DomainError.VIVA_INVALID_ADVISOR(s"The advisor $advisor is invalid for viva ${title.toString}"))
 
   private def isValidResource(resource: Teacher | External, resources: List[Teacher | External]): Boolean =
     resources.contains(resource)
@@ -53,21 +56,29 @@ object VivaNotScheduled:
     if (resources.forall(resource => isValidResource(resource, validList))) Right(())
     else Left(error)
 
-  private def moreThanOneRole(ids: List[Teacher | External], title: String): Result[Unit] =
-    if (ids.distinct.size.eq(ids.size)) Right(())
-    else Left(DomainError.VIVA_MULTIPLE_ROLES(s"There are resources with more than one role for viva $title"))
+  private def moreThanOneRole(ids: List[Teacher | External], title: Title): Result[Unit] =
+    if (ids.distinct.sizeIs == ids.size) Right(())
+    else Left(DomainError.VIVA_MULTIPLE_ROLES(s"There are resources with more than one role for viva ${title.toString}"))
 
-  def from(student: Name, title: Title, president: Teacher, advisor: Teacher,
-           supervisors: List[External], coadvisors: List[Teacher | External], teachers: List[Teacher], externals: List[External]): Result[VivaNotScheduled] =
+  def from(
+            student: Name,
+            title: Title,
+            president: Teacher,
+            advisor: Teacher,
+            supervisors: List[External],
+            coadvisors: List[Teacher | External],
+            teachers: List[Teacher],
+            externals: List[External]
+          ): Result[PreViva] =
     for
-      _ <- isValidPresident(president, teachers, title.toString)
-      _ <- isValidAdvisor(advisor, teachers, title.toString)
-      _ <- isValidResources(coadvisors, teachers ++ externals, DomainError.VIVA_INVALID_COADVISOR(s"The viva $title contains invalid coadvisors ids"))
-      _ <- isValidResources(supervisors, externals, DomainError.VIVA_INVALID_SUPERVISOR(s"The viva $title contains invalid supervisors ids"))
-      _ <- moreThanOneRole(president :: advisor :: supervisors ++ coadvisors, title.toString)
-    yield VivaNotScheduled(student, title, president, advisor, supervisors, coadvisors)
+      _ <- isValidPresident(president, teachers, title)
+      _ <- isValidAdvisor(advisor, teachers, title)
+      _ <- isValidResources(coadvisors, teachers ++ externals, DomainError.VIVA_INVALID_COADVISOR(s"The viva ${title.toString} contains invalid coadvisors"))
+      _ <- isValidResources(supervisors, externals, DomainError.VIVA_INVALID_SUPERVISOR(s"The viva ${title.toString} contains invalid supervisors"))
+      _ <- moreThanOneRole(president :: advisor :: supervisors ++ coadvisors, title)
+    yield PreViva(student, title, president, advisor, supervisors, coadvisors)
 
-  def getResource(viva: VivaNotScheduled): Result[List[Teacher | External]] =
+  def getResource(viva: PreViva): Result[List[Teacher | External]] =
     Right(viva.president :: viva.advisor :: viva.coadvisors ++ viva.supervisors)
 
   def getVivaTeachers(resources: List[Teacher | External]): Result[List[Teacher]] =
@@ -76,12 +87,28 @@ object VivaNotScheduled:
   def getVivaExternals(resources: List[Teacher | External]): Result[List[External]] =
     Right(resources.collect { case e: External => e })
 
-final case class VivaScheduled(student: Name, title: Title, start: OTime, end: OTime,
-                               preference: Int, president: Teacher, advisor: Teacher, coadvisors: List[Teacher | External],
-                               supervisors: List[External]) extends Viva
+final case class PosViva(
+                          student: Name,
+                          title: Title,
+                          start: OTime,
+                          end: OTime,
+                          preference: Int,
+                          president: Teacher,
+                          advisor: Teacher,
+                          coadvisors: List[Teacher | External],
+                          supervisors: List[External]
+                        ) extends Viva
 
-object VivaScheduled:
-  def from(student: Name, title: Title, start: OTime, end: OTime,
-           preference: Int, president: Teacher, advisor: Teacher,
-           coadvisors: List[Teacher | External], supervisor: List[External]): Result[VivaScheduled] =
-    Right(VivaScheduled(student, title, start, end, preference, president, advisor, coadvisors, supervisor))
+object PosViva:
+  def from(
+            student: Name,
+            title: Title,
+            start: OTime,
+            end: OTime,
+            preference: Int,
+            president: Teacher,
+            advisor: Teacher,
+            coadvisors: List[Teacher | External],
+            supervisors: List[External]
+          ): Result[PosViva] =
+    Right(PosViva(student, title, start, end, preference, president, advisor, coadvisors, supervisors))

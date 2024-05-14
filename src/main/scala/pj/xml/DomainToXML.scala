@@ -21,7 +21,7 @@ object DomainToXML {
     case external: External =>
         <coadvisor name={external.name.toString}/>
 
-  private def vivaToXml(scheduledViva: VivaScheduled): Elem =
+  private def vivaToXml(scheduledViva: PosViva): Elem =
     <viva student={scheduledViva.student.toString} title={scheduledViva.title.toString} start={scheduledViva.start.toLocalDateT.format(formatter)} end={scheduledViva.end.toLocalDateT.format(formatter)} preference={scheduledViva.preference.toString}>
       <president name={scheduledViva.president.name.toString}/>
       <advisor name={scheduledViva.advisor.name.toString}/>{scheduledViva.coadvisors.map(coadvisorToXml)}{scheduledViva.supervisors.map(supervisorToXml)}
