@@ -2,7 +2,6 @@ package pj.io
 
 import pj.domain.*
 import pj.domain.{Availability, Period}
-import pj.domain.Resource
 import pj.io.AvailabilityIO.updateAvailabilities
 import pj.opaqueTypes.{ID, Name, Preference, OTime}
 import pj.xml.XML
