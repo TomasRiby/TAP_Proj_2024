@@ -47,7 +47,7 @@ object XMLToDomain:
   private def getTeacher(id: String, teachers: List[Teacher]): Result[Teacher] =
     teachers.find(teacher => teacher.id.IDtoString == id) match
       case Some(value) => Right(value)
-      case None => Left(DomainError.InvalidIdRef(id))
+      case None => Left(DomainError.TEACHER_INVALID_ID(id))
 
   private def parseSupervisorsNode(nodes: Seq[Node], externals: List[External], resourcesIds: List[String]): Result[List[External]] =
     nodes.foldLeft[Result[Vector[External]]](Right(Vector.empty)) { case (accRes, node) =>
@@ -87,8 +87,8 @@ object XMLToDomain:
     )
     resource match
       case Some(value) => Right(value)
-      case None => Left(DomainError.InvalidIdRef(id))
+      case None => Left(DomainError.TEACHER_INVALID_ID(id))
 
   private def moreThanOneRoleValidation(id: String, resourcesIds: List[String]): Result[String] =
-    if (resourcesIds.nonEmpty && resourcesIds.contains(id)) Left(DomainError.MoreThanOneRole(s"The resource with id $id can't exercise more than one role"))
+    if (resourcesIds.nonEmpty && resourcesIds.contains(id)) Left(DomainError.VIVA_MULTIPLE_ROLES(s"The resource with id $id can't exercise more than one role"))
     else Right(id)

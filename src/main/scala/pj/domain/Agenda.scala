@@ -18,10 +18,10 @@ object Agenda:
 
   def from(vivas: List[VivaNotScheduled], teachers: List[Teacher], externals: List[External], duration: ODuration): Result[Agenda] =
     for
-      _ <- emptyList(vivas, DomainError.NoVivasInAgenda)
-      _ <- emptyList(vivas, DomainError.NoTeachersInAgenda)
-      _ <- duplicateValues(vivas, viva => viva.title, DomainError.DuplicateVivasInAgenda)
-      _ <- duplicateValues(vivas, viva => viva.student, DomainError.StudentWithMultipleVivas)
+      _ <- emptyList(vivas, DomainError.AGENDA_NO_VIVAS)
+      _ <- emptyList(vivas, DomainError.AGENDA_NO_TEACHERS)
+      _ <- duplicateValues(vivas, viva => viva.title, DomainError.AGENDA_DUPLICATED_VIVAS)
+      _ <- duplicateValues(vivas, viva => viva.student, DomainError.AGENDA_MULTIPLE_VIVAS)
     yield Agenda(vivas, teachers, externals, duration)
 
 

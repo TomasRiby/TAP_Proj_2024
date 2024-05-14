@@ -13,7 +13,6 @@ object AvailabilityIO:
       filtered <- filterAvail(intersected, availabilities)
       newAvail <- splitAvail(intersected, timeSlot)
     } yield filtered ++ newAvail
-    //    println(s"UpdatedAvail $result")
     result match
       case Left(error) => Left(DomainError.ImpossibleSchedule)
       case Right(value) => Right(value)
@@ -23,7 +22,7 @@ object AvailabilityIO:
     else if (availability.period.startedBy(timeSlot)) createIntersectingRight(availability, timeSlot)
     else if (availability.period.finishedBy(timeSlot)) createIntersectingLeft(availability, timeSlot)
     else if (availability.period.contains(timeSlot)) createEncompassing(availability, timeSlot)
-    else Left(DomainError.Huh(s"SplitAvail $availability - $timeSlot"))
+    else Left(DomainError.AVAILABILITY_SPLIT_ERROR(s"SplitAvail $availability - $timeSlot"))
 
   private def createIntersectingLeft(availability: Availability, timeSlot: Period): Result[List[Availability]] =
     for {
@@ -44,7 +43,7 @@ object AvailabilityIO:
   private def intersectedOAvailability(timeSlot: Period, availabilities: List[Availability]): Result[Availability] =
     val intersectedOAvailability = availabilities.find(availability => timeSlot.isPartOf(availability.period))
     intersectedOAvailability match
-      case None => Left(DomainError.Huh(s"intersectedOAvailability $intersectedOAvailability - $timeSlot"))
+      case None => Left(DomainError.AVAILABILITY_SPLIT_ERROR(s"intersectedOAvailability $intersectedOAvailability - $timeSlot"))
       case Some(avail) => Right(avail)
 
   private def filterAvail(availability: Availability, availabilities: List[Availability]): Result[List[Availability]] =

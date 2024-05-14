@@ -63,5 +63,5 @@ object Period:
 
   private def validatePeriod(start: OTime, end: OTime): Result[Unit] =
     if (start.isBefore(end)) Right(())
-    else Left(DomainError.InvalidInterval(s"$start - $end"))
+    else Left(DomainError.PERIOD_INVALID_TIMMINGS(s"$start - $end"))
 

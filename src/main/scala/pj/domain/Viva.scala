@@ -10,7 +10,7 @@ opaque type Title = String
 object Title:
 
   private def isValidTitle(title: String): Result[Unit] =
-    if (title.isBlank) Left(DomainError.InvalidVivaTitle)
+    if (title.isBlank) Left(DomainError.VIVA_INVALID_TITLE)
     else Right(())
 
   def from(title: String): Result[Title] =
@@ -40,11 +40,11 @@ object VivaNotScheduled:
 
   private def isValidPresident(president: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
     if (teachers.contains(president)) Right(())
-    else Left(DomainError.InvalidPresidentId(s"The president $president is invalid for viva $title"))
+    else Left(DomainError.VIVA_INVALID_PRESIDENT(s"The president $president is invalid for viva $title"))
 
   private def isValidAdvisor(advisor: Teacher, teachers: List[Teacher], title: String): Result[Unit] =
     if (teachers.contains(advisor)) Right(())
-    else Left(DomainError.InvalidAdvisorId(s"The advisor $advisor is invalid for viva $title"))
+    else Left(DomainError.VIVA_INVALID_ADVISOR(s"The advisor $advisor is invalid for viva $title"))
 
   private def isValidResource(resource: Teacher | External, resources: List[Teacher | External]): Boolean =
     resources.contains(resource)
@@ -55,15 +55,15 @@ object VivaNotScheduled:
 
   private def moreThanOneRole(ids: List[Teacher | External], title: String): Result[Unit] =
     if (ids.distinct.size.eq(ids.size)) Right(())
-    else Left(DomainError.MoreThanOneRole(s"There are resources with more than one role for viva $title"))
+    else Left(DomainError.VIVA_MULTIPLE_ROLES(s"There are resources with more than one role for viva $title"))
 
   def from(student: Name, title: Title, president: Teacher, advisor: Teacher,
            supervisors: List[External], coadvisors: List[Teacher | External], teachers: List[Teacher], externals: List[External]): Result[VivaNotScheduled] =
     for
       _ <- isValidPresident(president, teachers, title.toString)
       _ <- isValidAdvisor(advisor, teachers, title.toString)
-      _ <- isValidResources(coadvisors, teachers ++ externals, DomainError.InvalidCoadvisorId(s"The viva $title contains invalid coadvisors ids"))
-      _ <- isValidResources(supervisors, externals, DomainError.InvalidSupervisorId(s"The viva $title contains invalid supervisors ids"))
+      _ <- isValidResources(coadvisors, teachers ++ externals, DomainError.VIVA_INVALID_COADVISOR(s"The viva $title contains invalid coadvisors ids"))
+      _ <- isValidResources(supervisors, externals, DomainError.VIVA_INVALID_SUPERVISOR(s"The viva $title contains invalid supervisors ids"))
       _ <- moreThanOneRole(president :: advisor :: supervisors ++ coadvisors, title.toString)
     yield VivaNotScheduled(student, title, president, advisor, supervisors, coadvisors)
 
