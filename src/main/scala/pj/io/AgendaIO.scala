@@ -5,7 +5,6 @@ import VivaIO.scheduleVivas
 import pj.opaqueTypes.ODuration
 import pj.opaqueTypes.OTime
 import pj.xml.XML.{fromAttribute, fromNode, traverse}
-import pj.xml.XMLToDomain.parseViva
 
 import scala.xml.Elem
 
@@ -19,7 +18,7 @@ object AgendaIO:
       loadedTeachers <- ResourceIO.loadTeachers(xml)
       loadedExternals <- ResourceIO.loadExternals(xml)
       vivasNode <- fromNode(xml, "vivas")
-      vivas <- traverse(vivasNode \ "viva", node => parseViva(node, loadedTeachers, loadedExternals))
+      vivas <- traverse(vivasNode \ "viva", node => VivaIO.parseViva(node, loadedTeachers, loadedExternals))
       agenda <- Agenda.from(vivas, loadedTeachers, loadedExternals, duration)
     yield agenda
 

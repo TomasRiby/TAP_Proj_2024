@@ -5,7 +5,6 @@ import pj.domain.{Availability, Period}
 import pj.io.AvailabilityIO.updateAvailabilities
 import pj.opaqueTypes.{ID, Name, Preference, OTime}
 import pj.xml.XML
-
 import scala.xml.{Elem, Node}
 
 object ResourceIO:
@@ -106,3 +105,58 @@ object ResourceIO:
       interval.isPartOf(availability.period)
     ).map(_.preference.toInteger).sum
     Right(res)
+
+  def getIds(coadvisors: List[Teacher | External]): Result[List[String]] =
+    Right(coadvisors.map {
+      case teacher: Teacher => teacher.id.IDtoString
+      case external: External => external.id.IDtoString
+    })
+
+  def getTeacher(id: String, teachers: List[Teacher]): Result[Teacher] =
+    teachers.find(teacher => teacher.id.IDtoString == id) match
+      case Some(value) => Right(value)
+      case None => Left(DomainError.TEACHER_INVALID_ID(id))
+
+  def parseSupervisorsNode(nodes: Seq[Node], externals: List[External], resourcesIds: List[String]): Result[List[External]] =
+    nodes.foldLeft[Result[Vector[External]]](Right(Vector.empty)) { case (accRes, node) =>
+      for
+        acc <- accRes
+        supervisor <- parseSupervisor(node, externals, resourcesIds)
+      yield acc :+ supervisor
+    }.map(_.toList)
+
+  def parseCoadvisorsNode(nodes: Seq[Node], teachers: List[Teacher], externals: List[External], resourcesIds: List[String]): Result[List[Teacher | External]] =
+    nodes.foldLeft[Result[Vector[Teacher | External]]](Right(Vector.empty)) { case (accRes, node) =>
+      for
+        acc <- accRes
+        coadvisor <- parseCoadvisor(node, teachers ++ externals, resourcesIds)
+      yield acc :+ coadvisor
+    }.map(_.toList)
+
+  def parseSupervisor(node: Node, externals: List[External], resourcesIds: List[String]): Result[External] =
+    for
+      supervisorId <- XML.fromAttribute(node, "id")
+      supervisor <- findIn(supervisorId, externals)
+      _ <- moreThanOneRoleValidation(supervisorId, resourcesIds)
+    yield supervisor
+
+  def parseCoadvisor(node: Node, resources: List[Teacher | External], resourcesIds: List[String]): Result[Teacher | External] =
+    for
+      coadvisorId <- XML.fromAttribute(node, "id")
+      coadvisor <- findIn(coadvisorId, resources)
+      _ <- moreThanOneRoleValidation(coadvisorId, resourcesIds)
+    yield coadvisor
+
+  def findIn[R <: Teacher | External](id: String, resources: List[R]): Result[R] =
+    val resource = resources.find(resource =>
+      resource match
+        case teacher: Teacher => teacher.id.IDtoString == id
+        case external: External => external.id.IDtoString == id
+    )
+    resource match
+      case Some(value) => Right(value)
+      case None => Left(DomainError.TEACHER_INVALID_ID(id))
+
+  def moreThanOneRoleValidation(id: String, resourcesIds: List[String]): Result[String] =
+    if (resourcesIds.nonEmpty && resourcesIds.contains(id)) Left(DomainError.VIVA_MULTIPLE_ROLES(s"The resource with id $id can't exercise more than one role"))
+    else Right(id)

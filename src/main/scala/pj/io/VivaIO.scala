@@ -4,7 +4,10 @@ import pj.domain.VivaNotScheduled.{getVivaExternals, getVivaTeachers}
 import pj.domain.*
 import pj.domain.Agenda
 import pj.io.AvailabilityIO.findEarliestCommonOAvailability
-import pj.io.ResourceIO.{calculatePreference, updateExternals, updateTeachers}
+import pj.io.ResourceIO.{calculatePreference, updateExternals, updateTeachers, getTeacher}
+import pj.xml.XML
+import scala.xml.Node
+import pj.opaqueTypes.{ID, Name, Preference, OTime}
 
 object VivaIO:
 
@@ -45,3 +48,31 @@ object VivaIO:
         vivaScheduled <- VivaScheduled.from(viva.student, viva.title, timeSlot.start, timeSlot.end, preference, viva.president, viva.advisor, viva.coadvisors, viva.supervisors)
       } yield (valuesTuple._1 :+ vivaScheduled, updatedTeachers, updatedExternals)
     }.map(_._1.toList).map(_.sortBy(_.start.toLocalDateT))
+
+  def parseViva(vivaNode: Node, teachers: List[Teacher], externals: List[External]): Result[VivaNotScheduled] =
+    val resourcesIds = List.empty[String]
+    for
+      studentString <- XML.fromAttribute(vivaNode, "student")
+      student <- Name.createName(studentString)
+  
+      titleString <- XML.fromAttribute(vivaNode, "title")
+      title <- Title.from(titleString)
+  
+      presidentNode <- XML.fromNode(vivaNode, "president")
+      presidentId <- XML.fromAttribute(presidentNode, "id")
+      president <- getTeacher(presidentId, teachers)
+  
+      advisorNode <- XML.fromNode(vivaNode, "advisor")
+      advisorId <- XML.fromAttribute(advisorNode, "id")
+      advisor <- getTeacher(advisorId, teachers)
+      _ <- ResourceIO.moreThanOneRoleValidation(advisorId, presidentId :: resourcesIds)
+  
+      coadvisors <- ResourceIO.parseCoadvisorsNode(vivaNode \ "coadvisor", teachers, externals, presidentId :: advisorId :: resourcesIds)
+      coadvisorsIds = coadvisors.map:
+        case teacher: Teacher => teacher.id.IDtoString
+        case external: External => external.id.IDtoString
+  
+      supervisors: List[External] <- ResourceIO.parseSupervisorsNode(vivaNode \ "supervisor", externals, coadvisorsIds ::: resourcesIds)
+  
+      viva <- VivaNotScheduled.from(student, title, president, advisor, supervisors, coadvisors, teachers, externals)
+    yield viva
