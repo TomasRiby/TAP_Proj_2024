@@ -9,6 +9,15 @@
             <coadvisor id="E001"/>
             <coadvisor id="T025"/>
             <supervisor id="E002"/>
+            <supervisor id="E003"/>
+        </viva>
+        <viva student="Student002" title="Student001">
+            <president id="T008"/>
+            <advisor id="T024"/>
+            <coadvisor id="E001"/>
+            <coadvisor id="T025"/>
+            <supervisor id="E002"/>
+            <supervisor id="E003"/>
         </viva>
     </vivas>
     <resources>
