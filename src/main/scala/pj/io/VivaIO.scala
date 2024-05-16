@@ -22,9 +22,10 @@ object VivaIO:
       title <- Name.createName(titleXML)
       president <- extractPresident(vivaNode)
       advisor <- extractAdvisor(vivaNode)
-      supervisor <- extractSupervisor(vivaNode)
+      supervisors <- XML.traverse(vivaNode \\ "supervisor", extractSupervisor)
+      coAdvisors <- XML.traverse(vivaNode \\ "coadvisor", extractCoAdvisor)
 
-    } yield Viva.from(student, title, president, advisor, supervisor)
+    } yield Viva.from(student, title, president, advisor, supervisors, coAdvisors)
 
   private def extractPresident(node: Node): Result[President] =
     for {
@@ -42,10 +43,15 @@ object VivaIO:
       id <- ID.createRegularId(idXML)
     } yield Advisor.from(id)
 
-  private def extractSupervisor(node: Node): Result[Supervisor] =
+  private def extractSupervisor(supervisorNode: Node): Result[Supervisor] =
     for {
-      supervisor <- XML.fromNode(node, "supervisor")
-      idXML <- XML.fromAttribute(supervisor, "id")
+      idXML <- XML.fromAttribute(supervisorNode, "id")
       id <- ID.createRegularId(idXML)
-
     } yield Supervisor.from(id)
+
+
+  private def extractCoAdvisor(coadvisorNode: Node): Result[CoAdvisor] =
+    for {
+      idXML <- XML.fromAttribute(coadvisorNode, "id")
+      id <- ID.createRegularId(idXML)
+    } yield CoAdvisor.from(id)

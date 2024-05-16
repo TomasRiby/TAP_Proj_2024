@@ -3,7 +3,7 @@ package pj.domain
 import pj.typeUtils.opaqueTypes.opaqueTypes.ID
 
 final case class Supervisor private(
-                            id: ID,
+                            id: ID
                            )
 
 object Supervisor:

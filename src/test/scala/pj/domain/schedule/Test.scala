@@ -14,23 +14,22 @@ import scala.xml.Node
 
 class Test extends AnyFunSuite:
 
-  test("aaaaaaa"):
+  test("God Saver"):
     val dir = "files/test/ms01/"
-    val fileName = "invalid_external_Name_in.xml"
+    val fileName = "valid_agenda_supervisor_and_coadvisor_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
       result <- ScheduleMS01.create(fileLoaded)
     } yield result
-    println(result)
 
-  test("asasas"):
+  test("test"):
     val dir = "files/test/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
     files.foreach(files => println(AgendaIO.loadAgenda(files)))
 
-  test("asasssasssa"):
+  test("assessment"):
     val dir = "files/assessment/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)

@@ -21,11 +21,13 @@ object opaqueTypes:
     private val teacherIdPattern: Regex = "^T[0-9]{3}$".r
     private val externalIdPattern: Regex = "^E[0-9]{3}$".r
 
-    def createRegularId(id: String): Either[DomainError, ID] =
+    def createRegularId(id: String): Result[ID] =
       id match
         case teacherIdPattern() => Right(id)
         case externalIdPattern() => Right(id)
         case _ => Left(DomainError.WrongFormat(s"ID '$id' is in incorrect format"))
+
+    def noID(): ID = ""
 
     def verifyId(resourceList: List[Teacher | External]): Result[Boolean] =
       val idList = resourceList.map:
