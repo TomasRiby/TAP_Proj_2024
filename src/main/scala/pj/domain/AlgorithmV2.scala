@@ -32,9 +32,38 @@ object AlgorithmV2:
         case Some(slot) =>
           val start = slot.start.toLocalDateTime
           val end = start.plus(duration.toDuration)
-          (Some((start, end, slot.preference.toInteger)), slot :: usedSlots)
+          val availEnd = OTime.createTime(end).getOrElse(slot.end)
+          (Some((start, end, slot.preference.toInteger)), Availability.from(slot.start, availEnd, slot.preference) :: usedSlots)
         case None =>
           (None, usedSlots)
+
+    def updateAvailabilitySlots(availabilities: List[Availability], duration: ODuration, usedSlots: List[Availability]): List[Availability] =
+      availabilities.flatMap { possibleSlot =>
+        usedSlots.foldLeft(List(possibleSlot)) { (updatedSlots, usedSlot) =>
+          updatedSlots.flatMap { slot =>
+            if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.start) then
+              if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.end) then
+                // Slot overlaps both start and end of usedSlot, split into two
+                val newSlots = List(
+                  slot.copy(end = usedSlot.start),
+                  slot.copy(start = usedSlot.end)
+                ).filter(s => Duration.between(s.start.toTemporal, s.end.toTemporal).compareTo(duration.toDuration) >= 0)
+                newSlots
+              else if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.end) then
+                // Slot overlaps end of usedSlot, adjust start
+                val newSlot = slot.copy(start = usedSlot.end)
+                if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
+                else Nil
+              else if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.start) then
+                // Slot overlaps start of usedSlot, adjust end
+                val newSlot = slot.copy(end = usedSlot.start)
+                if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
+                else Nil
+              else Nil
+            else List(slot)
+          }
+        }
+      }
 
 
     // Schedule each viva
@@ -43,8 +72,12 @@ object AlgorithmV2:
       val availabilities = availabilityMap(roleSet)
       val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, agenda.duration)
 
-      val (chosenSlotOpt, updatedUsedSlots) = chooseFirstPossibleAvailabilitiesSlot(possibleSlots, agenda.duration, usedSlots)
-      println (chosenSlotOpt)
+      val updatedPossibleSlots = updateAvailabilitySlots(possibleSlots, agenda.duration, usedSlots)
+
+      val (chosenSlotOpt, updatedUsedSlots) = chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, agenda.duration, usedSlots)
+
+      println(chosenSlotOpt)
+
 
 
       //          val scheduledViva = PosViva(
