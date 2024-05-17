@@ -7,10 +7,10 @@ import pj.opaqueTypes.Name.Name
 final case class External(
                            id: ID,
                            name: Name,
-                           availability: Seq[Availability])
+                           availability: List[Availability])
 
 
 object External:
-  def from(id: ID, name: Name, availability: Seq[Availability]) =
-    new External(id: ID, name: Name, availability: Seq[Availability])
+  def from(id: ID, name: Name, availability: List[Availability]) =
+    new External(id: ID, name: Name, availability: List[Availability])
   

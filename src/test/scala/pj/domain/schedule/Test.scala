@@ -15,7 +15,7 @@ class Test extends AnyFunSuite:
 
   test("God Saver"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_01_in.xml"
+    val fileName = "valid_agenda_06_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -41,7 +41,7 @@ class Test extends AnyFunSuite:
 
   test("asasasas"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_02_in.xml"
+    val fileName = "valid_agenda_26_in.xml"
     val filePath = dir + fileName
     val result = AgendaIO.loadAgenda(filePath)
 
