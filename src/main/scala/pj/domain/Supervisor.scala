@@ -1,6 +1,7 @@
 package pj.domain
 
-import pj.typeUtils.opaqueTypes.opaqueTypes.ID
+import pj.opaqueTypes.ID.ID
+
 
 final case class Supervisor private(
                             id: ID

@@ -1,7 +1,8 @@
 package pj.domain
 
 import pj.domain.Availability
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
+import pj.opaqueTypes.ID.ID
+import pj.opaqueTypes.Name.Name
 
 final case class External(
                            id: ID,

@@ -3,7 +3,6 @@ package pj.domain.schedule
 import scala.xml.Elem
 import pj.domain.*
 import pj.io.{AgendaIO, FileIO, ResourceIO, ScheduleIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.Preference
 
 
 object ScheduleMS01 extends Schedule:

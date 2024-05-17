@@ -1,7 +1,7 @@
 package pj.io
 
 import pj.domain.*
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
+import pj.opaqueTypes.{ID, Name}
 import pj.xml.XML
 
 import scala.language.adhocExtensions

@@ -1,7 +1,7 @@
 package pj.io
 
 import pj.domain.{Agenda, External, Result, Teacher, Viva}
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ODuration, Time}
+import pj.opaqueTypes.ODuration
 import pj.xml.XML
 
 import scala.xml.Elem

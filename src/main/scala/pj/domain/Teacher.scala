@@ -2,7 +2,8 @@ package pj.domain
 
 import pj.domain.Availability
 import pj.io.ResourceIO
-import pj.typeUtils.opaqueTypes.opaqueTypes.*
+import pj.opaqueTypes.ID.ID
+import pj.opaqueTypes.Name.Name
 
 final case class Teacher private(
                                   id: ID,

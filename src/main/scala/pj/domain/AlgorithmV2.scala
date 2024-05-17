@@ -1,6 +1,5 @@
 package pj.domain
 
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 
 import java.time.{Duration, LocalDateTime}
 
