@@ -69,27 +69,38 @@ object Availability:
     availabilities.flatMap { possibleSlot =>
       usedSlots.foldLeft(List(possibleSlot)) { (updatedSlots, usedSlot) =>
         updatedSlots.flatMap { slot =>
+//          println(s"Checking slot: ${slot.start} - ${slot.end} against usedSlot: ${usedSlot.start} - ${usedSlot.end}")
           if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.start) then
+//            println(s"Overlap detected between slot: ${slot.start} - ${slot.end} and usedSlot: ${usedSlot.start} - ${usedSlot.end}")
             if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.end) then
               // Slot overlaps both start and end of usedSlot, split into two
               val newSlots = List(
                 slot.copy(end = usedSlot.start),
                 slot.copy(start = usedSlot.end)
               ).filter(s => Duration.between(s.start.toTemporal, s.end.toTemporal).compareTo(duration.toDuration) >= 0)
+//              println(s"New slots after split: $newSlots")
               newSlots
             else if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.end) then
               // Slot overlaps end of usedSlot, adjust start
               val newSlot = slot.copy(start = usedSlot.end)
+//              println(s"New slot after adjusting start: $newSlot")
               if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
               else Nil
             else if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.start) then
               // Slot overlaps start of usedSlot, adjust end
               val newSlot = slot.copy(end = usedSlot.start)
+//              println(s"New slot after adjusting end: $newSlot")
               if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
               else Nil
             else Nil
+          else if slot.end.equals(usedSlot.start) || slot.start.equals(usedSlot.end) then
+            // Handle special case where the slot ends exactly when the used slot starts or vice versa
+//            println(s"Special case detected: slot ends when usedSlot starts or vice versa")
+            List(slot)
           else List(slot)
         }
       }
     }
+
+
 

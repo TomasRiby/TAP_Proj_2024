@@ -29,14 +29,16 @@ object PreViva:
       external <- externalList if external.id == supervisor.id
     } yield RoleLinkedWithResource.from(supervisor, external.name, external.availability)
 
+    val coADvisorTeacher = for {
+      coAdvisor <- coAdvisorList
+      teacher <- teacherList if teacher.id == coAdvisor.id
+    } yield RoleLinkedWithResource.from(coAdvisor, teacher.name, teacher.availability)
+    
     val coAdvisorExternal = for {
       coAdvisor <- coAdvisorList
       external <- externalList if external.id == coAdvisor.id
     } yield RoleLinkedWithResource.from(coAdvisor, external.name, external.availability)
 
-    val coADvisorTeacher = for {
-      coAdvisor <- coAdvisorList
-      teacher <- teacherList if teacher.id == coAdvisor.id
-    } yield RoleLinkedWithResource.from(coAdvisor, teacher.name, teacher.availability)
 
-    PreViva.from(student, title, presidentRoles ++ advisorRoles ++ supervisorRoles ++ coAdvisorExternal ++ coADvisorTeacher)
+
+    PreViva.from(student, title, presidentRoles ++ advisorRoles ++ supervisorRoles ++ coADvisorTeacher ++ coAdvisorExternal)

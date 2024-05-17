@@ -13,6 +13,6 @@ object ScheduleMS01 extends Schedule:
   def create(xml: Elem): Result[Elem] =
     for {
       agenda <- AgendaIO.loadAgenda(xml)
-      algorithm <- AlgorithmV2.makeTheAlgorithmHappen(agenda)
+      algorithm <- Algorithm.makeTheAlgorithmHappen(agenda)
       res <- ScheduleIO.createScheduleXML(algorithm)
     } yield res
