@@ -11,9 +11,10 @@ object ScheduleMS01 extends Schedule:
   //       Use the xml.XML code to handle the xml elements
   //       Refer to https://github.com/scala/scala-xml/wiki/XML-Processing for xml creation
   def create(xml: Elem): Result[Elem] =
-    val res = for {
+    for {
       agenda <- AgendaIO.loadAgenda(xml)
-      algorithm <- AlgorithmV2.makeTheAlgorithmHappen(agenda)
-      //elem <- ScheduleIO.createScheduleXML(algorithm, algorithm.map(algo => Preference.toInt(algo.preference)).sum)
-    } yield algorithm
-    Right(xml)
+//      algorithm <- AlgorithmV2.makeTheAlgorithmHappen(agenda)
+      scheduleOut = ScheduleOut.from()
+      res <- ScheduleIO.createScheduleXML(scheduleOut)
+      _ = println(res)
+    } yield res
