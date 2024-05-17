@@ -20,8 +20,7 @@ object ScheduleIO:
         {scheduleOut.vivas.map { viva =>
         <viva student={viva.student} title={viva.title} start={viva.start.toString} end={viva.end.toString} preference={viva.preference.toString}>
           <president name={viva.president}/>
-          <advisor name={viva.advisor}/>
-          <supervisor name={viva.supervisor}/>
+          <advisor name={viva.advisor}/>{viva.supervisors.map(supervisor => <supervisor name={supervisor}/>)}{viva.coAdvisors.map(coAdvisor => <coadvisor name={coAdvisor}/>)}
         </viva>
       }}
       </schedule>
