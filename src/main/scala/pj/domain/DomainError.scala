@@ -8,6 +8,7 @@ enum DomainError:
   case Error(error: String)
   case WrongFormat(error: String)
   case InvalidPreference(error: String)
+  case ImpossibleSchedule(error: String)
 
   //XML Errors
   case IOFileProblem(error: String)
@@ -21,3 +22,4 @@ enum DomainError:
     case XMLError(error) => error
     case DuplicateError(error) => error
     case InvalidPreference(error) => error
+    case ImpossibleSchedule(error) => error

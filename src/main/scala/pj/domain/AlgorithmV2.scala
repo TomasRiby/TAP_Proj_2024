@@ -1,51 +1,32 @@
 package pj.domain
 
-import pj.domain.ScheduleViva
 import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 
 import java.time.{Duration, LocalDateTime}
-import scala.::
-import scala.annotation.tailrec
-import scala.collection.immutable.Nil.:::
+
 
 object AlgorithmV2:
   def makeTheAlgorithmHappen(agenda: Agenda): Result[Unit] =
-
     val teacherList = agenda.resources.teacher
     val externalList = agenda.resources.external
 
-    def linkVivaWithResource(viva: Viva): PreViva =
-      val president = viva.president
-      val advisor = viva.advisor
-      val coAdvisorList = viva.coAdvisor
-      val supervisorList = viva.supervisor
+    val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-      val presidentRoles = for {
-        presidentTeacher <- teacherList if presidentTeacher.id == president.id
-      } yield RoleLinkedWithResource.from(president, presidentTeacher)
+    def getEarliestPresidentAvailability(preViva: PreViva): Option[LocalDateTime] = {
+      preViva.roleLinkedWithResourceList
+        .filter(_.role.isInstanceOf[President]) // Filter for President role
+        .flatMap {
+          case RoleLinkedWithResource(_, resource: Teacher) => resource.availability.map(_.start)
+          case RoleLinkedWithResource(_, resource: External) => resource.availability.map(_.start)
+        }
+        .sorted // Sort availabilities by start time
+        .headOption // Get the start time of the earliest availability
+    }
 
-      val advisorRoles = for {
-        advisorTeacher <- teacherList if advisorTeacher.id == advisor.id
-      } yield RoleLinkedWithResource.from(advisor, advisorTeacher)
+    // Sorting the list of PreViva by the earliest availability of the President role
+    val sortedPreVivaList = preVivaList.sortBy(getEarliestPresidentAvailability)
 
-      val supervisorRoles = for {
-        supervisor <- supervisorList
-        external <- externalList if external.id == supervisor.id
-      } yield RoleLinkedWithResource.from(supervisor, external)
-
-      val coAdvisor = for {
-        coAdvisor <- coAdvisorList
-        external <- externalList if external.id == coAdvisor.id
-      } yield RoleLinkedWithResource.from(coAdvisor, external)
-      
-      PreViva.from(presidentRoles ++ advisorRoles ++ supervisorRoles ++ coAdvisor)
-
-
-    val preViva = agenda.vivas.map(linkVivaWithResource)
-
-    preViva.foreach(node =>
-      println("---------------------------")
-      println(node))
+    println(sortedPreVivaList)
 
     Right(())
 
