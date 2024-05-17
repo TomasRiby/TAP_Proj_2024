@@ -15,7 +15,7 @@ object OTime:
 
   def createTime(time: String): Result[OTime] =
     Try(LocalDateTime.parse(time)) match
-      case Failure(exception) => Left(DomainError.TIME_INVALID_DATE(s"$time - Date should follow the format yyyy-mm-ddThh:mm:ss"))
+      case Failure(exception) => Left(DomainError.WrongFormat(s"Time '$time' is in the wrong format. Expected ISO-8601 format."))
       case Success(value) => Right(value)
 
   def createTime(dateTime: LocalDateTime): Result[OTime] =
