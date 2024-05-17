@@ -14,7 +14,5 @@ object ScheduleMS01 extends Schedule:
     for {
       agenda <- AgendaIO.loadAgenda(xml)
       algorithm <- AlgorithmV2.makeTheAlgorithmHappen(agenda)
-//      scheduleOut = ScheduleOut.from()
-//      res <- ScheduleIO.createScheduleXML(scheduleOut)
-    } yield algorithm
-    Right(xml)
+      res <- ScheduleIO.createScheduleXML(algorithm)
+    } yield res

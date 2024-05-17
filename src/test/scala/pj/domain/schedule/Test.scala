@@ -15,12 +15,13 @@ class Test extends AnyFunSuite:
 
   test("God Saver"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_03_in.xml"
+    val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
       result <- ScheduleMS01.create(fileLoaded)
     } yield result
+    println(result)
 
   test("test"):
     val dir = "files/test/ms01/"
