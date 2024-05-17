@@ -76,25 +76,23 @@ object AlgorithmV2:
 
       val (chosenSlotOpt, updatedUsedSlots) = chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, agenda.duration, usedSlots)
 
-      println(chosenSlotOpt)
-
-
-
-      //          val scheduledViva = PosViva(
-      //            viva.student.toString,
-      //            viva.title.toString,
-      //            chosenSlot.start.toString,
-      //            chosenSlot.end.toString,
-      //            chosenSlot.preference.toInteger,
-      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: President, name, _) => name }.getOrElse("Unknown"),
-      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(a: Advisor, name, _) => name }.getOrElse("Unknown"),
-      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(s: Supervisor, name, _) => name },
-      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(c: CoAdvisor, name, _) => name }
-      //          )
-      //          scheduledViva :: acc
-      //        case None => acc // If no slot found, ignore the viva
-      (List(), updatedUsedSlots)
-    } // Reverse at the end to maintain the original order
+      chosenSlotOpt match
+        case Some((start, end, preference)) =>
+          val scheduledViva = PosViva(
+            viva.student.toString,
+            viva.title.toString,
+            start.toString,
+            end.toString,
+            preference,
+            (viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: President, name, _) => name }getOrElse()).toString,
+            (viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: Advisor, name, _) => name }getOrElse()).toString,
+            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(s: Supervisor, name, _) => name.toString },
+             viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(c: CoAdvisor, name, _) => name.toString },
+          )
+          (scheduledViva :: acc, updatedUsedSlots)
+        case None => (acc, usedSlots) // If no slot found, ignore the viva
+    }
+    scheduledVivas.foreach(println)
     Right(())
 
 

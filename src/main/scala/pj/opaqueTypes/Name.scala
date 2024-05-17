@@ -22,3 +22,4 @@ object Name:
     def isValid: Boolean = name match
       case validNamePattern() => true
       case _ => false
+    def toString: String = name
