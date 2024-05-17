@@ -26,48 +26,42 @@ object AlgorithmV2:
 
     val availabilityMap = preVivaToMap(preVivaList)
 
-    def findAllPossibleAvailabilitiesSlot(availabilities: List[List[Availability]], duration: ODuration): List[Availability] =
-      @tailrec
-      def combine(availabilities: List[List[Availability]], acc: List[Availability]): List[Availability] =
-        availabilities match
-          case Nil => acc
-          case head :: tail =>
-            val combined = for {
-              a <- head
-              b <- acc
-              start = if (a.start.isAfter(b.start)) a.start else b.start
-              end = if (a.end.isBefore(b.end)) a.end else b.end
-              if start.isBefore(end) && Duration.between(start.toTemporal, end.toTemporal).compareTo(duration.toDuration) >= 0
-            } yield Availability.from(start, end, Preference.fromMoreThan5(a.preference + b.preference))
-            combine(tail, combined)
+    def chooseFirstPossibleAvailabilitiesSlot(availabilities: List[Availability], duration: ODuration, usedSlots: List[Availability]): (Option[(LocalDateTime, LocalDateTime, Int)], List[Availability]) =
+      val availableSlots = availabilities.filterNot(usedSlots.contains)
+      availableSlots.headOption match
+        case Some(slot) =>
+          val start = slot.start.toLocalDateTime
+          val end = start.plus(duration.toDuration)
+          (Some((start, end, slot.preference.toInteger)), slot :: usedSlots)
+        case None =>
+          (None, usedSlots)
 
-      // Initialize the combination process with the first set of availabilities
-      combine(availabilities.drop(1), availabilities.headOption.getOrElse(List.empty))
 
     // Schedule each viva
-    val scheduledVivas = preVivaList.foldLeft(List.empty[PosViva]) { (acc, viva) =>
-      val availabilities = availabilityMap(viva.roleLinkedWithResourceList.map(_.role).toSet)
-      val res = findAllPossibleAvailabilitiesSlot(availabilities, agenda.duration)
-      println(res)
-      List()
-      //      match
-      //        case Some(slot) =>
-      //          val scheduledViva = PosViva.from(
+    val (scheduledVivas, _: List[Availability]) = preVivaList.foldLeft((List.empty[PosViva], List.empty[Availability])) { case ((acc, usedSlots), viva) =>
+      val roleSet = viva.roleLinkedWithResourceList.map(_.role).toSet
+      val availabilities = availabilityMap(roleSet)
+      val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, agenda.duration)
+
+      val (chosenSlotOpt, updatedUsedSlots) = chooseFirstPossibleAvailabilitiesSlot(possibleSlots, agenda.duration, usedSlots)
+      println (chosenSlotOpt)
+
+
+      //          val scheduledViva = PosViva(
       //            viva.student.toString,
       //            viva.title.toString,
-      //            slot._1.toString,
-      //            slot._2.toString,
-      //            2, // Placeholder for preference calculation
-      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: President, name, _) => name }.toString,
-      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(a: Advisor, name, _) => name }.toString,
-      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(s: Supervisor, name, _) => name.toString },
-      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(c: CoAdvisor, name, _) => name.toString }
+      //            chosenSlot.start.toString,
+      //            chosenSlot.end.toString,
+      //            chosenSlot.preference.toInteger,
+      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: President, name, _) => name }.getOrElse("Unknown"),
+      //            viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(a: Advisor, name, _) => name }.getOrElse("Unknown"),
+      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(s: Supervisor, name, _) => name },
+      //            viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(c: CoAdvisor, name, _) => name }
       //          )
-      //          val updatedMap = updateAvailabilities(availabilityMap, slot)
       //          scheduledViva :: acc
       //        case None => acc // If no slot found, ignore the viva
-    }.reverse // Reverse at the end to maintain the original order
-
+      (List(), updatedUsedSlots)
+    } // Reverse at the end to maintain the original order
     Right(())
 
 
