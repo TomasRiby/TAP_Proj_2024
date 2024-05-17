@@ -1,6 +1,8 @@
 package pj.domain
 
 
+import pj.opaqueTypes.OTime.OTime
+
 import java.time.{Duration, LocalDateTime}
 
 
@@ -11,21 +13,14 @@ object AlgorithmV2:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    def getEarliestPresidentAvailability(preViva: PreViva): Option[LocalDateTime] = {
-      preViva.roleLinkedWithResourceList
-        .filter(_.role.isInstanceOf[President]) // Filter for President role
-        .flatMap {
-          case RoleLinkedWithResource(_, resource: Teacher) => resource.availability.map(_.start)
-          case RoleLinkedWithResource(_, resource: External) => resource.availability.map(_.start)
-        }
-        .sorted // Sort availabilities by start time
-        .headOption // Get the start time of the earliest availability
-    }
+    def getCommonAvailability(preViva: PreViva): Unit =
+      val allAvailabilities = preViva.roleLinkedWithResourceList.flatMap:
+        case RoleLinkedWithResource(_, resource: Teacher) => resource.availability
+        case RoleLinkedWithResource(_, resource: External) => resource.availability
+      println(allAvailabilities)
 
-    // Sorting the list of PreViva by the earliest availability of the President role
-    val sortedPreVivaList = preVivaList.sortBy(getEarliestPresidentAvailability)
-
-    println(sortedPreVivaList)
+    val sortedPreVivaList = preVivaList.foreach(getCommonAvailability)
+    
 
     Right(())
 

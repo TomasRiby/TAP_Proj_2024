@@ -3,7 +3,6 @@ package pj.domain.schedule
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.io.{AgendaIO, FileIO, ResourceIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 import pj.xml.XML
 
 import java.io.File
@@ -16,7 +15,7 @@ class Test extends AnyFunSuite:
 
   test("God Saver"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_26_in.xml"
+    val fileName = "valid_agenda_01_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)

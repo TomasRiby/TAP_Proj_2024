@@ -1,7 +1,7 @@
 package pj.io
 
 import scala.xml.Elem
-import pj.domain.{Availability, DomainError, Result}
+import pj.domain.{Availability, DomainError, Result, ScheduleOut}
 import pj.xml.XML
 
 object ScheduleIO:
@@ -13,14 +13,16 @@ object ScheduleIO:
       </error>
     )
 
-  def createScheduleXML(availabilities: List[Availability], totalPreference: Int): Result[Elem] = {
-    Right(<schedule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schedule.xsd" totalPreference={totalPreference.toString}>
-      {availabilities.map { availability =>
-      <viva student="Student Name Placeholder" title="Viva Title Placeholder" start={availability.start.toString} end={availability.end.toString} preference={availability.preference.toString}>
-        <president name="Teacher Placeholder"/>
-        <advisor name="Advisor Placeholder"/>
-        <supervisor name="Supervisor Placeholder"/>
-      </viva>
-    }}
-    </schedule>)
-  }
+  def createScheduleXML(scheduleOut: ScheduleOut): Result[Elem] =
+    Right(
+      <schedule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schedule.xsd"
+                totalPreference={scheduleOut.preference.toString}>
+        {scheduleOut.vivas.map { viva =>
+        <viva student={viva.student} title={viva.title} start={viva.start.toString} end={viva.end.toString} preference={viva.preference.toString}>
+          <president name={viva.president}/>
+          <advisor name={viva.advisor}/>
+          <supervisor name={viva.supervisor}/>
+        </viva>
+      }}
+      </schedule>
+    )

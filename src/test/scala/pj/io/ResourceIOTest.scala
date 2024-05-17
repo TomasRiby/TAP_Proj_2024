@@ -3,9 +3,7 @@ package pj.io
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
 import pj.domain.{Availability, Result}
-import pj.typeUtils.opaqueTypes.opaqueTypes.*
-import pj.typeUtils.opaqueTypes.opaqueTypes.Preference.createPreference
-import pj.typeUtils.opaqueTypes.opaqueTypes.Time.createTime
+import pj.opaqueTypes.{OTime, Preference}
 
 import scala.xml.Elem
 
@@ -19,8 +17,8 @@ class ResourceIOTest extends AnyFunSuite with Matchers:
       elem => ResourceIO.loadResources(elem)
     )
 
-    val startDate = Time.createTime("2024-05-30T09:30:00")
-    val endDate = Time.createTime("2024-05-30T12:30:00")
+    val startDate = OTime.createTime("2024-05-30T09:30:00")
+    val endDate = OTime.createTime("2024-05-30T12:30:00")
     val preference = Preference.createPreference(2)
 
     (result, startDate, endDate) match
