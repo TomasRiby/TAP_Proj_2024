@@ -22,6 +22,16 @@ object VivaTest
       chosenId <- Gen.oneOf(ids.filter(_.isTeacherId))
     yield (Advisor.from(chosenId), ids.filterNot(_ == chosenId))
 
+  def generateCoAdvisor(ids: List[ID]): Gen[(CoAdvisor, List[ID])] =
+    for
+      chosenId <- Gen.oneOf(ids.filter(_.isTeacherId))
+    yield (CoAdvisor.from(chosenId), ids.filterNot(_ == chosenId))
+
+  def generateSupervisor(ids: List[ID]): Gen[(Supervisor, List[ID])] =
+    for
+      chosenId <- Gen.oneOf(ids.filter(_.isTeacherId))
+    yield (Supervisor.from(chosenId), ids.filterNot(_ == chosenId))
+
   def generateViva(idList: List[ID]): Gen[Viva] =
     for
       student <- generateName
