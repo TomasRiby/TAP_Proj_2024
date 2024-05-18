@@ -1,7 +1,7 @@
 package pj.domain
 
 import pj.io.FileIO
-import pj.typeUtils.opaqueTypes.opaqueTypes.ODuration
+import pj.opaqueTypes.ODuration.ODuration
 import pj.xml.XML
 
 import scala.xml.{Elem, Node}

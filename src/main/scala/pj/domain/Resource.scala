@@ -1,6 +1,5 @@
 package pj.domain
 
-import pj.typeUtils.opaqueTypes.opaqueTypes.ID
 
 final case class Resource private(
                             teacher: List[Teacher], external: List[External]

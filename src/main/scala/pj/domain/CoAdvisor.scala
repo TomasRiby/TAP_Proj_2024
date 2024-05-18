@@ -2,10 +2,11 @@ package pj.domain
 
 import pj.opaqueTypes.ID.ID
 
-final case class Advisor private(
+
+final case class CoAdvisor private(
                           id: ID
                         )
 
-object Advisor:
+object CoAdvisor:
   def from(id: ID) =
-    new Advisor(id: ID)
+    new CoAdvisor(id: ID)

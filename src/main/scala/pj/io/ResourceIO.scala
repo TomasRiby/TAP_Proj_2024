@@ -1,7 +1,7 @@
 package pj.io
 
 import pj.domain.{Availability, DomainError, External, Resource, Result, Teacher}
-import pj.typeUtils.opaqueTypes.opaqueTypes.*
+import pj.opaqueTypes.{ID, Name, OTime, Preference}
 import pj.xml.XML
 
 import java.time.LocalDateTime
@@ -39,9 +39,9 @@ object ResourceIO:
   private def extractAvailabilities(availabilityNode: Node): Result[Availability] =
     for
       startXML <- XML.fromAttribute(availabilityNode, "start")
-      start <- Time.createTime(startXML)
+      start <- OTime.createTime(startXML)
       endXML <- XML.fromAttribute(availabilityNode, "end")
-      end <- Time.createTime(endXML)
+      end <- OTime.createTime(endXML)
       preferenceXML <- XML.fromAttribute(availabilityNode, "preference")
       preference <- Preference.createPreference(preferenceXML.toInt)
     yield Availability.from(start, end, preference)

@@ -1,15 +1,19 @@
 package pj.domain
 
 import pj.domain.Availability
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name}
+import pj.opaqueTypes.ID.ID
+import pj.opaqueTypes.Name.Name
 
 final case class External(
                            id: ID,
                            name: Name,
-                           availability: Seq[Availability])
+                           availability: List[Availability])
 
 
 object External:
-  def from(id: ID, name: Name, availability: Seq[Availability]) =
-    new External(id: ID, name: Name, availability: Seq[Availability])
+  def from(id: ID, name: Name, availability: List[Availability]) =
+    new External(id: ID, name: Name, availability: List[Availability])
+
+  extension (external: External)
+    def isValid: Boolean = external.id.isValid && external.name.isValid && external.availability.forall(_.isValid)
   

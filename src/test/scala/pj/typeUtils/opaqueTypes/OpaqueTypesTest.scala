@@ -5,10 +5,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, Name, ODuration, Preference, Time}
 import pj.domain.{Availability, DomainError, Resource, Teacher}
-import pj.typeUtils.opaqueTypes.opaqueTypes.Preference.createPreference
-import pj.typeUtils.opaqueTypes.opaqueTypes.Time.createTime
+import pj.opaqueTypes.{ID, Name, ODuration, Preference}
 
 import scala.sys.SystemProperties.headless.option
 

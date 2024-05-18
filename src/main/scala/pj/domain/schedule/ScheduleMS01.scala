@@ -3,7 +3,6 @@ package pj.domain.schedule
 import scala.xml.Elem
 import pj.domain.*
 import pj.io.{AgendaIO, FileIO, ResourceIO, ScheduleIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.Preference
 
 
 object ScheduleMS01 extends Schedule:
@@ -15,5 +14,5 @@ object ScheduleMS01 extends Schedule:
     for {
       agenda <- AgendaIO.loadAgenda(xml)
       algorithm <- Algorithm.makeTheAlgorithmHappen(agenda)
-      elem <- ScheduleIO.createScheduleXML(algorithm, algorithm.map(algo => Preference.toInt(algo.preference)).sum)
-    } yield elem
+      res <- ScheduleIO.createScheduleXML(algorithm)
+    } yield res

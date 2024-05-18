@@ -8,11 +8,14 @@ enum DomainError:
   case Error(error: String)
   case WrongFormat(error: String)
   case InvalidPreference(error: String)
+  case ImpossibleSchedule
+  case TIME_INVALID_DATE(error: String)
 
   //XML Errors
   case IOFileProblem(error: String)
   case XMLError(error: String)
   case DuplicateError(error: String)
+  
 
   def message: String = this match
     case Error(error) => error

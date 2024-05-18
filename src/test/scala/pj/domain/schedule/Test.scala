@@ -3,7 +3,6 @@ package pj.domain.schedule
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.io.{AgendaIO, FileIO, ResourceIO}
-import pj.typeUtils.opaqueTypes.opaqueTypes.{ID, ODuration, Preference}
 import pj.xml.XML
 
 import java.io.File
@@ -14,9 +13,9 @@ import scala.xml.Node
 
 class Test extends AnyFunSuite:
 
-  test("aaaaaaa"):
-    val dir = "files/test/ms01/"
-    val fileName = "invalid_external_Name_in.xml"
+  test("God Saver"):
+    val dir = "files/assessment/ms01/"
+    val fileName = "valid_agenda_06_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
@@ -24,21 +23,26 @@ class Test extends AnyFunSuite:
     } yield result
     println(result)
 
-  test("asasas"):
+  test("test"):
     val dir = "files/test/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
     files.foreach(files => println(AgendaIO.loadAgenda(files)))
 
-  test("asasssasssa"):
+  test("assessment"):
     val dir = "files/assessment/ms01/"
     val folder = new File(dir)
     val files = folder.listFiles.filter(file => file.isFile && file.getName.endsWith("in.xml")).map(file => dir + file.getName)
-    files.foreach(files => println(AgendaIO.loadAgenda(files)))
+    files.foreach(files =>
+      val result = for {
+        fileLoaded <- FileIO.load(files)
+        result <- ScheduleMS01.create(fileLoaded)
+      } yield result
+    )
 
   test("asasasas"):
     val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_02_in.xml"
+    val fileName = "valid_agenda_26_in.xml"
     val filePath = dir + fileName
     val result = AgendaIO.loadAgenda(filePath)
 
