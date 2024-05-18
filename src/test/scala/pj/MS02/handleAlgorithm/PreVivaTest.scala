@@ -36,15 +36,26 @@ object PreVivaTest extends Properties("PreViva Test"):
       val titleCorrect = preViva.title == viva.title
 
       // Check that the roles are correctly linked with resources
-      val presidentCorrect = preViva.roleLinkedWithResourceList.exists(rlr => rlr.role == viva.president && teachers.exists(_.id == rlr.role.getId))
-      val advisorCorrect = preViva.roleLinkedWithResourceList.exists(rlr => rlr.role == viva.advisor && teachers.exists(_.id == rlr.role.getId))
+      val presidentCorrect =
+        val presidentRole = preViva.roleLinkedWithResourceList.find(_.role == viva.president)
+        val teacherMatch = teachers.exists(_.id == viva.president.getId)
+        presidentRole.isDefined == teacherMatch
+
+      val advisorCorrect =
+        val advisorRole = preViva.roleLinkedWithResourceList.find(_.role == viva.advisor)
+        val teacherMatch = teachers.exists(_.id == viva.advisor.getId)
+        advisorRole.isDefined == teacherMatch
 
       val coAdvisorCorrect = viva.coAdvisor.forall { coAdvisor =>
-        preViva.roleLinkedWithResourceList.exists(rlr => rlr.role == coAdvisor && (teachers.exists(_.id == coAdvisor.getId) || externals.exists(_.id == coAdvisor.getId)))
+        val coAdvisorRole = preViva.roleLinkedWithResourceList.find(_.role == coAdvisor)
+        val matchFound = teachers.exists(_.id == coAdvisor.getId) || externals.exists(_.id == coAdvisor.getId)
+        coAdvisorRole.isDefined == matchFound
       }
 
       val supervisorCorrect = viva.supervisor.forall { supervisor =>
-        preViva.roleLinkedWithResourceList.exists(rlr => rlr.role == supervisor && externals.exists(_.id == supervisor.getId))
+        val supervisorRole = preViva.roleLinkedWithResourceList.find(_.role == supervisor)
+        val matchFound = externals.exists(_.id == supervisor.getId)
+        supervisorRole.isDefined == matchFound
       }
 
       studentCorrect && titleCorrect && presidentCorrect && advisorCorrect && coAdvisorCorrect && supervisorCorrect
