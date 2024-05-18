@@ -10,3 +10,6 @@ final case class CoAdvisor private(
 object CoAdvisor:
   def from(id: ID) =
     new CoAdvisor(id: ID)
+    
+  extension (coAdvisor: CoAdvisor)
+    def isValid: Boolean = coAdvisor.id.isValid

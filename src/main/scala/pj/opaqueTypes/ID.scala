@@ -38,8 +38,11 @@ object ID:
 
   extension (id: ID)
     def IDtoString: String = id
-    def isValid: Boolean = id match
+    def isValid: Boolean = id.isTeacherId || id.isExternalId
+    def isTeacherId: Boolean = id match
       case teacherIdPattern() => true
+      case _ => false
+    def isExternalId: Boolean = id match
       case externalIdPattern() => true
       case _ => false
     

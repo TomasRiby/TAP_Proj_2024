@@ -17,8 +17,6 @@ object AgendaIO:
     } yield Agenda.from(viva,resources, duration)
 
   def loadAgenda(xml: String): Result[Agenda] =
-    println("---------------------------")
-    println(xml)
 
     for {
       loadXML <- FileIO.load(xml)
