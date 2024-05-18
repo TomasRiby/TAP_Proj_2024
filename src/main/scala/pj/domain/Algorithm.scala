@@ -21,14 +21,7 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-
-    def preVivaToMap(vivaList: Seq[PreViva]): Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]] =
-      val roles = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.role).toSet)
-      val availabilities = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.listAvailability))
-      roles.zip(availabilities).toMap
-
     val availabilityMap = preVivaToMap(preVivaList)
-
 
     // Schedule each viva
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[Availability])]](Right((List.empty[PosViva], List.empty[Availability]))):
@@ -64,5 +57,8 @@ object Algorithm:
       scheduleOut
     }
 
-
+  def preVivaToMap(vivaList: Seq[PreViva]): Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]] =
+    val roles = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.role).toSet)
+    val availabilities = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.listAvailability))
+    roles.zip(availabilities).toMap
 
