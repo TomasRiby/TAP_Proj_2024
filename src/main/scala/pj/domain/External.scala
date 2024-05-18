@@ -13,4 +13,7 @@ final case class External(
 object External:
   def from(id: ID, name: Name, availability: List[Availability]) =
     new External(id: ID, name: Name, availability: List[Availability])
+
+  extension (external: External)
+    def isValid: Boolean = external.id.isValid && external.name.isValid && external.availability.forall(_.isValid)
   

@@ -15,3 +15,6 @@ object Teacher:
   def from(id: ID, name: Name, availability: List[Availability]):Teacher =
     new Teacher(id: ID, name: Name, availability: List[Availability])
     
+  extension(t:Teacher)
+    def isValid: Boolean = t.id.isValid && t.name.isValid && t.availability.forall(_.isValid)
+    
