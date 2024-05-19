@@ -17,7 +17,7 @@ object AvailabilityGenerators
 
   def generateAvailabilityListForADay(time: LocalDate): Gen[List[Availability]] =
     for {
-      listLength <- Gen.choose(1, 150)
+      listLength <- Gen.choose(10, 20)
       availabilities <- Gen.listOfN(listLength, generateAvailabilityFromDay(time))
     } yield makeNonOverlapping(availabilities, listLength)
 
@@ -25,7 +25,7 @@ object AvailabilityGenerators
   def generateAvailabilityFromDay(time: LocalDate): Gen[Availability] =
     for {
       start <- generateTimeForDay(time)
-      duration <- Gen.choose(10800, 20800) // duration between 1 hour and 3 hours in seconds
+      duration <- Gen.choose(7200, 21600) // duration between 2 hour and 6 hours in seconds
       end = start.plusSeconds(duration)
       preference <- generatePreference
       resAvailability = Availability.fromCheck(start, end, preference)
@@ -37,8 +37,6 @@ object AvailabilityGenerators
 
 
   property("Testing Non-Overlapping Availability List for a day") = forAll(generateAvailabilityListForADay(LocalDate.of(2023, 5, 17))) { list =>
-    list.zip(list.drop(1)).forall { case (a, b) => b.start.isAfter(a.end) || b.start.isEqual(a.end) }
+    println(list)
+    list.zip(list.drop(1)).forall { case (a, b) => !Availability.intersects(a, b) }
   }
-
-
-

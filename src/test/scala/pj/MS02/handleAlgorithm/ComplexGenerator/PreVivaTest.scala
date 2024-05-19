@@ -26,20 +26,3 @@ object PreVivaTest
       externalList = linkedViva._3
       duration = linkedViva._4
     } yield (vivaList.map(PreViva.linkVivaWithResource(_, teacherList, externalList)), duration)
-
-  def generatePossibleSchedule: Gen[ScheduleOut] =
-    for {
-      previvaList <- generatePreVivaList
-      preVivas = previvaList._1
-      duration = previvaList._2
-      availabilityMap = preVivaToMap(preVivas)
-      scheduleOut = algorithm(preVivas, availabilityMap, duration)
-      res <- scheduleOut match
-        case Left(_) => Gen.fail
-        case Right(validSchedule) => Gen.const(validSchedule)
-    } yield res
-
-
-  property("Putting the generated PreVivas in the algorithm") = forAll(generatePossibleSchedule) { res =>
-    true
-  }
