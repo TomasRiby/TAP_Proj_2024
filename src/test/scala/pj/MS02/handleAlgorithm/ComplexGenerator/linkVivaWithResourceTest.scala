@@ -40,9 +40,28 @@ object linkVivaWithResourceTest
 
   val res = generateADay.sample.getOrElse(LocalDate.now())
 
-  property("Testing linkVivaWithResource") = forAll(generateVivaWithTeachersAndExternals(res)) { list =>
-    true
-  }
+  property("all generated teacher and external IDs should be present in the list of IDs from Viva") =
+    forAll(generateVivaWithTeachersAndExternals(res)) { case (viva, teachers, externals) =>
+      val teacherIds = teachers.map(_.id)
+      val externalIds = externals.map(_.id)
+      val listOfVivaIDs: List[ID] =
+        val pId = List(viva.president.id)
+        val aId = List(viva.advisor.id)
+        val sIds = viva.supervisor.map(_.id)
+        val cIds = viva.coAdvisor.map(_.id)
+
+        pId ++ aId ++ sIds ++ cIds
+      teacherIds.forall(id => listOfVivaIDs.contains(id)) &&
+        externalIds.forall(id => listOfVivaIDs.contains(id))
+    }
+
+  property("the lengths of generated lists should match the number of distinct IDs") =
+    forAll(generateVivaWithTeachersAndExternals(res)) { case (viva, teachers, externals) =>
+      val teacherIds = teachers.map(_.id)
+      val externalIds = externals.map(_.id)
+      teacherIds.distinct.lengthIs == teacherIds.length &&
+        externalIds.distinct.lengthIs == externalIds.length
+    }
 
   property("Testing linkVivaWithResource") = forAll(generateAValidAgendaViva) { list =>
     true
