@@ -1,18 +1,19 @@
-package pj.MS02.domain
+package pj.MS02.handleAlgorithm.ComplexGenerator
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pj.MS02.domain.AvailabilityTest.{generateAvailabilityList, generateAvailabilityListForADay}
-import pj.MS02.opaque.IDTest.{generateExternalID, generateID, generateTeacherID}
-import pj.MS02.opaque.NameTest.generateName
-import pj.MS02.opaque.OTimeTest.generateADay
+import pj.MS02.domain.AvailabilityTest.generateAvailabilityList
+import pj.MS02.handleAlgorithm.ComplexGenerator.AvailabilityGenerators.generateAvailabilityListForADay
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.IDTest.{generateExternalID, generateID, generateTeacherID}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.NameTest.generateName
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.OTimeTest.generateADay
 import pj.domain.{DomainError, External, Result, Teacher}
 import pj.opaqueTypes.ID
 import pj.opaqueTypes.ID.{ID, createTeacherId}
 
 import java.time.LocalDate
-import scala.jdk.CollectionConverters.*
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters.*
 
 object ResourceTest
   extends Properties("Resource Test"):

@@ -28,3 +28,4 @@ object ODuration:
   extension (t: ODuration)
     def toDuration: Duration = t: ODuration
     def toLocalTime: LocalTime = LocalTime.of(t.toHours.toInt, t.toMinutes.toInt % 60, t.toSeconds.toInt % 60)
+    def isValid: Boolean = t.toSeconds >= 0 && t.toMinutes >= 0 && t.toHours >= 0

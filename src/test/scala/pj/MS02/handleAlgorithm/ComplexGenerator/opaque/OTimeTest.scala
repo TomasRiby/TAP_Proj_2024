@@ -1,4 +1,4 @@
-package pj.MS02.opaque
+package pj.MS02.handleAlgorithm.ComplexGenerator.opaque
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}

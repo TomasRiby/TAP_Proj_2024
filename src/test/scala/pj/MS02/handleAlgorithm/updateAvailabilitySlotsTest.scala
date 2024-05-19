@@ -3,10 +3,10 @@ package pj.MS02.handleAlgorithm
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import pj.MS02.domain.AvailabilityTest.{generateAvailability, generateAvailabilityList, generateNonOverlappingAvailabilityList}
-import pj.MS02.domain.ResourceTest.{generateExternal, generateTeacher}
-import pj.MS02.domain.VivaTest.*
-import pj.MS02.opaque.IDTest.generateTeacherID
-import pj.MS02.opaque.NameTest.generateName
+import pj.MS02.handleAlgorithm.ComplexGenerator.ResourceTest.{generateExternal, generateTeacher}
+import pj.MS02.handleAlgorithm.ComplexGenerator.VivaTest.*
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.IDTest.generateTeacherID
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.NameTest.generateName
 import pj.domain.Availability
 import pj.domain.Availability.updateAvailabilitySlots
 import pj.opaqueTypes.ODuration.ODuration

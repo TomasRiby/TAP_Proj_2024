@@ -1,14 +1,14 @@
-package pj.MS02.opaque
+package pj.MS02.handleAlgorithm.ComplexGenerator.opaque
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import pj.opaqueTypes.Name
-import pj.opaqueTypes.Name.Name
+import Name.Name
 
-object ODurationTest extends Properties("NameTest"):
-  def generateDuration: Gen[Name] =
+object NameTest extends Properties("NameTest"):
+  def generateName: Gen[Name] =
     for {
-      numbChars <- Gen.chooseNum(1, 100)
+      numbChars <- Gen.chooseNum(1, 200)
       chars <- Gen.listOfN(numbChars, Gen.alphaChar)
       resName = Name.createName(chars.mkString)
       generatedName <- resName match
@@ -16,5 +16,5 @@ object ODurationTest extends Properties("NameTest"):
         case Right(validName) => Gen.const(validName)
     } yield generatedName
 
-  property("Name generation is working") = forAll(generateDuration):
+  property("Name generation is working") = forAll(generateName):
     _.isValid
