@@ -226,3 +226,12 @@ development and testing processes and ensuring the delivery of high-quality soft
 - **generatePossibleSchedule**: Generates a possible schedule (`ScheduleOut`) by creating a list of `PreViva` objects, calculating their duration, and generating a schedule using the `algorithm` function. Ensures that the scheduling algorithm produces valid outputs.
 - **Properties**:
     - **Putting the generated PreVivas in the algorithm**: Ensures that the generated schedule does not have overlapping `PosViva` intervals. Converts `start` and `end` strings to `OTime` objects and verifies that no two intervals overlap, ensuring the correctness of the scheduling algorithm.
+
+### PreVivaTest
+
+- **generatePreVivaList**: Generates a list of `PreViva` objects along with an `ODuration`. Utilizes a valid agenda to create linked viva sessions and resources.
+- **Properties**:
+    - **PreViva objects are correctly linked**: Validates that all generated `PreViva` objects are correctly linked with resources.
+    - **PreViva objects have valid duration**: Ensures that all generated `PreViva` objects conform to the specified duration format.
+    - **PreViva lists are unique**: Checks that the generated list of `PreViva` objects contains only unique entries, with no duplicates.
+    - **PreViva objects conform to requirements**: Ensures that all generated `PreViva` objects meet the necessary requirements and constraints.
