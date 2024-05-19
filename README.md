@@ -235,3 +235,18 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **PreViva objects have valid duration**: Ensures that all generated `PreViva` objects conform to the specified duration format.
     - **PreViva lists are unique**: Checks that the generated list of `PreViva` objects contains only unique entries, with no duplicates.
     - **PreViva objects conform to requirements**: Ensures that all generated `PreViva` objects meet the necessary requirements and constraints.
+
+
+### updateAvailabilitySlotsTest
+
+- **createODuration**: Helper method to create an `ODuration` from hours, minutes, and seconds. Validates the format and correctness of the duration string.
+- **nonEmptyAvailabilityList**: Generates a non-empty list of `Availability` objects, ensuring there is always at least one availability slot.
+- **generateDuration**: Generates an `ODuration` by selecting random hours, minutes, and seconds, and ensures the generated duration is valid.
+- **nonEmptyUsedSlotsList**: Generates a non-empty list of used availability slots, ensuring there is always at least one used slot.
+- **updateAvailabilitySlots**: Property test that verifies the `updateAvailabilitySlots` function correctly updates availability slots based on used slots and a given duration. Ensures no overlaps in updated slots, all updated slots meet the minimum duration requirement, all used slots are reflected in the updated slots, original slots are included when there are no used slots, and all original availabilities are considered.
+- **Properties**:
+    - **No overlaps in updated slots**: Validates that the updated availability slots do not overlap with each other.
+    - **Valid duration for all updated slots**: Ensures that all updated slots meet the minimum duration requirement.
+    - **All used slots are reflected in updated slots**: Ensures that all used slots are properly accounted for in the updated slots.
+    - **Original slots included when no used slots**: Verifies that original availability slots are included in the updated slots when there are no used slots.
+    - **All availabilities are considered**: Ensures that all original availability slots are taken into account when updating the slots.
