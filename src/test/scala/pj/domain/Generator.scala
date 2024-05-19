@@ -4,16 +4,31 @@ import pj.opaqueTypes.ID.{ID, createExternalId, createTeacherId}
 import pj.opaqueTypes.Name.{Name, createName}
 import pj.opaqueTypes.OTime.{OTime, createTime}
 import pj.opaqueTypes.Preference.{Preference, createPreference}
+import pj.opaqueTypes.ODuration.{ODuration, createDuration}
 
 import java.time.LocalDateTime
+import java.time.temporal.ChronoField
 
 object Generator {
+
+  // Gerador para ODuration no formato HH:MM:SS
+  val genODuration: Gen[ODuration] = for {
+    hours <- Gen.choose(0, 23)
+    minutes <- Gen.choose(0, 59)
+    seconds <- Gen.choose(0, 59)
+    durationStr = f"$hours%02d:$minutes%02d:$seconds%02d" // Formatação da string no formato HH:MM:SS
+    duration <- createDuration(durationStr).fold(
+      _ => Gen.fail, // Falha no caso de erro
+      Gen.const(_) // Sucesso no caso de valor válido
+    )
+  } yield duration
 
   // Gerador para OTime
   val genOTime: Gen[OTime] = for {
     hour <- Gen.choose(0, 23)
     minute <- Gen.choose(0, 59)
-    dateTime = LocalDateTime.now().withHour(hour).withMinute(minute)
+    second <- Gen.choose(0, 59)
+    dateTime = LocalDateTime.now().withHour(hour).withMinute(minute).withSecond(second).withNano(0)
     otime <- createTime(dateTime).fold(
       _ => Gen.fail, // Falha no caso de erro
       Gen.const(_) // Sucesso no caso de valor válido
@@ -34,7 +49,7 @@ object Generator {
     start <- genOTime
     end <- genOTime.suchThat(_.isAfter(start))
     preference <- genPreference
-  } yield Availability(start, end, preference)
+  } yield Availability.from(start, end, preference)
 
   // Gerador para Name
   val genName: Gen[Name] = for {
