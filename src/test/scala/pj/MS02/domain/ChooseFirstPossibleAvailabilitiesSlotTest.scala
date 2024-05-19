@@ -6,7 +6,7 @@ import pj.MS02.domain.Generator.{genAvailability, genODuration}
 import pj.domain.{Algorithm, Availability}
 import pj.opaqueTypes.ODuration.ODuration
 
-object ChooseFirstPossibleAvailabilitiesSlotTest extends Properties("ChooseFirstPossibleAvailabilitiesSlot") {
+object ChooseFirstPossibleAvailabilitiesSlotTest extends Properties("ChooseFirstPossibleAvailabilitiesSlot"):
 
   // Gerador para uma lista de disponibilidades
   def genAvailabilityList: Gen[List[Availability]] = Gen.listOf(genAvailability)
@@ -57,4 +57,4 @@ object ChooseFirstPossibleAvailabilitiesSlotTest extends Properties("ChooseFirst
         // Se não houver slots disponíveis que correspondam à duração necessária, o método deve retornar None
         val (slotOpt, _) = Availability.chooseFirstPossibleAvailabilitiesSlot(availabilities, duration, availabilities)
         slotOpt.isEmpty
-}
+
