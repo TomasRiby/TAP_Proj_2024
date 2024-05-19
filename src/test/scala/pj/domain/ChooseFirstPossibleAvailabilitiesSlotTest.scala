@@ -4,7 +4,7 @@ import org.scalacheck.Prop.forAll
 import pj.domain.{Algorithm, Availability}
 import pj.opaqueTypes.ODuration.ODuration
 
-object ChooseFirstPossibleAvailabilitiesSlotPT extends Properties("ChooseFirstPossibleAvailabilitiesSlot") {
+object ChooseFirstPossibleAvailabilitiesSlotTest extends Properties("ChooseFirstPossibleAvailabilitiesSlot") {
 
   // Gerador para uma lista de disponibilidades
   def genAvailabilityList: Gen[List[Availability]] = Gen.listOf(genAvailability)

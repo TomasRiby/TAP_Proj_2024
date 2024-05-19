@@ -2,7 +2,7 @@ import org.scalacheck.*
 import org.scalacheck.Prop.forAll
 import pj.domain.{Algorithm, Availability, PreViva, RoleLinkedWithResource}
 
-object PreVivaToMapPT extends Properties("PreViva") {
+object PreVivaToMapTest extends Properties("PreViva") {
 
   // Definindo um gerador para PreViva
   val genPreVivaList: Gen[List[PreViva]] = Gen.listOfN(1, Generator.genPreViva)
