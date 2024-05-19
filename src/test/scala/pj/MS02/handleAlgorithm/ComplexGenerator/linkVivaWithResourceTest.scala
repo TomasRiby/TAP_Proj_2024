@@ -31,7 +31,8 @@ object linkVivaWithResourceTest
   def generateAValidAgendaViva: Gen[(List[Viva], List[Teacher], List[External], ODuration)] =
     for {
       day <- generateADay
-      vivaTuples <- Gen.listOfN(10, generateVivaWithTeachersAndExternals(day))
+      sizeOfTuples <- Gen.choose(1, 20)
+      vivaTuples <- Gen.listOfN(sizeOfTuples, generateVivaWithTeachersAndExternals(day))
       vivas = vivaTuples.map(_._1)
       teacherList = vivaTuples.flatMap(_._2).distinct
       externals = vivaTuples.flatMap(_._3).distinct

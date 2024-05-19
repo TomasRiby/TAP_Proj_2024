@@ -16,7 +16,7 @@ import pj.opaqueTypes.OTime.OTime
 import java.time.LocalDate
 
 object PreVivaTest
-  extends Properties("Testing linkVivaWithResource"):
+  extends Properties("Testing generate Pre Viva List"):
 
   def generatePreVivaList: Gen[(List[PreViva], ODuration)] =
     for {
