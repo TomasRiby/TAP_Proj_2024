@@ -1,11 +1,11 @@
-package pj.MS02.domain
+package pj.MS02.handleAlgorithm.ComplexGenerator
 
 import org.scalacheck.Prop.{AnyOperators, forAll}
 import org.scalacheck.{Gen, Properties}
 import pj.MS02.domain.AvailabilityTest.generateAvailabilityList
-import pj.MS02.opaque.IDTest.{generateExternalID, generateExternalIdThatsNotOnList, generateID, generateTeacherID, generateTeacherIdThatsNotOnList, generateUniqueIDs}
-import pj.MS02.opaque.NameTest.generateName
-import pj.domain.{Advisor, CoAdvisor, External, President, Supervisor, Teacher, Viva}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.IDTest.{generateExternalIdThatsNotOnList, generateTeacherIdThatsNotOnList}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.NameTest.generateName
+import pj.domain.*
 import pj.opaqueTypes.ID
 import pj.opaqueTypes.ID.{ID, createRegularId}
 

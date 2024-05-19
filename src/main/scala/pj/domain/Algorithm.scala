@@ -23,15 +23,22 @@ object Algorithm:
 
     val availabilityMap = preVivaToMap(preVivaList)
 
-    // Schedule each viva
+    algorithm(preVivaList.toList, availabilityMap, duration)
+
+  def preVivaToMap(vivaList: Seq[PreViva]): Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]] =
+    val roles = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.role).toSet)
+    val availabilities = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.listAvailability))
+    roles.zip(availabilities).toMap
+
+  def algorithm(preVivaList: List[PreViva], availabilityMap: Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[Availability])]](Right((List.empty[PosViva], List.empty[Availability]))):
       case (accResult, viva) =>
         accResult.flatMap { case (acc, usedSlots) =>
           val roleSet = viva.roleLinkedWithResourceList.map(_.role).toSet
-          val availabilities = availabilityMap(roleSet)
-          val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, agenda.duration)
-          val updatedPossibleSlots = Availability.updateAvailabilitySlots(possibleSlots, agenda.duration, usedSlots)
-          val (chosenSlotOpt, updatedUsedSlots) = Availability.chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, agenda.duration, usedSlots)
+          val availabilities = availabilityMap.getOrElse(roleSet, List.empty)
+          val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, duration)
+          val updatedPossibleSlots = Availability.updateAvailabilitySlots(possibleSlots, duration, usedSlots)
+          val (chosenSlotOpt, updatedUsedSlots) = Availability.chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, duration, usedSlots)
 
           chosenSlotOpt match
             case Some((start, end, preference)) =>
@@ -52,13 +59,6 @@ object Algorithm:
         }
 
     schedulingResult.map { case (scheduledVivas, _) =>
-      val sortedScheduleVivas = scheduledVivas.sortBy(a => LocalDateTime.parse(a.start))
-      val scheduleOut = ScheduleOut.from(sortedScheduleVivas)
-      scheduleOut
+      val sortedScheduledVivas = scheduledVivas.sortBy(v => LocalDateTime.parse(v.start, formatter))
+      ScheduleOut.from(sortedScheduledVivas)
     }
-
-  def preVivaToMap(vivaList: Seq[PreViva]): Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]] =
-    val roles = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.role).toSet)
-    val availabilities = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.listAvailability))
-    roles.zip(availabilities).toMap
-

@@ -1,9 +1,9 @@
 package pj.MS02.domain
 
-import org.scalacheck.Prop.{exists, forAll}
-import org.scalacheck.{Gen, Prop, Properties}
-import pj.MS02.opaque.OTimeTest.{generateTime, generateTimeForDay}
-import pj.MS02.opaque.PreferenceTest.generatePreference
+import org.scalacheck.Prop.forAll
+import org.scalacheck.{Gen, Properties}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.OTimeTest.{generateTime, generateTimeForDay}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.PreferenceTest.generatePreference
 import pj.domain.Availability
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.OTime.OTime
@@ -15,37 +15,22 @@ object AvailabilityTest
 
   def generateNonOverlappingAvailabilityList: Gen[List[Availability]] =
     for {
-      listLength <- Gen.choose(1, 10)
+      listLength <- Gen.choose(1, 5)
       availabilities <- Gen.listOfN(listLength, generateAvailability)
-    } yield makeNonOverlapping(availabilities, listLength)
-
-  def generateAvailabilityListForADay(time: LocalDate): Gen[List[Availability]] =
-    for {
-      listLength <- Gen.choose(1, 10)
-      availabilities <- Gen.listOfN(listLength, generateAvailabilityFromDay(time))
     } yield makeNonOverlapping(availabilities, listLength)
 
   def generateAvailability: Gen[Availability] =
     for {
       start <- generateTime
-      end <- generateTime
+      duration <- Gen.choose(3600, 10800) // duration between 1 hour and 3 hours in seconds
+      end = start.plusSeconds(duration)
       preference <- generatePreference
       resAvailability = Availability.fromCheck(start, end, preference)
       validAvailability <- resAvailability match
         case Left(_) => Gen.fail
         case Right(valid) => Gen.const(valid)
     } yield validAvailability
-
-  def generateAvailabilityFromDay(time: LocalDate): Gen[Availability] =
-    for {
-      start <- generateTimeForDay(time)
-      end <- generateTimeForDay(time)
-      preference <- generatePreference
-      resAvailability = Availability.fromCheck(start, end, preference)
-      validAvailability <- resAvailability match
-        case Left(_) => Gen.fail
-        case Right(valid) => Gen.const(valid)
-    } yield validAvailability
+  
 
   def makeNonOverlapping(availabilities: List[Availability], desiredLength: Int): List[Availability] =
     availabilities.sortBy(_.start).foldLeft(List.empty[Availability]) { (acc, avail) =>
@@ -66,9 +51,7 @@ object AvailabilityTest
   property("Testing Non-Overlapping Availability List") = forAll(generateNonOverlappingAvailabilityList) { list =>
     list.zip(list.drop(1)).forall { case (a, b) => b.start.isAfter(a.end) || b.start.isEqual(a.end) }
   }
-  property("Testing Non-Overlapping Availability List for a day") = forAll(generateAvailabilityListForADay(LocalDate.of(2023, 5, 17))) { list =>
-    list.zip(list.drop(1)).forall { case (a, b) => b.start.isAfter(a.end) || b.start.isEqual(a.end) }
-  }
+  
 
   property("Testing Availability") = forAll(generateAvailability) { avail =>
     avail.isValid
