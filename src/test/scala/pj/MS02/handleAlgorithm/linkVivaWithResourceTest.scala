@@ -2,10 +2,10 @@ package pj.MS02.handleAlgorithm
 
 import org.scalacheck.Prop.{exists, forAll}
 import org.scalacheck.{Gen, Prop, Properties}
-import pj.MS02.domain.ResourceTest.{generateExternal, generateExternalListFromIDs, generateTeacherListFromIDs}
-import pj.MS02.domain.VivaTest.{generateViva, generateVivaList}
-import pj.MS02.opaque.OTimeTest.{generateADay, generateTime}
-import pj.MS02.opaque.PreferenceTest.generatePreference
+import pj.MS02.handleAlgorithm.ComplexGenerator.ResourceTest.{generateExternal, generateExternalListFromIDs, generateTeacherListFromIDs}
+import pj.MS02.handleAlgorithm.ComplexGenerator.VivaTest.{generateViva, generateVivaList}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.OTimeTest.{generateADay, generateTime}
+import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.PreferenceTest.generatePreference
 import pj.domain.{Availability, External, PreViva, Result, Teacher, Viva}
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.OTime.OTime
