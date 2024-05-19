@@ -74,4 +74,23 @@ As we move forward, several areas stand out for enhancement.
 
 - **Creation of More Input Test Files**: Increasing our collection of input test files with more diverse agendas will enhance the comprehensiveness of our testing efforts. Also, with this, we can uncover more error cases that might otherwise go unnoticed, bolstering the resilience and adaptability of our software.
 
-By prioritizing these among other possible improvements, we aim to elevate the quality, reliability, and performance of our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of evolving requirements. 
+By prioritizing these among other possible improvements, we aim to elevate the quality, reliability, and performance of our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of evolving requirements.
+
+
+### MS02
+
+The use of generators and property-based testing in software development offers numerous advantages in terms of both efficiency and code quality. 
+Generators allow for the creation of iterators that produce values on demand without the need to store all values in memory, resulting in more efficient memory usage and improved performance, especially when handling large volumes of data. 
+Additionally, they simplify and enhance the readability of the code. Property-based testing, on the other hand, focuses on defining properties that function outputs must satisfy and automatically generates numerous test cases to verify these properties. 
+This significantly expands test coverage, helping to identify bugs that would not be discovered through traditional testing methods. 
+This systematic approach explores various usage scenarios and edge case inputs, documents the expected behavior of the system, and facilitates code comprehension and maintenance. 
+Combining these techniques leads to more robust, reliable, and maintainable software, substantially improving development and testing processes and ensuring the delivery of high-quality software.
+
+#### Property tests
+- **ChooseFirstPossibleAvailabilitiesSlotTest:**
+  - **should always return a valid availability or none**: tests the chooseFirstPossibleAvailabilitiesSlot method to ensure it either returns a valid available slot or none if no suitable slot is found. The test uses generators to create random lists of availabilities and used slots along with a duration. It then checks that if a slot is chosen, the duration of the slot matches the required duration and that the chosen slot is not in the list of used slots. If no slot is chosen, it validates that this is because all potential slots were either unavailable or did not meet the criteria.
+  - **should return first slot when multiple slots are available**: verifies that when there are multiple available slots that match the required duration, the method correctly returns the first suitable slot. This property filters the generated availabilities to find those that match the required duration and checks if the method returns the first slot in this filtered list. If there are no available slots that meet the criteria, it ensures that the method appropriately returns None. This property ensures that the selection logic prioritizes the first available slot, validating the correct ordering and selection mechanism of the chooseFirstPossibleAvailabilitiesSlot method.
+- **PreVivaToMapTest:**
+  - **preVivaToMap should maintain role-availability correspondence**: ensures that the method correctly maps roles to their corresponding availabilities. It generates a list of PreViva instances, applies the preVivaToMap method, and then checks if the output map matches the expected result, where each role is associated with its respective availabilities as given in the input.
+  - **preVivaToMap should not modify original input data**: verifies that the method does not alter the original list of PreViva instances. After generating a list of PreViva instances and applying the preVivaToMap method, it checks that each PreViva object remains the same in memory, ensuring that the input data remains unchanged post-processing. This is important for ensuring that the method is purely functional and does not have unintended side effects
+  - **preVivaToMap should maintain correct availabilities for each role**: ensures that the availabilities associated with each role in the result are accurate. After generating a list of PreViva instances and applying the preVivaToMap method, it extracts the expected availabilities for each role and checks if the output map correctly reflects these availabilities. This property validates the accuracy of the mapping process, confirming that each role's availabilities are correctly preserved and represented in the output.
