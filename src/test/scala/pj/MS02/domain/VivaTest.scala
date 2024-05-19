@@ -55,7 +55,7 @@ object VivaTest extends Properties("Testing Viva"):
       result <- helper(ids, count, List.empty)
     } yield result
 
-  def generateViva: Gen[Viva] =
+  def generateViva: Gen[(Viva,List[ID])] =
     val inicialList = List.empty
     for {
       student <- generateName
@@ -63,12 +63,12 @@ object VivaTest extends Properties("Testing Viva"):
       (president, idsWithPresident) <- generatePresident(inicialList)
       (advisor, idsWithAdvisor) <- generateAdvisor(idsWithPresident)
       (supervisorList, idsWithSupervisors) <- generateSupervisorList(idsWithAdvisor)
-      (coAdvisorList, _) <- generateCoAdvisorList(idsWithSupervisors)
-    } yield Viva.from(student, title, president, advisor, supervisorList, coAdvisorList)
+      (coAdvisorList, finalIdlist) <- generateCoAdvisorList(idsWithSupervisors)
+    } yield (Viva.from(student, title, president, advisor, supervisorList, coAdvisorList), finalIdlist)
 
   def generateVivaList(size: Int): Gen[List[Viva]] = for {
     vivaList <- Gen.listOfN(size, generateViva)
-  } yield vivaList
+  } yield vivaList.map(_._1)
 
 
   property("Each Viva in List doesn't have the same President and Advisor") = forAll(generateVivaList(50)) { vivaList =>

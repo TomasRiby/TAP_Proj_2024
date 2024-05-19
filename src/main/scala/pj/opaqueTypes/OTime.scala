@@ -31,6 +31,7 @@ object OTime:
     def toTemporal: Temporal = t: LocalDateTime
     def toLocalDateTime: LocalDateTime = t: OTime
     def isValid: Boolean = if LocalDateTime.parse(t.toString, timePattern) != null then true else false
+    def plusSeconds(seconds: Long): OTime = t.plusSeconds(seconds)
    
 
     

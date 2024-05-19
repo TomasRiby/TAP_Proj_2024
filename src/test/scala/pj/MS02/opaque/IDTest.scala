@@ -10,7 +10,7 @@ object IDTest extends Properties("ID"):
   def generateID: Gen[ID] =
     for {
       prefix <- Gen.oneOf("T", "E")
-      number <- Gen.chooseNum(0, 999)
+      number <- Gen.chooseNum(1, 999)
       resID = ID.createRegularId(f"$prefix$number%03d")
       generatedID <- resID match
         case Left(_) => Gen.fail
@@ -20,7 +20,7 @@ object IDTest extends Properties("ID"):
 
   def generateTeacherID: Gen[ID] =
     for {
-      number <- Gen.chooseNum(0, 999)
+      number <- Gen.chooseNum(1, 999)
       resID = ID.createTeacherId(f"T$number%03d")
       generatedID <- resID match
         case Left(_) => Gen.fail
@@ -30,7 +30,7 @@ object IDTest extends Properties("ID"):
 
   def generateExternalID: Gen[ID] =
     for {
-      number <- Gen.chooseNum(0, 999)
+      number <- Gen.chooseNum(1, 999)
       resID = ID.createExternalId(f"E$number%03d")
       generatedID <- resID match
         case Left(_) => Gen.fail
