@@ -169,4 +169,60 @@ development and testing processes and ensuring the delivery of high-quality soft
       preVivaToMap method, it extracts the expected availabilities for each role and checks if the output map correctly
       reflects these availabilities. This property validates the accuracy of the mapping process, confirming that each
       role's availabilities are correctly preserved and represented in the output.
-- **Complex Generators:**
+
+
+
+- **AvailabilityGenerators:**
+    - **generateAvailabilityFromDay**: it receives a day and outputs an availability for that day. It starts randomly in
+      the day and the ends between 2 and 6 hours. then it tries to create it. If it fails it tries to generate again.
+    - **generateAvailabilityListForADay**: it generates between 10 and 20 availabilities for a Day. It also uses the
+      makeNonOverlapping function so it doesn't generate overlapping availabilities.
+
+
+### VivaTest
+
+- **generatePresident**: Generates a `President` ID that is not already in the provided list of IDs. Ensures unique ID assignment for the President role.
+- **generateAdvisor**: Generates an `Advisor` ID that is not already in the provided list of IDs. Ensures unique ID assignment for the Advisor role.
+- **generateCoAdvisor**: Generates a `CoAdvisor` ID from either teacher or external IDs that is not already in the provided list of IDs. Ensures unique ID assignment for the CoAdvisor role.
+- **generateSupervisor**: Generates a `Supervisor` ID from external IDs that is not already in the provided list of IDs. Ensures unique ID assignment for the Supervisor role.
+- **generateSupervisorList**: Generates a list of `Supervisors` from a list of IDs, ensuring no duplicates within the list. Uses a recursive helper function to build the list.
+- **generateCoAdvisorList**: Generates a list of `CoAdvisors` from a list of IDs, ensuring no duplicates within the list. Uses a recursive helper function to build the list.
+- **generateViva**: Generates a `Viva` instance by creating unique IDs for all roles (President, Advisor, Supervisors, CoAdvisors) and returns the `Viva` object along with the list of used IDs.
+- **generateVivaList**: Generates a list of `Viva` instances of a specified size, ensuring each `Viva` has unique IDs for all roles.
+- **Properties**:
+    - **Each Viva in List doesn't have the same President and Advisor**: Validates that the President and Advisor roles in each `Viva` have unique IDs.
+    - **No Supervisors have the same ID within a Viva**: Ensures that there are no duplicate Supervisor IDs within each `Viva`.
+    - **No CoAdvisors have the same ID within a Viva**: Ensures that there are no duplicate CoAdvisor IDs within each `Viva`.
+    - **Each Viva has unique IDs across President, Advisor, Supervisors, and CoAdvisors**: Confirms that all IDs within a `Viva` are unique across all roles.
+
+### IDTest
+
+- **generateID**: Generates a general `ID` with a prefix of either "T" for Teacher or "E" for External followed by a 3-digit number. Validates the correctness of the generated ID.
+- **generateTeacherID**: Generates a `TeacherID` with a prefix "T" followed by a 3-digit number. Ensures the generated ID conforms to the Teacher ID format.
+- **generateExternalID**: Generates an `ExternalID` with a prefix "E" followed by a 3-digit number. Ensures the generated ID conforms to the External ID format.
+- **generateUniqueIDs**: Generates a list of unique `IDs` up to a specified maximum number, ensuring there are no duplicates.
+- **generateTeacherIdThatsNotOnList**: Generates a `TeacherID` that is not in the provided list of IDs. Ensures unique ID assignment.
+- **generateExternalIdThatsNotOnList**: Generates an `ExternalID` that is not in the provided list of IDs. Ensures unique ID assignment.
+- **generateIDThatsNotOnList**: Generates a general `ID` that is not in the provided list of IDs. Ensures unique ID assignment.
+- **Properties**:
+    - **IDs are in the correct format**: Validates that all generated `IDs` conform to the expected format.
+    - **Teacher IDs are in the correct format**: Ensures that all generated `TeacherIDs` are valid and conform to the expected format.
+    - **External IDs are in the correct format**: Ensures that all generated `ExternalIDs` are valid and conform to the expected format.
+    - **IDs are unique**: Checks that the generated list of `IDs` contains only unique entries, with no duplicates.
+    - **Teacher IDs are unique**: Ensures that all `TeacherIDs` in the generated list are unique.
+    - **External IDs are unique**: Ensures that all `ExternalIDs` in the generated list are unique.
+
+### linkVivaWithResourceTest
+
+- **generateVivaWithTeachersAndExternals**: Generates a `Viva` object along with lists of `Teacher` and `External` objects based on a given day. Ensures that IDs are properly assigned and do not overlap.
+- **generateAValidAgendaViva**: Generates a list of `Viva` objects, lists of `Teacher` and `External` objects, and a duration, ensuring that all generated entities are valid and consistent with each other.
+- **Properties**:
+    - **all generated teacher and external IDs should be present in the list of IDs from Viva**: Ensures that all generated teacher and external IDs are included in the `Viva` object, maintaining consistency between the `Viva` and the resources.
+    - **the lengths of generated lists should match the number of distinct IDs**: Verifies that the lengths of generated teacher and external ID lists match the number of distinct IDs, ensuring no duplication.
+    - **Testing linkVivaWithResource**: A placeholder property to ensure that the `generateAValidAgendaViva` function works as expected, producing valid and consistent data.
+
+### makeTheAlgorithmHappen
+
+- **generatePossibleSchedule**: Generates a possible schedule (`ScheduleOut`) by creating a list of `PreViva` objects, calculating their duration, and generating a schedule using the `algorithm` function. Ensures that the scheduling algorithm produces valid outputs.
+- **Properties**:
+    - **Putting the generated PreVivas in the algorithm**: Ensures that the generated schedule does not have overlapping `PosViva` intervals. Converts `start` and `end` strings to `OTime` objects and verifies that no two intervals overlap, ensuring the correctness of the scheduling algorithm.

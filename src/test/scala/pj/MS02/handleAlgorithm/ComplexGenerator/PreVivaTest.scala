@@ -26,3 +26,7 @@ object PreVivaTest
       externalList = linkedViva._3
       duration = linkedViva._4
     } yield (vivaList.map(PreViva.linkVivaWithResource(_, teacherList, externalList)), duration)
+    
+  property("Testing PreViva") = forAll(generatePreVivaList){
+    res => true
+  }

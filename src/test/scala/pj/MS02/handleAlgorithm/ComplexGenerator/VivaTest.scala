@@ -70,19 +70,6 @@ object VivaTest extends Properties("Testing Viva"):
     vivaList <- Gen.listOfN(size, generateViva)
   } yield vivaList.map(_._1)
 
-
-  property("Each Viva in List doesn't have the same President and Advisor") = forAll(generateVivaList(50)) { vivaList =>
-    vivaList.forall(viva => viva.president.id != viva.advisor.id)
-  }
-
-  property("No Supervisors have the same ID within a Viva") = forAll(generateVivaList(50)) { vivaList =>
-    vivaList.forall(viva => viva.supervisor.map(_.id).distinct.sizeIs == viva.supervisor.size)
-  }
-
-  property("No CoAdvisors have the same ID within a Viva") = forAll(generateVivaList(50)) { vivaList =>
-    vivaList.forall(viva => viva.coAdvisor.map(_.id).distinct.sizeIs == viva.coAdvisor.size)
-  }
-
   property("Each Viva has unique IDs across President, Advisor, Supervisors, and CoAdvisors") = forAll(generateVivaList(50)) { vivaList =>
     vivaList.forall { viva =>
       val allIds = viva.president.id :: viva.advisor.id :: viva.supervisor.map(_.id) ++ viva.coAdvisor.map(_.id)
