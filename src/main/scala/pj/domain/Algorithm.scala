@@ -39,7 +39,6 @@ object Algorithm:
           val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, duration)
           val updatedPossibleSlots = Availability.updateAvailabilitySlots(possibleSlots, duration, usedSlots)
           val (chosenSlotOpt, updatedUsedSlots) = Availability.chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, duration, usedSlots)
-
           chosenSlotOpt match
             case Some((start, end, preference)) =>
               val scheduledViva = PosViva(
@@ -57,8 +56,6 @@ object Algorithm:
             case None =>
               Left(DomainError.ImpossibleSchedule)
         }
-    if (preVivaList.lengthIs == 3 && schedulingResult.isLeft)
-      println(schedulingResult)
     schedulingResult.map { case (scheduledVivas, _) =>
       val sortedScheduledVivas = scheduledVivas.sortBy(v => LocalDateTime.parse(v.start, formatter))
       ScheduleOut.from(sortedScheduledVivas)

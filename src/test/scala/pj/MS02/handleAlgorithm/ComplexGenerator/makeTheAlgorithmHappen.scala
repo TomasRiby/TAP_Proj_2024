@@ -32,19 +32,27 @@ object makeTheAlgorithmHappen
         case Right(validSchedule) => Gen.const(validSchedule)
     } yield (res, preVivas)
 
+  def toOTime(timeStr: String): OTime =
+    OTime.createTime(timeStr) match
+      case Right(value) => value
 
-  property("Putting the generated PreVivas in the algorithm") = forAll(generatePossibleSchedule) { res =>
-
-    //    println(res._1.posVivas.length)
-    //    println(res._2.length)
-    //    res._1.posVivas.foreach(x => println(x.start + " " + x.end))
-//    if res._1.posVivas.lengthIs == 3 then
-//      println(true)
-
-    def toOTime(timeStr: String): OTime =
-      OTime.createTime(timeStr) match
-        case Right(value) => value
-
+  property("All the viva must be scheduled in the intervals in which its resources are available") = forAll(generatePossibleSchedule) { case (scheduleOut, preVivas) =>
+    scheduleOut.posVivas.forall { posViva =>
+      preVivas.find(
+        pv =>
+          pv.student.toString == posViva.student && pv.title.toString == posViva.title
+      ).fold(false) { preViva =>
+        val start = toOTime(posViva.start)
+        val end = toOTime(posViva.end)
+        preViva.roleLinkedWithResourceList.forall { roleLinkedWithResource =>
+          roleLinkedWithResource.listAvailability.exists(availability =>
+            availability.start == start && availability.end == end
+          )
+        }
+      }
+    }
+  }
+  property("One resource cannot be overlapped in two scheduled viva") = forAll(generatePossibleSchedule) { res =>
     def intervalsOverlap(start1: OTime, end1: OTime, start2: OTime, end2: OTime): Boolean =
       start1.isBefore(end2) && end1.isAfter(start2)
 

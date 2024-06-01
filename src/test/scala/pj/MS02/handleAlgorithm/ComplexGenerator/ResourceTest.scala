@@ -24,6 +24,13 @@ object ResourceTest
       availability <- generateAvailabilityList
     yield Teacher.from(id, name, availability)
 
+  def generateExternal: Gen[External] =
+    for
+      id <- generateExternalID
+      name <- generateName
+      availability <- generateAvailabilityList
+    yield External.from(id, name, availability)
+
 
   def generateTeacherFromID(id: ID, date: LocalDate, availability: Availability): Gen[Teacher] =
     for {
@@ -50,6 +57,7 @@ object ResourceTest
       teachers <- Gen.listOfN(n, generateTeacher)
     } yield teachers
 
+  
   property("Testing Teacher") = forAll(generateTeacher):
     _.isValid
 
@@ -57,29 +65,6 @@ object ResourceTest
     _.forall(_.isValid)
 
 
-  def generateExternal: Gen[External] =
-    for
-      id <- generateExternalID
-      name <- generateName
-      availability <- generateAvailabilityList
-    yield External.from(id, name, availability)
 
-  val res: Result[(List[ID], LocalDate)] = for {
-    id1 <- ID.createTeacherId("T001")
-    day = generateADay.sample.getOrElse(LocalDate.now())
-    id2 <- ID.createTeacherId("T002")
-    id3 <- ID.createTeacherId("T003")
-    id4 <- ID.createTeacherId("T004")
-    id5 <- ID.createTeacherId("T005")
-    id6 <- ID.createTeacherId("T006")
-  } yield (List(id1, id2, id3, id4, id5), day)
-
-//  res match
-//    case Right((ids, day)) => property("Testing if Teacher from List of IDs and a Day can be created Successfully") = forAll(generateTeacherListFromIDs(ids, day)) { res =>
-//      res.forall(_.isValid)
-//    }
-//    case Left(value) => println(value)
-//  property("Testing External") = forAll(generateExternal):
-//    _.isValid
 
     

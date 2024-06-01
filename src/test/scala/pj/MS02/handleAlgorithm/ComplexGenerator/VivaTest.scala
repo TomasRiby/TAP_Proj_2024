@@ -55,7 +55,7 @@ object VivaTest extends Properties("Testing Viva"):
       result <- helper(ids, count, List.empty)
     } yield result
 
-  def generateViva: Gen[(Viva,List[ID])] =
+  def generateViva: Gen[(Viva, List[ID])] =
     val inicialList = List.empty
     for {
       student <- generateName

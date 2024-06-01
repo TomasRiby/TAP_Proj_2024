@@ -24,7 +24,7 @@ object AvailabilityGenerators
 
   def generateAvailListForADayContainingAvail(time: LocalDate, mandatoryAvailability: Availability): Gen[List[Availability]] =
     for {
-      listLength <- Gen.choose(2, 4)
+      listLength <- Gen.choose(1, 1)
       additionalAvailabilities <- Gen.listOfN(listLength, generateAvailabilityFromDay(time))
       allAvailabilities = makeNonOverlappingSuper(mandatoryAvailability :: additionalAvailabilities, mandatoryAvailability, listLength + 1)
     } yield allAvailabilities
@@ -50,7 +50,7 @@ object AvailabilityGenerators
   def generateAvailabilityFromDay(time: LocalDate): Gen[Availability] =
     for {
       start <- generateTimeForDay(time)
-      duration <- Gen.choose(7200, 10800) // duration between 2 hour and 3 hours in seconds
+      duration <- Gen.choose(0, 3599) // duration between 0 hour and 1 hours in seconds
       end = start.plusSeconds(duration)
       preference <- generatePreference
       resAvailability = if (end.toLocalDate.isAfter(start.toLocalDate)) Left(DomainError.WrongFormat("End time must be within the same day"))

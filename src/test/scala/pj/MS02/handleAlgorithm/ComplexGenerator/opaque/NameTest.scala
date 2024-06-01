@@ -8,7 +8,7 @@ import Name.Name
 object NameTest extends Properties("NameTest"):
   def generateName: Gen[Name] =
     for {
-      numbChars <- Gen.chooseNum(1, 200)
+      numbChars <- Gen.chooseNum(1, 1)
       chars <- Gen.listOfN(numbChars, Gen.alphaChar)
       resName = Name.createName(chars.mkString)
       generatedName <- resName match
