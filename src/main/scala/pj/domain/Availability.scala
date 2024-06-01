@@ -21,6 +21,7 @@ object Availability:
   def from(start: OTime, end: OTime, preference: Preference) =
     new Availability(start: OTime, end: OTime, preference: Preference)
     
+    
   def fromCheck(start: OTime, end: OTime, preference: Preference): Result[Availability] =
     if start.isBefore(end) then Right(Availability.from(start, end, preference))
     else Left(DomainError.WrongFormat("End time must be after start time"))

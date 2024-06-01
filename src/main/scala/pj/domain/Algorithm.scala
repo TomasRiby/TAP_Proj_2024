@@ -23,14 +23,14 @@ object Algorithm:
 
     val availabilityMap = preVivaToMap(preVivaList)
 
-    algorithm(preVivaList.toList, availabilityMap, duration)
+    algorithmFCFS(preVivaList.toList, availabilityMap, duration)
 
   def preVivaToMap(vivaList: Seq[PreViva]): Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]] =
     val roles = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.role).toSet)
     val availabilities = vivaList.map(viva => viva.roleLinkedWithResourceList.map(_.listAvailability))
     roles.zip(availabilities).toMap
 
-  def algorithm(preVivaList: List[PreViva], availabilityMap: Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]], duration: ODuration): Result[ScheduleOut] =
+  def algorithmFCFS(preVivaList: List[PreViva], availabilityMap: Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[Availability])]](Right((List.empty[PosViva], List.empty[Availability]))):
       case (accResult, viva) =>
         accResult.flatMap { case (acc, usedSlots) =>
@@ -57,7 +57,8 @@ object Algorithm:
             case None =>
               Left(DomainError.ImpossibleSchedule)
         }
-
+    if (preVivaList.lengthIs == 3 && schedulingResult.isLeft)
+      println(schedulingResult)
     schedulingResult.map { case (scheduledVivas, _) =>
       val sortedScheduledVivas = scheduledVivas.sortBy(v => LocalDateTime.parse(v.start, formatter))
       ScheduleOut.from(sortedScheduledVivas)

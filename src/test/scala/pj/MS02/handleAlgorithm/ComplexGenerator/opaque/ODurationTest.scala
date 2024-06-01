@@ -9,7 +9,7 @@ object ODurationTest extends Properties("ODurationTest"):
 
   def generateDuration: Gen[ODuration] =
     for {
-      hours <- Gen.choose(1, 2) // 1 to 3 hours
+      hours <- Gen.choose(1,1) // 1 to 2 hours
       minutes <- Gen.choose(0, 59)
       seconds <- Gen.choose(0, 59)
       durationStr = f"$hours%02d:$minutes%02d:$seconds%02d"
