@@ -11,6 +11,8 @@
             - [Overview (Main Decisions)](#overview-main-decisions)
             - [Possible alternatives](#possible-alternatives)
             - [Possible future improvements](#possible-future-improvements)
+        - [MS02](#ms02)
+
 
 ## The Problem
 
@@ -33,7 +35,7 @@ methodical approach to tackling this complex problem.
 
 ## Domain Model
 
-![img.png](./assets/domain-v3.png)
+![img.png](./assets/domain-v4.png)
 
 The domain was created based on an analysis conducted on the input XML files for the problem's use case.
 The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
@@ -73,35 +75,45 @@ The decision to group the concepts of teachers and externals was made due to the
 Consolidating them into a single Resource simplifies computing their data for the final goal of the proposed problem, as
 there's no need to compare between two different data structures.
 
-As for the algorithm, the function `makeTheAlgorithmHappen` takes an agenda structure containing availability
-information of teachers and external agents, as well as details about "vivas" (likely an academic defense or
-presentation) and the expected duration for each event.
-Initially, the function extracts and groups the availabilities of teachers and external agents by their unique
-identifiers. It then uses these availabilities to attempt to schedule the "vivas", ensuring that the schedules of the
-president, advisor, and supervisor are synchronized without conflicts.
+#### Function `makeTheAlgorithmHappen` - The algorithm
 
-For each "viva", the `CreateSchedule` function creates a schedule attempting to allocate times where all necessary
-participants are simultaneously available. The ExtractAvail function then looks for overlaps in the available times of
-the participants that meet the required duration for the "viva". If found, these overlaps are considered as feasible
-times.
+The `makeTheAlgorithmHappen` function is responsible for scheduling events, such as "vivas" (academic defenses or presentations), considering the availability of teachers and external agents. The function takes an agenda structure containing availability information and details about the "vivas," as well as the expected duration for each event.
 
-Furthermore, the `findBestCombinedAvailability` function is used to determine the best possible overlap of times
-considering the required participants and the specified duration. It searches for time intervals where all participants
-are available at the same time and that the interval is sufficient as per the specified duration.
+##### Parameters
 
-Finally, the `processSchedules` function processes all possible "viva" schedules to filter and select those that are not
-only feasible but also do not overlap with others already selected, ensuring the best allocation of times for all
-sessions. The list of selected times is then returned as the final result of the function, sorted by the start of each
-available time.
+- `agenda: Agenda`: Structure that contains the resources (teachers and external agents) and details of the "vivas".
 
-#### Possible alternatives
+##### Returns
+
+- `Result[ScheduleOut]`: A result that contains the list of scheduled events or an error if scheduling is impossible.
+
+##### Functionality
+
+1. **Information Extraction**: Initially, the function extracts the list of teachers, external agents, and the event duration from the agenda structure.
+
+2. **Creation of PreVivaList**: The function maps the "vivas" to a list of `PreViva`, associating each "viva" with the corresponding resources (teachers and external agents).
+
+3. **Availability Mapping**: The availabilities are grouped into a map where the key is a set of roles (president, advisor, supervisor, co-advisor) and the value is a list of lists of availabilities.
+
+4. **FCFS (First-Come, First-Served) Algorithm**: The function uses an FCFS algorithm to attempt scheduling the "vivas". The algorithm:
+    - Iterates over the `PreViva` list and attempts to schedule each event considering the availability of the required resources.
+    - Finds all possible availability slots for the event duration.
+    - Updates the availability slots considering the already used slots.
+    - Chooses the first possible availability slot and updates the list of used slots.
+    - If a slot is available, creates a `PosViva` object with the scheduled event details and continues to the next event.
+    - If no slot is available, returns an impossible schedule error.
+
+5. **Formatting the Result**: Finally, the function returns the list of scheduled events, sorted by start date and time.
+
+##### Auxiliary Functions
+
+- **preVivaToMap**: Converts the `PreViva` list into an availability map.
+- **algorithmFCFS**: Implements the FCFS scheduling algorithm.
+
 
 #### Possible future improvements
 
 As we move forward, several areas stand out for enhancement.
-
-- **Incorporation of the role `Co-advisor`**: In the future the team intends to incorporate the role `Co-advisor` in the
-  algorithm, since it was forgotten and this fail was noticed too late to act on it.
 
 - **Implementation of More Tests**: While our current test suite provides valuable coverage, more test will fortify the
   reliability of our software. Introducing functional tests to validate interactions between components will further
@@ -121,7 +133,11 @@ By prioritizing these among other possible improvements, we aim to elevate the q
 our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of
 evolving requirements.
 
+
+
 ### MS02
+
+The primary objective of this second milestone is to develop property tests using ScalaCheck to ensure the algorithm's properties are functioning as intended. In addition to verifying the algorithm's performance, this milestone also aims to highlight the issues associated with the first come, first served algorithm that was developed in the first milestone. This dual focus will not only validate the current implementation but also provide critical insights into the limitations and potential improvements for the initial algorithm.
 
 The use of generators and property-based testing in software development offers numerous advantages in terms of both
 efficiency and code quality.
@@ -140,43 +156,57 @@ development and testing processes and ensuring the delivery of high-quality soft
 
 #### Property tests
 
-- **ChooseFirstPossibleAvailabilitiesSlotTest:**
-    - **should always return a valid availability or none**: tests the chooseFirstPossibleAvailabilitiesSlot method to
-      ensure it either returns a valid available slot or none if no suitable slot is found. The test uses generators to
-      create random lists of availabilities and used slots along with a duration. It then checks that if a slot is
-      chosen, the duration of the slot matches the required duration and that the chosen slot is not in the list of used
-      slots. If no slot is chosen, it validates that this is because all potential slots were either unavailable or did
-      not meet the criteria.
-    - **should return first slot when multiple slots are available**: verifies that when there are multiple available
-      slots that match the required duration, the method correctly returns the first suitable slot. This property
-      filters the generated availabilities to find those that match the required duration and checks if the method
-      returns the first slot in this filtered list. If there are no available slots that meet the criteria, it ensures
-      that the method appropriately returns None. This property ensures that the selection logic prioritizes the first
-      available slot, validating the correct ordering and selection mechanism of the
-      chooseFirstPossibleAvailabilitiesSlot method.
-- **PreVivaToMapTest:**
-    - **preVivaToMap should maintain role-availability correspondence**: ensures that the method correctly maps roles to
-      their corresponding availabilities. It generates a list of PreViva instances, applies the preVivaToMap method, and
-      then checks if the output map matches the expected result, where each role is associated with its respective
-      availabilities as given in the input.
-    - **preVivaToMap should not modify original input data**: verifies that the method does not alter the original list
-      of PreViva instances. After generating a list of PreViva instances and applying the preVivaToMap method, it checks
-      that each PreViva object remains the same in memory, ensuring that the input data remains unchanged
-      post-processing. This is important for ensuring that the method is purely functional and does not have unintended
-      side effects
-    - **preVivaToMap should maintain correct availabilities for each role**: ensures that the availabilities associated
-      with each role in the result are accurate. After generating a list of PreViva instances and applying the
-      preVivaToMap method, it extracts the expected availabilities for each role and checks if the output map correctly
-      reflects these availabilities. This property validates the accuracy of the mapping process, confirming that each
-      role's availabilities are correctly preserved and represented in the output.
+1. **ScheduleTest**
+    - **All the viva must be scheduled in the intervals in which its resources are available**
+   
+    ![img.png](assets/scheduleProperty.png)
+    - This test ensures that all vivas are scheduled only within the intervals when the required resources are available. It uses generators to create a list of PreViva (pre-viva) and their respective durations. The generatePossibleSchedule method creates a possible schedule using the algorithmFCFS (First-Come, First-Served) algorithm.
+    - The test then checks each scheduled viva (posViva) in the generated schedule. For each viva, it finds the corresponding PreViva in the original list of pre-vivas. It then validates that the time interval of the posViva (start and end) matches at least one of the availabilities of the resources linked to the specific role in the PreViva. 
+    - If all scheduled vivas are within the availability intervals of their resources, the test passes. Otherwise, it fails, ensuring that the scheduling algorithm respects the availability constraints of the resources.
+    
+
+2. **ResourceCannotBeOverlapped**
+    - **One resource cannot be overlapped in two scheduled viva**
+   
+    ![img2.png](assets/OverlappingProperty.png)
+    -  This test ensures that no single resource is scheduled to be in two vivas at the same time. It uses generators to create a possible schedule of vivas with their respective durations. The generatePossibleSchedule method generates this schedule using the algorithmFCFS (First-Come, First-Served) algorithm. 
+    - The test defines an intervalsOverlap function to check if two time intervals overlap. It then iterates over each scheduled viva (posViva) in the generated schedule. For each viva, it extracts the start and end times and compares them with the start and end times of all other vivas in the schedule. 
+    - The test ensures that no two vivas have overlapping intervals, validating that each resource is only allocated to one viva at a time. If all vivas do not overlap in time, the test passes. Otherwise, it fails, ensuring the scheduling algorithm respects the non-overlapping constraint for resources.
 
 
+3. **No Availability Overpasses the Day**
+    - **Ensuring no Availability interval overpasses a single day**
+    - This test ensures that all availability intervals for resources do not extend beyond a single day. It uses generators to create availabilities for a specific day. The `generateAvailabilityFromDay` method generates these availabilities, ensuring they start and end within the same day.
+    - The test checks each generated availability interval to verify that the start and end times are on the same day. It validates that no interval crosses over to the next day.
+    - If all availabilities are within the same day, the test passes. Otherwise, it fails, ensuring the availability constraints are respected and do not span multiple days.
 
-- **AvailabilityGenerators:**
-    - **generateAvailabilityFromDay**: it receives a day and outputs an availability for that day. It starts randomly in
-      the day and the ends between 2 and 6 hours. then it tries to create it. If it fails it tries to generate again.
-    - **generateAvailabilityListForADay**: it generates between 10 and 20 availabilities for a Day. It also uses the
-      makeNonOverlapping function so it doesn't generate overlapping availabilities.
+
+4. **Each External and Teacher Has at Least One Availability from the List**
+    - This property test ensures that every teacher and external involved in the viva scheduling has at least one availability period from a predefined list of availability intervals. The test uses generators to create a valid agenda for the viva process, including lists of vivas, teachers, externals, and their respective availabilities.
+
+
+5. **Each PreViva in the Generated List is Valid**
+    - This property test ensures that each PreViva in the generated list is valid. It uses generators to create lists of PreViva, their durations, and corresponding availability lists.
+    - The test checks that the length of the preVivaList is equal to the length of the availList. This ensures that each PreViva has a corresponding availability, validating the integrity of the generated data.
+    - If all PreVivas in the list have matching availabilities, the test passes. Otherwise, it fails, ensuring data consistency in the generated lists.
+   
+
+6. **No list of PreVivas is empty**
+    - This property test ensures that no list of PreVivas is empty. It uses generators to create lists of PreVivas, their durations, and corresponding availability lists.
+    - The test checks that both preVivaList and availList are non-empty. This ensures that there are always valid PreVivas and availabilities generated for scheduling.
+    - If both lists are non-empty, the test passes. Otherwise, it fails, ensuring that the scheduling process always has data to work with.
+
+
+7. **Each PreViva Contains at Least One Availability from availListGenerated**
+    - This property test ensures that each PreViva contains at least one availability from the generated availability list. It uses generators to create lists of PreVivas, their durations, and corresponding availability lists.
+    - The test checks that each PreViva has at least one availability from the availListGenerated. This ensures that every PreViva can potentially be scheduled within the available intervals.
+    - If each PreViva has at least one matching availability, the test passes. Otherwise, it fails, ensuring that the generated PreVivas are schedulable within the given availability constraints.
+
+
+8. **Each Viva Has Unique IDs Across President, Advisor, Supervisors, and CoAdvisors**
+    - This property test ensures that each viva has unique IDs across all assigned roles, including President, Advisor, Supervisors, and CoAdvisors. It uses generators to create a list of vivas, each with their respective roles and IDs.
+    - The test collects all IDs associated with each viva, including the President, Advisor, Supervisors, and CoAdvisors. It then checks that all IDs are unique within the same viva.
+    - If all IDs within a viva are unique, the test passes. Otherwise, it fails, ensuring that no duplicate IDs exist across the different roles in a viva.
 
 
 ### VivaTest

@@ -13,7 +13,7 @@ class Availability {
 }
 
 class Resource {
-  externals: List<External>
+  external: List<External>
   teacher: List<Teacher>
 }
 
@@ -35,6 +35,7 @@ class Viva {
   president: President
   advisor: Advisor
   supervisor: Supervisor
+  coAdvisor: Coadvisor
 }
 
 class President {
@@ -53,6 +54,34 @@ class Coadvisor {
   id: ID
 }
 
+class RoleLinkedWithResource {
+  role: President | Advisor | Supervisor | Coadvisor
+  name: Name
+  listAvailability: List[Availability]
+}
+
+class PreViva {
+  student: Name
+  title: Name
+  roleLinkedWithResourceList: List[RoleLinkedWithResource]
+}
+
+class PosViva {
+  student: String
+  title: String
+  start: String
+  end: String
+  preference: Int
+  president: String
+  advisor: String
+  supervisors: List[String]
+  coAdvisors: List[String]
+}
+
+class ScheduleOut {
+  posVivas: List[PosViva]
+}
+
 Teacher "1" *-- "1..*" Availability
 External "1" *-- "1..*" Availability
 Resource "1" -- "0..*" External
@@ -63,5 +92,7 @@ Viva "1" o-- "1..*" President
 Viva "0..*" -- "1..*" Advisor
 Viva "0..*" -- "1..*" Supervisor
 Viva "0..*" -- "1..*" Coadvisor
+PreViva "1..*" -- "1..*" RoleLinkedWithResource
+ScheduleOut "1" *-- "1..*" PosViva
 
 @enduml
