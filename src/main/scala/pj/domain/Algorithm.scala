@@ -63,7 +63,7 @@ object Algorithm:
 
   // Define a simple binary search tree for Availability based on the preference
   case class BSTNode(value: Availability, left: Option[BSTNode], right: Option[BSTNode])
-  
+
   def insertNode(root: Option[BSTNode], value: Availability): BSTNode = root match
     case None => BSTNode(value, None, None)
     case Some(node) =>
@@ -71,12 +71,12 @@ object Algorithm:
         node.copy(right = Some(insertNode(node.right, value)))
       else
         node.copy(left = Some(insertNode(node.left, value)))
-  
+
   def buildBST(availabilities: List[Availability]): Option[BSTNode] =
     availabilities.foldLeft[Option[BSTNode]](None) { (tree, availability) =>
       Some(insertNode(tree, availability))
     }
-  
+
   def sumHighestPreferences(node: Option[BSTNode], count: Int): Int = node match
     case None => 0
     case Some(n) =>
@@ -85,7 +85,7 @@ object Algorithm:
         rightSum
       else
         rightSum + n.value.preference + sumHighestPreferences(n.left, count - rightSum - 1)
-  
+
   def algorithmBST(preVivaList: List[PreViva], availabilityMap: Map[Set[President | Advisor | Supervisor | CoAdvisor], List[List[Availability]]], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[Availability])]](Right((List.empty[PosViva], List.empty[Availability]))):
       case (accResult, viva) =>
@@ -95,12 +95,12 @@ object Algorithm:
           val possibleSlots = Availability.findAllPossibleAvailabilitiesSlot(availabilities, duration)
           val updatedPossibleSlots = Availability.updateAvailabilitySlots(possibleSlots, duration, usedSlots)
           println(updatedPossibleSlots)
-  
-          // Implementando a BST e somando as maiores preferências
+
+          // Implementing the BST and summing the highest preferences
           val bst = buildBST(updatedPossibleSlots)
           val sumOfHighestPreferences = sumHighestPreferences(bst, updatedPossibleSlots.length)
           println(s"Sum of highest preferences for slots: $sumOfHighestPreferences")
-  
+
           val (chosenSlotOpt, updatedUsedSlots) = Availability.chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, duration, usedSlots)
           chosenSlotOpt match
             case Some((start, end, preference)) =>
