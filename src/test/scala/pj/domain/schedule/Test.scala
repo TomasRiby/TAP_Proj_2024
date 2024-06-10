@@ -21,7 +21,6 @@ class Test extends AnyFunSuite:
       fileLoaded <- FileIO.load(filePath)
       result <- ScheduleMS01.create(fileLoaded)
     } yield result
-    println(result)
 
   test("test"):
     val dir = "files/test/ms01/"
