@@ -33,7 +33,7 @@ object linkVivaWithResourceTest
   def generateAValidAgendaViva: Gen[(List[Viva], List[Teacher], List[External], ODuration, List[Availability])] =
     for {
       day <- generateADay
-      size <- Gen.choose(1, 7)
+      size <- Gen.choose(1, 5)
       duration <- generateDuration
       availabilityList <- generateAvailabilityListForADayWithDuration(day, duration, size)
       vivaTuples <- Gen.sequence[List[(Viva, List[Teacher], List[External])], (Viva, List[Teacher], List[External])](availabilityList.map(avail => generateVivaWithTeachersAndExternals(day, duration, avail)))

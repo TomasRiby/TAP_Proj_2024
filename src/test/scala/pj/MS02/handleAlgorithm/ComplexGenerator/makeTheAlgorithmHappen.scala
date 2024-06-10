@@ -52,6 +52,7 @@ object makeTheAlgorithmHappen
       }
     }
   }
+
   property("One resource cannot be overlapped in two scheduled viva") = forAll(generatePossibleSchedule) { res =>
     def intervalsOverlap(start1: OTime, end1: OTime, start2: OTime, end2: OTime): Boolean =
       start1.isBefore(end2) && end1.isAfter(start2)

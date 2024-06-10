@@ -85,7 +85,6 @@ object AvailabilityGenerators
     }
   // Property test to ensure no Availability overpasses the day
   property("No Availability overpasses the day") = forAll(generateAvailabilityFromDay(LocalDate.of(2024, 6, 11))) { availability =>
-    println(availability)
     availability.end.toLocalDate.isEqual(availability.start.toLocalDate)
   }
 
