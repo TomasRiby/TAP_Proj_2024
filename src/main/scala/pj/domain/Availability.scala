@@ -72,6 +72,17 @@ object Availability:
       case None =>
         (None, usedSlots)
 
+  def chooseFirstPossibleAvailabilitiesSlot(availabilities: List[Availability], duration: ODuration, usedSlots: List[Availability]): (Option[(LocalDateTime, LocalDateTime, Int)], List[Availability]) =
+    val availableSlots = availabilities.filterNot(usedSlots.contains)
+    availableSlots.headOption match
+      case Some(slot) =>
+        val start = slot.start.toLocalDateTime
+        val end = start.plus(duration.toDuration)
+        val availEnd = OTime.createTime(end).getOrElse(slot.end)
+        (Some((start, end, slot.preference.toInteger)), Availability.from(slot.start, availEnd, slot.preference) :: usedSlots)
+      case None =>
+        (None, usedSlots)
+
   def updateVivasBasedOnUsedSlots(preViva: PreViva, usedSlots: List[(HashSet[ID], Availability)], newIds: HashSet[ID], duration: ODuration): List[List[Availability]] =
     preViva.roleLinkedWithResourceList.map { roleLinkedWithResource =>
       val roleId = roleLinkedWithResource.getRoleId

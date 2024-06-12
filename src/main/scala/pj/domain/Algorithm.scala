@@ -1,6 +1,7 @@
 package pj.domain
 
 
+import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
 import pj.opaqueTypes.{OTime, Preference}
 import pj.opaqueTypes.OTime.OTime
@@ -9,6 +10,7 @@ import pj.opaqueTypes.Preference.Preference
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
 
 
 object Algorithm:
