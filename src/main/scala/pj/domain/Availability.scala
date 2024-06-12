@@ -1,5 +1,6 @@
 package pj.domain
 
+import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
 import pj.opaqueTypes.{OTime, Preference}
 import pj.opaqueTypes.OTime.OTime
@@ -8,6 +9,7 @@ import pj.xml.XML
 
 import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
 import scala.xml.Node
 
 
@@ -20,8 +22,8 @@ final case class Availability(
 object Availability:
   def from(start: OTime, end: OTime, preference: Preference) =
     new Availability(start: OTime, end: OTime, preference: Preference)
-    
-    
+
+
   def fromCheck(start: OTime, end: OTime, preference: Preference): Result[Availability] =
     if start.isBefore(end) then Right(Availability.from(start, end, preference))
     else Left(DomainError.WrongFormat("End time must be after start time"))
@@ -58,57 +60,66 @@ object Availability:
           } yield Availability.from(start, end, Preference.fromMoreThan5(a.preference + b.preference))
           combine(tail, combined)
 
-    // Initialize the combination process with the first set of availabilities
-    val combinedAvail = combine(availabilities.drop(1), availabilities.headOption.getOrElse(List.empty))
-    combinedAvail.sortBy(_.start)
+    combine(availabilities.drop(1), availabilities.headOption.getOrElse(List.empty)).sortBy(_.start)
 
-  def chooseFirstPossibleAvailabilitiesSlot(availabilities: List[Availability], duration: ODuration, usedSlots: List[Availability]): (Option[(LocalDateTime, LocalDateTime, Int)], List[Availability]) =
-    val availableSlots = availabilities.filterNot(usedSlots.contains)
-    availableSlots.headOption match
+  def chooseFirstPossibleAvailability(availabilities: List[Availability], duration: ODuration, usedSlots: List[(HashSet[ID], Availability)], newIds: HashSet[ID]): (Option[(LocalDateTime, LocalDateTime, Int)], List[(HashSet[ID], Availability)]) =
+    availabilities.headOption match
       case Some(slot) =>
         val start = slot.start.toLocalDateTime
         val end = start.plus(duration.toDuration)
         val availEnd = OTime.createTime(end).getOrElse(slot.end)
-        (Some((start, end, slot.preference.toInteger)), Availability.from(slot.start, availEnd, slot.preference) :: usedSlots)
+        (Some((start, end, slot.preference.toInteger)), (newIds, Availability.from(slot.start, availEnd, slot.preference)) :: usedSlots)
       case None =>
         (None, usedSlots)
 
+  def updateVivasBasedOnUsedSlots(preViva: PreViva, usedSlots: List[(HashSet[ID], Availability)], newIds: HashSet[ID], duration: ODuration): List[List[Availability]] =
+    preViva.roleLinkedWithResourceList.map { roleLinkedWithResource =>
+      val roleId = roleLinkedWithResource.getRoleId
+      val availList = roleLinkedWithResource.listAvailability
+
+      val updatedAvailList = usedSlots.foldLeft(availList) { (currentAvailList, usedSlot) =>
+        val (_, usedSlotAvailability) = usedSlot
+        if (usedSlot._1.contains(roleId))
+          updateAvailabilitySlots2(currentAvailList, duration, List(usedSlotAvailability))
+        else
+          currentAvailList
+      }
+
+      updatedAvailList
+    }
+
+
   def updateAvailabilitySlots(availabilities: List[Availability], duration: ODuration, usedSlots: List[Availability]): List[Availability] =
+    val durationBetween: (OTime, OTime) => Boolean = (start, end) =>
+      Duration.between(start.toTemporal, end.toTemporal).compareTo(duration.toDuration) >= 0
+
     availabilities.flatMap { possibleSlot =>
       usedSlots.foldLeft(List(possibleSlot)) { (updatedSlots, usedSlot) =>
         updatedSlots.flatMap { slot =>
-          //          println(s"Checking slot: ${slot.start} - ${slot.end} against usedSlot: ${usedSlot.start} - ${usedSlot.end}")
           if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.start) then
-            //            println(s"Overlap detected between slot: ${slot.start} - ${slot.end} and usedSlot: ${usedSlot.start} - ${usedSlot.end}")
             if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.end) then
               // Slot overlaps both start and end of usedSlot, split into two
-              val newSlots = List(
+              List(
                 slot.copy(end = usedSlot.start),
                 slot.copy(start = usedSlot.end)
-              ).filter(s => Duration.between(s.start.toTemporal, s.end.toTemporal).compareTo(duration.toDuration) >= 0)
-              //              println(s"New slots after split: $newSlots")
-              newSlots
+              ).filter(s => durationBetween(s.start, s.end))
             else if slot.start.isBefore(usedSlot.end) && slot.end.isAfter(usedSlot.end) then
               // Slot overlaps end of usedSlot, adjust start
               val newSlot = slot.copy(start = usedSlot.end)
-              //              println(s"New slot after adjusting start: $newSlot")
-              if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
-              else Nil
+              if durationBetween(newSlot.start, newSlot.end) then List(newSlot) else Nil
             else if slot.start.isBefore(usedSlot.start) && slot.end.isAfter(usedSlot.start) then
               // Slot overlaps start of usedSlot, adjust end
               val newSlot = slot.copy(end = usedSlot.start)
-              //              println(s"New slot after adjusting end: $newSlot")
-              if Duration.between(newSlot.start.toTemporal, newSlot.end.toTemporal).compareTo(duration.toDuration) >= 0 then List(newSlot)
-              else Nil
+              if durationBetween(newSlot.start, newSlot.end) then List(newSlot) else Nil
             else Nil
           else if slot.end.equals(usedSlot.start) || slot.start.equals(usedSlot.end) then
             // Handle special case where the slot ends exactly when the used slot starts or vice versa
-            //            println(s"Special case detected: slot ends when usedSlot starts or vice versa")
             List(slot)
           else List(slot)
         }
       }
     }
+
 
 
 

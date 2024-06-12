@@ -9,7 +9,7 @@ import pj.MS02.handleAlgorithm.ComplexGenerator.linkVivaWithResourceTest.generat
 import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.OTimeTest.{generateADay, generateTime}
 import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.PreferenceTest.generatePreference
 import pj.domain.*
-import pj.domain.Algorithm.{algorithmFCFS, preVivaToMap}
+import pj.domain.Algorithm.{algorithmFCFS}
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
 import pj.opaqueTypes.OTime
@@ -25,8 +25,7 @@ object makeTheAlgorithmHappen
       previvaList <- generatePreVivaList
       preVivas = previvaList._1
       duration = previvaList._2
-      availabilityMap = preVivaToMap(preVivas)
-      scheduleOut = algorithmFCFS(preVivas, availabilityMap, duration)
+      scheduleOut = algorithmFCFS(preVivas, duration)
       res <- scheduleOut match
         case Left(_) => Gen.fail
         case Right(validSchedule) => Gen.const(validSchedule)
