@@ -91,7 +91,7 @@ object Availability:
       val updatedAvailList = usedSlots.foldLeft(availList) { (currentAvailList, usedSlot) =>
         val (_, usedSlotAvailability) = usedSlot
         if (usedSlot._1.contains(roleId))
-          updateAvailabilitySlots2(currentAvailList, duration, List(usedSlotAvailability))
+          updateAvailabilitySlots(currentAvailList, duration, List(usedSlotAvailability))
         else
           currentAvailList
       }

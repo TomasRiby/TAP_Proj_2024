@@ -22,8 +22,10 @@ object Algorithm:
     val duration = agenda.duration
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
-
+    
+    algorithmBST2(preVivaList, duration)
     algorithmFCFS(preVivaList, duration)
+  //    algorithmMaxPreference(preVivaList, duration)
 
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
@@ -89,17 +91,7 @@ object Algorithm:
           val (chosenSlotOpt, updatedUsedSlots) = Availability.chooseFirstPossibleAvailabilitiesSlot(updatedPossibleSlots, duration, usedSlots)
           chosenSlotOpt match
             case Some((start, end, preference)) =>
-              val scheduledViva = PosViva(
-                viva.student.toString,
-                viva.title.toString,
-                start.format(formatter),
-                end.format(formatter),
-                preference,
-                (viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: President, name, _) => name } getOrElse "").toString,
-                (viva.roleLinkedWithResourceList.collectFirst { case RoleLinkedWithResource(p: Advisor, name, _) => name } getOrElse "").toString,
-                viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(s: Supervisor, name, _) => name.toString },
-                viva.roleLinkedWithResourceList.collect { case RoleLinkedWithResource(c: CoAdvisor, name, _) => name.toString },
-              )
+              val scheduledViva = PosViva.chosenAvailabilityToPosViva(start, end, preference, viva)
               Right((scheduledViva :: acc, updatedUsedSlots))
             case None =>
               Left(DomainError.ImpossibleSchedule)
@@ -108,3 +100,15 @@ object Algorithm:
       val sortedScheduledVivas = scheduledVivas.sortBy(v => LocalDateTime.parse(v.start, formatter))
       ScheduleOut.from(sortedScheduledVivas)
     }
+
+  def algorithmBST2(preVivaList: Seq[PreViva], duration: ODuration): List[(HashSet[ID], List[Availability])] =
+    val res = preVivaList.map { preViva =>
+      val newIds = PreViva.hashSetOfIds(preViva)
+      val allAvailabilities = preViva.roleLinkedWithResourceList.map(_.listAvailability)
+      val updatedAvailabilityList = Availability.findAllPossibleAvailabilitiesSlot(allAvailabilities, duration)
+      (newIds, updatedAvailabilityList)
+    }.toList
+    println(res)
+    res
+
+
