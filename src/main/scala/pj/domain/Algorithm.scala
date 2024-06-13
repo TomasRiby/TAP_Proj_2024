@@ -1,5 +1,6 @@
 package pj.domain
 
+
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
 import pj.opaqueTypes.{OTime, Preference}
@@ -11,6 +12,7 @@ import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 
+
 object Algorithm:
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
@@ -21,9 +23,10 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    val fcfsResult = algorithmFCFS(preVivaList, duration)
-    val bfResult = algorithmBF(preVivaList, duration)
-    bfResult
+    algorithmBST2(preVivaList, duration)
+    algorithmFCFS(preVivaList, duration)
+  //    algorithmMaxPreference(preVivaList, duration)
+
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[(HashSet[ID], Availability)])]](Right((List.empty[PosViva], List.empty[(HashSet[ID], Availability)]))):
@@ -34,7 +37,7 @@ object Algorithm:
           val allPossibleSlots = Availability.findAllPossibleAvailabilitiesSlot(updatedAvailabilityList, duration)
           val firstChosenAvailability = Availability.chooseFirstPossibleAvailability(allPossibleSlots, duration, usedSlots, newIds)
           firstChosenAvailability._1 match
-            case Some((start: LocalDateTime, end: LocalDateTime, preference: Int)) =>
+            case Some((start, end, preference)) =>
               val chosenPosViva = PosViva.chosenAvailabilityToPosViva(start, end, preference, preViva)
               Right((chosenPosViva :: posVivaList, firstChosenAvailability._2))
             case None =>
@@ -45,43 +48,15 @@ object Algorithm:
       ScheduleOut.from(sortedScheduledVivas)
     }
 
-  def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
-    val allCombinations = generateCombinations(preVivaList, duration)
+  def algorithmBST2(preVivaList: Seq[PreViva], duration: ODuration): List[(HashSet[ID], List[Availability])] =
+    val res = preVivaList.map { preViva =>
+      val preVivaVal = PreViva.hashSetOfIds(preViva)
+      val allAvailabilities = preViva.roleLinkedWithResourceList.map(_.listAvailability)
+      val updatedAvailabilityList = Availability.findAllPossibleAvailabilitiesSlot(allAvailabilities, duration)
+      (preVivaVal, updatedAvailabilityList)
+    }.toList
+    println(res)
+    res
+    List()
 
-    println(s"All combinations count: ${allCombinations.size}") // Debugging print
 
-    val bestSchedule = allCombinations.foldLeft[(List[PosViva], List[(HashSet[ID], Availability)])](List.empty, List.empty):
-      (best, current) =>
-        if (current._1.map(_.preference).sum > best._1.map(_.preference).sum) current else best
-
-    val totalPreferences = bestSchedule._1.map(_.preference).sum
-    println(s"Total Preferences: $totalPreferences") // Debugging print
-
-    Right(ScheduleOut.from(bestSchedule._1))
-
-  private def generateCombinations(preVivaList: Seq[PreViva], duration: ODuration): List[(List[PosViva], List[(HashSet[ID], Availability)])] =
-    def helper(preVivas: Seq[PreViva], usedSlots: List[(HashSet[ID], Availability)]): List[(List[PosViva], List[(HashSet[ID], Availability)])] =
-      preVivas.headOption match
-        case None => List((List.empty, usedSlots))
-        case Some(preViva) =>
-          val newIds = PreViva.hashSetOfIds(preViva)
-          val updatedAvailabilityList = Availability.updateVivasBasedOnUsedSlots(preViva, usedSlots, newIds, duration)
-          val allPossibleSlots = Availability.findAllPossibleAvailabilitiesSlot(updatedAvailabilityList, duration)
-
-          println(s"Processing viva for student: ${preViva.student}") // Debugging print
-          println(s"Possible slots count: ${allPossibleSlots.size}") // Debugging print
-
-          allPossibleSlots.flatMap { availability =>
-            availability match
-              case Availability(start: OTime, end: OTime, preference: Preference) =>
-                val newPosViva = PosViva.chosenAvailabilityToPosViva(start.toLocalDateTime, end.toLocalDateTime, preference, preViva)
-                val newUsedSlots = (newIds, Availability(start, end, preference)) :: usedSlots
-                helper(preVivas.drop(1), newUsedSlots).map { case (posVivas, usedSlots) =>
-                  (newPosViva :: posVivas, usedSlots)
-                }
-              case _ =>
-                println("No valid availability found.") // Debugging print
-                List.empty
-          }
-
-    helper(preVivaList, List.empty)
