@@ -21,8 +21,9 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    algorithmFCFS(preVivaList, duration)
-    algorithmBF(preVivaList, duration)
+    val fcfsResult = algorithmFCFS(preVivaList, duration)
+    val bfResult = algorithmBF(preVivaList, duration)
+    bfResult
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = preVivaList.foldLeft[Result[(List[PosViva], List[(HashSet[ID], Availability)])]](Right((List.empty[PosViva], List.empty[(HashSet[ID], Availability)]))):
@@ -47,12 +48,14 @@ object Algorithm:
   def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     val allCombinations = generateCombinations(preVivaList, duration)
 
+    println(s"All combinations count: ${allCombinations.size}") // Debugging print
+
     val bestSchedule = allCombinations.foldLeft[(List[PosViva], List[(HashSet[ID], Availability)])](List.empty, List.empty):
       (best, current) =>
         if (current._1.map(_.preference).sum > best._1.map(_.preference).sum) current else best
 
     val totalPreferences = bestSchedule._1.map(_.preference).sum
-    println(s"Total Preferences: $totalPreferences")
+    println(s"Total Preferences: $totalPreferences") // Debugging print
 
     Right(ScheduleOut.from(bestSchedule._1))
 
@@ -65,6 +68,9 @@ object Algorithm:
           val updatedAvailabilityList = Availability.updateVivasBasedOnUsedSlots(preViva, usedSlots, newIds, duration)
           val allPossibleSlots = Availability.findAllPossibleAvailabilitiesSlot(updatedAvailabilityList, duration)
 
+          println(s"Processing viva for student: ${preViva.student}") // Debugging print
+          println(s"Possible slots count: ${allPossibleSlots.size}") // Debugging print
+
           allPossibleSlots.flatMap { availability =>
             availability match
               case Availability(start: OTime, end: OTime, preference: Preference) =>
@@ -73,7 +79,9 @@ object Algorithm:
                 helper(preVivas.drop(1), newUsedSlots).map { case (posVivas, usedSlots) =>
                   (newPosViva :: posVivas, usedSlots)
                 }
-              case _ => List.empty
+              case _ =>
+                println("No valid availability found.") // Debugging print
+                List.empty
           }
 
     helper(preVivaList, List.empty)
