@@ -2,7 +2,7 @@ package pj.opaqueTypes
 
 import pj.domain.{DomainError, Result}
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Duration, LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.Temporal
 import scala.util.{Failure, Success, Try}
@@ -35,4 +35,5 @@ object OTime:
     def toLocalDate: LocalDate = t.toLocalDate
     def isValid: Boolean = if LocalDateTime.parse(t.toString, timePattern) != null then true else false
     def plusSeconds(seconds: Long): OTime = t.plusSeconds(seconds)
+    
    

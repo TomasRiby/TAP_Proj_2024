@@ -23,8 +23,8 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    algorithmBST2(preVivaList, duration)
-  //    algorithmFCFS(preVivaList, duration)
+//    algorithmBST2(preVivaList, duration)
+    algorithmFCFS(preVivaList, duration)
 
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =

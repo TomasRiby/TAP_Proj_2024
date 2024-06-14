@@ -1,7 +1,7 @@
 package pj.domain.schedule
 
 import scala.xml.Elem
-import pj.domain.*
+import pj.domain.{Algorithm, NewAlgo, Result}
 import pj.io.{AgendaIO, FileIO, ResourceIO, ScheduleIO}
 
 
@@ -13,6 +13,8 @@ object ScheduleMS01 extends Schedule:
   def create(xml: Elem): Result[Elem] =
     for {
       agenda <- AgendaIO.loadAgenda(xml)
-      algorithm <- Algorithm.MS01_Algorithm(agenda)
+      algorithm <- NewAlgo.greedyScheduleAlgorithm(agenda)
+//      algorithm <- Algorithm.MS01_Algorithm(agenda)
       res <- ScheduleIO.createScheduleXML(algorithm)
+
     } yield res
