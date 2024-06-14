@@ -20,6 +20,8 @@ object OTime:
 
   def createTime(dateTime: LocalDateTime): Result[OTime] =
     Right(dateTime)
+    
+  def from(time: LocalDateTime): OTime = time
 
 
   extension (t: OTime)
