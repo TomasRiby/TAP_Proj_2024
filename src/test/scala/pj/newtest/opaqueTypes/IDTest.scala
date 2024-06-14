@@ -8,7 +8,7 @@ import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.Name
 import pj.domain.Availability
 
-class IDSpec extends AnyFlatSpec with Matchers:
+class IDTest extends AnyFlatSpec with Matchers:
 
   "createRegularId" should "return Right for valid teacher ID" in:
     val result = ID.createRegularId("T001")

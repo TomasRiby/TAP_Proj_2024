@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import pj.opaqueTypes.Preference
 import pj.domain.{DomainError, Result}
 
-class PreferenceSpec extends AnyFlatSpec with Matchers:
+class PreferenceTest extends AnyFlatSpec with Matchers:
 
   "createPreference" should "return Right for valid preference" in:
     val result = Preference.createPreference(3)

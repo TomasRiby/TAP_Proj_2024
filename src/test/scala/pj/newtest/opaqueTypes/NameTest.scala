@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import pj.opaqueTypes.Name
 import pj.domain.{DomainError, Result}
 
-class NameSpec extends AnyFlatSpec with Matchers:
+class NameTest extends AnyFlatSpec with Matchers:
 
   "createName" should "return Right for valid name" in:
     val result = Name.createName("ValidName")

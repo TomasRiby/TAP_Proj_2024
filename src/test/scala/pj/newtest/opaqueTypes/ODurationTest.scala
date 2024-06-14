@@ -7,7 +7,7 @@ import pj.domain.{DomainError, Result}
 
 import java.time.{Duration, LocalTime}
 
-class ODurationSpec extends AnyFlatSpec with Matchers:
+class ODurationTest extends AnyFlatSpec with Matchers:
 
   "createDuration" should "return Right for valid duration format" in:
     val result = ODuration.createDuration("01:30:45")

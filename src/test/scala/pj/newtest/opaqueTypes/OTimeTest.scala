@@ -9,7 +9,7 @@ import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.Temporal
 
-class OTimeSpec extends AnyFlatSpec with Matchers:
+class OTimeTest extends AnyFlatSpec with Matchers:
 
   "createTime" should "return Right for valid ISO-8601 format time string" in:
     val result = OTime.createTime("2023-06-14T10:15:30")
