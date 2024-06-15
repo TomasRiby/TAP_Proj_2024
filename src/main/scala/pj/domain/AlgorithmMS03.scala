@@ -24,28 +24,21 @@ object AlgorithmMS03:
     val preVivaList = agenda.vivas.flatMap { viva =>
       if expectedTitles.contains(viva.title) then
         val preViva = PreViva.linkVivaWithResource(viva, teacherList, externalList)
-        println(s"Generated PreViva: ${preViva.title}")
         Some(preViva)
       else
         None
     }
 
-    println("Starting Brute Force Algorithm with Heuristics")
     val bfResult = algorithmBF(preVivaList, duration, maxCombinations = 1000)
     bfResult.foreach { result =>
       println(s"Brute Force Result: ${result.posVivas.map(_.preference).sum}")
-      result.posVivas.foreach { viva =>
-        println(s"Brute Force Viva: ${viva.title}, Preference: ${viva.preference}, Start: ${viva.start}, End: ${viva.end}")
-      }
     }
 
-    println("Starting FCFS Algorithm")
     val fcfsResult = algorithmFCFS(preVivaList, duration)
     fcfsResult match
       case Right(result) =>
         println(s"FCFS Result: Total Preference = ${result.posVivas.map(_.preference).sum}")
         result.posVivas.foreach { viva =>
-          println(s"FCFS Viva: ${viva.title}, Preference: ${viva.preference}, Start: ${viva.start}, End: ${viva.end}")
         }
       case Left(error) =>
         println(s"FCFS Algorithm failed with error: $error")
@@ -77,10 +70,6 @@ object AlgorithmMS03:
           if current.map(_.preference).sum > best.map(_.preference).sum then current else best
         }
         val totalPreference = bestSchedule.map(_.preference).sum
-        println(s"Best Schedule from Brute Force: Total Preference = $totalPreference")
-        bestSchedule.foreach { viva =>
-          println(s"Best Schedule Viva: ${viva.title}, Preference: ${viva.preference}, Start: ${viva.start}, End: ${viva.end}")
-        }
         Right(ScheduleOut.from(bestSchedule))
 
   // Auxiliary function that schedules the pre-vivas (preVivas) according to duration and availability.
@@ -94,7 +83,6 @@ object AlgorithmMS03:
           val firstChosenAvailability = Availability.chooseFirstPossibleAvailability(allPossibleSlots, duration, usedSlots, newIds)
           firstChosenAvailability._1 match
             case Some((start, end, preference)) =>
-              println(s"Scheduling Viva: ${preViva.title} from ${start.format(formatter)} to ${end.format(formatter)} with preference $preference")
               val chosenPosViva = PosViva.chosenAvailabilityToPosViva(start, end, preference, preViva)
               Right((chosenPosViva :: posVivaList, firstChosenAvailability._2))
             case None =>
