@@ -23,8 +23,12 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    algorithmBST2(preVivaList, duration)
-  //    algorithmFCFS(preVivaList, duration)
+    for {
+      ms01 <- algorithmFCFS(preVivaList, duration)
+      ms03 <- algorithmGreedy(preVivaList, duration)
+      _ = println("FCFS: " + ms01.preference)
+      _ = println("GRDY: " + ms03.preference)
+    } yield ms03
 
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
@@ -47,65 +51,63 @@ object Algorithm:
       ScheduleOut.from(sortedScheduledVivas)
     }
 
-  def algorithmBST2(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
-    val initialPossibleSlots = preVivaList.map { preViva =>
-      val preVivaVal = PreViva.hashSetOfIds(preViva)
-      val allAvailabilities = preViva.roleLinkedWithResourceList.map(_.listAvailability)
-      val updatedAvailabilityList = Availability.findAllPossibleAvailabilitiesSlot(allAvailabilities, duration)
-      (preViva, updatedAvailabilityList)
-    }
-    val allCombinations = generateAllCombinations(initialPossibleSlots, List.empty, List.empty, duration)
-
-    val bestSchedule = allCombinations.foldLeft(List.empty[(PreViva, Availability)]) { (best, current) =>
-      val bestSum = best.map(_._2.preference.toInteger).sum
-      val currentSum = current.map(_._2.preference.toInteger).sum
-      if currentSum > bestSum then current else best
-    }
-
-    // Convert the best schedule to ScheduleOut
-    val scheduledVivas = bestSchedule.map { case (preViva, availability) =>
-      PosViva.chosenAvailabilityToPosViva(availability.start.toLocalDateTime, availability.end.toLocalDateTime, availability.preference.toInteger, preViva)
-    }.sortBy(v => (LocalDateTime.parse(v.start, formatter), v.preference))
-
-    Right(ScheduleOut.from(scheduledVivas))
-
-  def generateAllCombinations(possibleSlots: Seq[(PreViva, List[Availability])], currentSchedule: List[(PreViva, Availability)], usedSlots: List[(HashSet[ID], Availability)], duration: ODuration): List[List[(PreViva, Availability)]] =
-    possibleSlots.headOption match
-      case Some((currentPreViva, availabilities)) =>
-        availabilities.flatMap { availability =>
-          if isCompatible(currentSchedule, currentPreViva, availability) then
-            val newIds = PreViva.hashSetOfIds(currentPreViva)
-            val updatedUsedSlots = (newIds, availability) :: usedSlots
-            val updatedAvailabilityList = Availability.updateVivasBasedOnUsedSlots(currentPreViva, updatedUsedSlots, newIds, duration)
-            val nextPossibleSlots = possibleSlots.drop(1).map { case (preViva, _) =>
-              val updatedAvailabilities = Availability.updateVivasBasedOnUsedSlots(preViva, updatedUsedSlots, newIds, duration)
-              (preViva, Availability.findAllPossibleAvailabilitiesSlot(updatedAvailabilities, duration))
-            }
-            generateAllPossibleIntervals(availability, duration).flatMap { interval =>
-              generateAllCombinations(nextPossibleSlots, (currentPreViva, interval) :: currentSchedule, updatedUsedSlots, duration)
-            }
-          else
-            List.empty
-        }
-      case None =>
-        List(currentSchedule)
-
-  def generateAllPossibleIntervals(availability: Availability, duration: ODuration): List[Availability] =
-    val start = availability.start.toLocalDateTime
-    val end = availability.end.toLocalDateTime
-    val intervalDuration = duration.toDuration
+  def algorithmGreedy(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
+    def calculateTotalPreference(scheduledVivas: List[PosViva]): Int =
+      scheduledVivas.map(_.preference).sum
 
     @tailrec
-    def loop(currentStart: LocalDateTime, acc: List[Availability]): List[Availability] =
-      if currentStart.plus(intervalDuration).isAfter(end) then acc
+    def scheduleVivas(remainingVivas: Seq[PreViva], scheduledVivas: List[PosViva], usedSlots: List[(HashSet[ID], Availability)]): Result[List[PosViva]] =
+      if remainingVivas.isEmpty then Right(scheduledVivas)
       else
-        val currentEnd = currentStart.plus(intervalDuration)
-        val newAvailability = Availability.from(OTime.from(currentStart), OTime.from(currentEnd), availability.preference)
-        loop(currentStart.plusMinutes(30), newAvailability :: acc)
-    loop(start, Nil).reverse
+        val possibleSchedules = remainingVivas.map { preViva =>
+          val newIds = PreViva.hashSetOfIds(preViva)
+          val updatedAvailabilityList = Availability.updateVivasBasedOnUsedSlots(preViva, usedSlots, newIds, duration)
+          val allPossibleSlots = Availability.findAllPossibleAvailabilitiesSlot(updatedAvailabilityList, duration)
+          val bestChosenAvailability = chooseBestPossibleAvailability(allPossibleSlots, duration, usedSlots, newIds)
+          (preViva, bestChosenAvailability)
+        }.filter(_._2._1.isDefined)
 
-  def isCompatible(schedule: List[(PreViva, Availability)], newPreViva: PreViva, newAvailability: Availability): Boolean =
-    !schedule.exists { case (preViva, availability) =>
-      Availability.intersects(availability, newAvailability) && PreViva.hashSetOfIds(preViva).intersect(PreViva.hashSetOfIds(newPreViva)).nonEmpty
+        if possibleSchedules.isEmpty then Left(DomainError.ImpossibleSchedule)
+        else
+          val bestScheduleOption = possibleSchedules.headOption.map { initial =>
+            possibleSchedules.foldLeft(initial):
+              case (best, current) =>
+                (best._2._1, current._2._1) match
+                  case (Some((_, _, bestPreference)), Some((_, _, currentPreference))) if currentPreference > bestPreference =>
+                    current
+                  case _ => best
+          }
+
+          bestScheduleOption match
+            case Some(bestSchedule) =>
+              bestSchedule._2._1 match
+                case Some((start, end, preference)) =>
+                  val (bestPreViva, (_, newUsedSlots)) = bestSchedule
+                  val chosenPosViva = PosViva.chosenAvailabilityToPosViva(start, end, preference, bestPreViva)
+                  scheduleVivas(
+                    remainingVivas.filterNot(_ == bestPreViva),
+                    chosenPosViva :: scheduledVivas,
+                    newUsedSlots
+                  )
+                case None =>
+                  // This case should not happen due to the filter, but handle it to avoid MatchError
+                  Left(DomainError.ImpossibleSchedule)
+            case None =>
+              Left(DomainError.ImpossibleSchedule)
+
+    val schedulingResult = scheduleVivas(preVivaList, List.empty[PosViva], List.empty[(HashSet[ID], Availability)])
+    schedulingResult.map { scheduledVivas =>
+      val sortedScheduledVivas = scheduledVivas.sortBy(v => (LocalDateTime.parse(v.start, formatter), v.preference))
+      ScheduleOut.from(sortedScheduledVivas)
     }
+
+  def chooseBestPossibleAvailability(availabilities: List[Availability], duration: ODuration, usedSlots: List[(HashSet[ID], Availability)], newIds: HashSet[ID]): (Option[(LocalDateTime, LocalDateTime, Int)], List[(HashSet[ID], Availability)]) =
+    availabilities.minByOption(-_.preference) match
+      case Some(slot) =>
+        val start = slot.start.toLocalDateTime
+        val end = start.plus(duration.toDuration)
+        val availEnd = OTime.createTime(end).getOrElse(slot.end)
+        (Some((start, end, slot.preference.toInteger)), (newIds, Availability.from(slot.start, availEnd, slot.preference)) :: usedSlots)
+      case None =>
+        (None, usedSlots)
 
