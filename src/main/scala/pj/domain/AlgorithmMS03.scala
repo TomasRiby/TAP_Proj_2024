@@ -14,6 +14,7 @@ import scala.collection.immutable.HashSet
 object AlgorithmMS03:
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
+  // Função principal do algoritmo MS03 que organiza as vivas (defesas) em uma agenda.
   def MS03_Algorithm(agenda: Agenda): Result[ScheduleOut] =
     val teacherList = agenda.resources.teacher
     val externalList = agenda.resources.external
@@ -48,6 +49,7 @@ object AlgorithmMS03:
     }
     bfResult
 
+  // Função do algoritmo FCFS (First-Come, First-Served) que agenda as vivas na ordem recebida.
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = schedulePreVivas(preVivaList, duration)
     schedulingResult.map { case (scheduledVivas, _) =>
@@ -55,6 +57,7 @@ object AlgorithmMS03:
       ScheduleOut.from(sortedScheduledVivas)
     }
 
+  // Função do algoritmo de força bruta que gera todas as combinações possíveis e escolhe a melhor.
   def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration, maxCombinations: Int): Result[ScheduleOut] =
     val allCombinations = preVivaList.permutations.take(maxCombinations).toList
     val validSchedules = allCombinations.flatMap { combination =>
@@ -77,6 +80,7 @@ object AlgorithmMS03:
         }
         Right(ScheduleOut.from(bestSchedule))
 
+  // Função auxiliar que agenda as pré-vivas (preVivas) de acordo com a duração e disponibilidade.
   private def schedulePreVivas(preVivaList: Seq[PreViva], duration: ODuration): Result[(List[PosViva], List[(HashSet[ID], Availability)])] =
     preVivaList.foldLeft[Result[(List[PosViva], List[(HashSet[ID], Availability)])]](Right((List.empty[PosViva], List.empty[(HashSet[ID], Availability)]))):
       case (postViva, preViva) =>
