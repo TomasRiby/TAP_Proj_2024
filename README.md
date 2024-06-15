@@ -38,12 +38,82 @@ methodical approach to tackling this complex problem.
 ![img.png](./assets/domain-v4.png)
 
 The domain was created based on an analysis conducted on the input XML files for the problem's use case.
-The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
 
-Both Teachers and Externals have availabilities that include start and end datetime, as well as the subject's
-preferences.
-The Resources class was introduced to combine both Externals and Teachers, providing a unified structure for managing
-resource's availability.
+### Entities and Attributes
+
+1. **Viva**
+    - Attributes:
+        - `student: Name` - Name of the student.
+        - `title: Name` - Title of the thesis.
+        - `president: President` - President of the committee.
+        - `advisor: Advisor` - Advisor of the thesis.
+        - `supervisor: Supervisor` - Supervisor of the thesis.
+        - `coAdvisor: Coadvisor` - Co-advisor of the thesis.
+
+2. **Agenda**
+    - Attributes:
+        - `vivas: Seq[Viva]` - Sequence of scheduled thesis defenses (vivas).
+        - `resource: Resource` - Allocated resources.
+        - `duration: ODuration` - Duration of the defense.
+
+3. **Resource**
+    - Attributes:
+        - `external: List<External>` - List of external participants.
+        - `teacher: List<Teacher>` - List of teachers.
+
+4. **Teacher**
+    - Attributes:
+        - `id: ID` - Identifier of the teacher.
+        - `name: Name` - Name of the teacher.
+        - `availability: Seq[Availability]` - Availability of the teacher.
+
+5. **External**
+    - Attributes:
+        - `id: ID` - Identifier of the external participant.
+        - `name: Name` - Name of the external participant.
+        - `availability: Seq[Availability]` - Availability of the external participant.
+
+6. **Availability**
+    - Attributes:
+        - `start: Time` - Start time.
+        - `end: Time` - End time.
+        - `preference: Preference` - Time preference.
+
+7. **PreViva**
+    - Attributes:
+        - `student: Name` - Name of the student.
+        - `title: Name` - Title of the thesis.
+        - `roleLinkedWithResourceList: List[RoleLinkedWithResource]` - List of roles linked with resources.
+
+8. **RoleLinkedWithResource**
+    - Attributes:
+        - `role: President | Advisor | Supervisor | Coadvisor` - Role (President, Advisor, Supervisor, Co-advisor).
+        - `name: Name` - Name of the person.
+        - `listAvailability: List[Availability]` - List of availabilities.
+
+9. **ScheduleOut**
+    - Attributes:
+        - `posVivas: List[PosViva]` - List of scheduled post-defenses.
+
+10. **PosViva**
+    - Attributes:
+        - `student: String` - Name of the student.
+        - `title: String` - Title of the thesis.
+        - `start: String` - Start time.
+        - `end: String` - End time.
+        - `preference: Int` - Time preference.
+        - `president: String` - President of the committee.
+        - `advisor: String` - Advisor of the thesis.
+        - `supervisors: List[String]` - List of supervisors.
+        - `coAdvisors: List[String]` - List of co-advisors.
+
+### Relationships Between Entities
+- **Viva** is related to **Agenda** through a composition relationship, where an agenda can have multiple vivas.
+- **Agenda** is related to **Resource**, indicating that each agenda uses a set of resources.
+- **Resource** is related to **Teacher** and **External**, indicating that resources include both teachers and external participants.
+- **Teacher** and **External** are related to **Availability**, indicating the availability of these resources.
+- **PreViva** and **RoleLinkedWithResource** manage specific roles linked to resources and their availabilities before the defense is scheduled.
+- **ScheduleOut** and **PosViva** handle the output of the defense scheduling, detailing the final schedule.
 
 ## Objective
 
@@ -68,70 +138,7 @@ By continuously updating and referring to our comprehensive suite of unit tests,
 rectify defects arising from recent changes, ensuring a stable and reliable codebase.
 
 The Classes were created in the `io` package for reading XML files and loading data into memory.
-To separate responsibilities and ease maintenance in case of issues, a class was created for each context, such
-as `AgendaIO`, `VivaIO`, and finally `ResourceIO`, which encompasses the concepts of teachers and externals.
 
-The decision to group the concepts of teachers and externals was made due to the similarity in their data structure.
-Consolidating them into a single Resource simplifies computing their data for the final goal of the proposed problem, as
-there's no need to compare between two different data structures.
-
-#### Function `makeTheAlgorithmHappen` - The algorithm
-
-The `makeTheAlgorithmHappen` function is responsible for scheduling events, such as "vivas" (academic defenses or presentations), considering the availability of teachers and external agents. The function takes an agenda structure containing availability information and details about the "vivas," as well as the expected duration for each event.
-
-##### Parameters
-
-- `agenda: Agenda`: Structure that contains the resources (teachers and external agents) and details of the "vivas".
-
-##### Returns
-
-- `Result[ScheduleOut]`: A result that contains the list of scheduled events or an error if scheduling is impossible.
-
-##### Functionality
-
-1. **Information Extraction**: Initially, the function extracts the list of teachers, external agents, and the event duration from the agenda structure.
-
-2. **Creation of PreVivaList**: The function maps the "vivas" to a list of `PreViva`, associating each "viva" with the corresponding resources (teachers and external agents).
-
-3. **Availability Mapping**: The availabilities are grouped into a map where the key is a set of roles (president, advisor, supervisor, co-advisor) and the value is a list of lists of availabilities.
-
-4. **FCFS (First-Come, First-Served) Algorithm**: The function uses an FCFS algorithm to attempt scheduling the "vivas". The algorithm:
-    - Iterates over the `PreViva` list and attempts to schedule each event considering the availability of the required resources.
-    - Finds all possible availability slots for the event duration.
-    - Updates the availability slots considering the already used slots.
-    - Chooses the first possible availability slot and updates the list of used slots.
-    - If a slot is available, creates a `PosViva` object with the scheduled event details and continues to the next event.
-    - If no slot is available, returns an impossible schedule error.
-
-5. **Formatting the Result**: Finally, the function returns the list of scheduled events, sorted by start date and time.
-
-##### Auxiliary Functions
-
-- **preVivaToMap**: Converts the `PreViva` list into an availability map.
-- **algorithmFCFS**: Implements the FCFS scheduling algorithm.
-
-
-#### Possible future improvements
-
-As we move forward, several areas stand out for enhancement.
-
-- **Implementation of More Tests**: While our current test suite provides valuable coverage, more test will fortify the
-  reliability of our software. Introducing functional tests to validate interactions between components will further
-  validate the correctness of our codebase.
-
-- **Improvement of Project Structure**: Enhancing the organization and clarity of our project structure will improve
-  development processes and facilitate collaboration among team members.
-
-- **Optimization of Code**: Identifying and addressing certain code duplication and inefficiencies within our codebase
-  will enhance the efficiency and readability of our application.
-
-- **Creation of More Input Test Files**: Increasing our collection of input test files with more diverse agendas will
-  enhance the comprehensiveness of our testing efforts. Also, with this, we can uncover more error cases that might
-  otherwise go unnoticed, bolstering the resilience and adaptability of our software.
-
-By prioritizing these among other possible improvements, we aim to elevate the quality, reliability, and performance of
-our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of
-evolving requirements.
 
 
 
