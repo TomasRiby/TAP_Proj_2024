@@ -27,6 +27,8 @@ class Agenda {
   vivas: Seq[Viva]
   resource: Resource
   duration: ODuration
+  preViva: PreViva
+  posViva: PosViva
 }
 
 class Viva {
@@ -94,5 +96,7 @@ Viva "0..*" -- "1..*" Supervisor
 Viva "0..*" -- "1..*" Coadvisor
 PreViva "1..*" -- "1..*" RoleLinkedWithResource
 ScheduleOut "1" *-- "1..*" PosViva
+Agenda "1" o-- "1" PreViva
+Agenda "1" o-- "1" PosViva
 
 @enduml

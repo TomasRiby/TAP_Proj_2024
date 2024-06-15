@@ -67,7 +67,7 @@ methodical approach to tackling this complex problem.
 
 ## Domain Model
 
-![img.png](./assets/domain-v4.png)
+![img.png](./assets/domain-v5.png)
 
 The domain was created based on an analysis conducted on the input XML files for the problem's use case.
 
@@ -87,6 +87,8 @@ The domain was created based on an analysis conducted on the input XML files for
         - `vivas: Seq[Viva]` - Sequence of scheduled thesis defenses (vivas).
         - `resource: Resource` - Allocated resources.
         - `duration: ODuration` - Duration of the defense.
+        - `preViva: PreViva` - Information about the pre-viva stage.
+        - `posViva: PosViva` - Information about the post-viva stage.
 
 3. **Resource**
     - Attributes:
@@ -142,6 +144,7 @@ The domain was created based on an analysis conducted on the input XML files for
 ### Relationships Between Entities
 - **Viva** is related to **Agenda** through a composition relationship, where an agenda can have multiple vivas.
 - **Agenda** is related to **Resource**, indicating that each agenda uses a set of resources.
+- **Agenda** is related to **PreViva** and **PosViva**, indicating that each agenda includes information about both pre- and post-viva stages.
 - **Resource** is related to **Teacher** and **External**, indicating that resources include both teachers and external participants.
 - **Teacher** and **External** are related to **Availability**, indicating the availability of these resources.
 - **PreViva** and **RoleLinkedWithResource** manage specific roles linked to resources and their availabilities before the defense is scheduled.
