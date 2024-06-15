@@ -14,7 +14,7 @@ import scala.collection.immutable.HashSet
 object AlgorithmMS03:
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
-  // Função principal do algoritmo MS03 que organiza as vivas (defesas) em uma agenda.
+  // Main function of the MS03 algorithm that organizes the viva (defense) in a schedule.
   def MS03_Algorithm(agenda: Agenda): Result[ScheduleOut] =
     val teacherList = agenda.resources.teacher
     val externalList = agenda.resources.external
@@ -49,7 +49,7 @@ object AlgorithmMS03:
     }
     bfResult
 
-  // Função do algoritmo FCFS (First-Come, First-Served) que agenda as vivas na ordem recebida.
+  // Function of the FCFS (First-Come, First-Served) algorithm that schedules the vivas (defenses) in the order they are received.
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     val schedulingResult = schedulePreVivas(preVivaList, duration)
     schedulingResult.map { case (scheduledVivas, _) =>
@@ -57,7 +57,7 @@ object AlgorithmMS03:
       ScheduleOut.from(sortedScheduledVivas)
     }
 
-  // Função do algoritmo de força bruta que gera todas as combinações possíveis e escolhe a melhor.
+  // Function of the brute force algorithm that generates all possible combinations and chooses the best one.
   def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration, maxCombinations: Int): Result[ScheduleOut] =
     val allCombinations = preVivaList.permutations.take(maxCombinations).toList
     val validSchedules = allCombinations.flatMap { combination =>
@@ -80,7 +80,7 @@ object AlgorithmMS03:
         }
         Right(ScheduleOut.from(bestSchedule))
 
-  // Função auxiliar que agenda as pré-vivas (preVivas) de acordo com a duração e disponibilidade.
+  // Auxiliary function that schedules the pre-vivas (preVivas) according to duration and availability.
   private def schedulePreVivas(preVivaList: Seq[PreViva], duration: ODuration): Result[(List[PosViva], List[(HashSet[ID], Availability)])] =
     preVivaList.foldLeft[Result[(List[PosViva], List[(HashSet[ID], Availability)])]](Right((List.empty[PosViva], List.empty[(HashSet[ID], Availability)]))):
       case (postViva, preViva) =>
