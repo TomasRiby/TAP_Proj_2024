@@ -306,7 +306,7 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **the lengths of generated lists should match the number of distinct IDs**: Verifies that the lengths of generated teacher and external ID lists match the number of distinct IDs, ensuring no duplication.
     - **Testing linkVivaWithResource**: A placeholder property to ensure that the `generateAValidAgendaViva` function works as expected, producing valid and consistent data.
 
-### makeTheAlgorithmHappen
+### MS01_Algorithm
 
 - **generatePossibleSchedule**: Generates a possible schedule (`ScheduleOut`) by creating a list of `PreViva` objects, calculating their duration, and generating a schedule using the `algorithm` function. Ensures that the scheduling algorithm produces valid outputs.
 - **Properties**:
@@ -335,3 +335,8 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **All used slots are reflected in updated slots**: Ensures that all used slots are properly accounted for in the updated slots.
     - **Original slots included when no used slots**: Verifies that original availability slots are included in the updated slots when there are no used slots.
     - **All availabilities are considered**: Ensures that all original availability slots are taken into account when updating the slots.
+
+
+
+### MS03 - Preference Maximization
+
