@@ -41,12 +41,15 @@ object AlgorithmMS03:
 
     println("Starting FCFS Algorithm")
     val fcfsResult = algorithmFCFS(preVivaList, duration)
-    fcfsResult.foreach { result =>
-      println(s"FCFS Result: Total Preference = ${result.posVivas.map(_.preference).sum}")
-      result.posVivas.foreach { viva =>
-        println(s"FCFS Viva: ${viva.title}, Preference: ${viva.preference}, Start: ${viva.start}, End: ${viva.end}")
-      }
-    }
+    fcfsResult match
+      case Right(result) =>
+        println(s"FCFS Result: Total Preference = ${result.posVivas.map(_.preference).sum}")
+        result.posVivas.foreach { viva =>
+          println(s"FCFS Viva: ${viva.title}, Preference: ${viva.preference}, Start: ${viva.start}, End: ${viva.end}")
+        }
+      case Left(error) =>
+        println(s"FCFS Algorithm failed with error: $error")
+
     bfResult
 
   // Function of the FCFS (First-Come, First-Served) algorithm that schedules the vivas (defenses) in the order they are received.
