@@ -11,7 +11,7 @@ import java.time.{Duration, LocalDateTime}
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 
-object AlgorithmMS03:
+object AlgorithmBruteForceAlternative:
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
   // Main function of the MS03 algorithm that organizes the viva (defense) in a schedule.

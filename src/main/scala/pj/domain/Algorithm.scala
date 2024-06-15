@@ -23,12 +23,17 @@ object Algorithm:
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
 
-    for {
-      ms01 <- algorithmFCFS(preVivaList, duration)
-      ms03 <- algorithmGreedy(preVivaList, duration)
-      _ = println("FCFS: " + ms01.preference)
-      _ = println("GRDY: " + ms03.preference)
-    } yield ms03
+    val ms01 = algorithmFCFS(preVivaList, duration)
+    ms01 match
+      case Right(schedule) => println("FCFS: " + schedule.preference)
+      case Left(error) => println("FCFS: " + error)
+  
+    val ms03 = algorithmGreedy(preVivaList, duration)
+    ms03 match
+      case Right(schedule) => println("GRDY: " + schedule.preference)
+      case Left(error) => println("GRDY: " + error)
+    println("--------------------")
+    ms03
 
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
