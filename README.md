@@ -1,4 +1,10 @@
 # The Viva to be Scheduled Problem
+![VivaProblem](./assets/viva.png)
+
+**Group:**
+- [Tomás Oliveira](mailto:1230213@isep.ipp.pt)
+- [Tomás Ribeiro](mailto:1191113@isep.ipp.pt)
+- [Bruno Santos](mailto:1230170@isep.ipp.pt)
 
 ## Index
 
