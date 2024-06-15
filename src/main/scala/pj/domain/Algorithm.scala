@@ -16,24 +16,22 @@ import scala.collection.immutable.HashSet
 object Algorithm:
   private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
+  def MS03_Algorithm(agenda: Agenda): Result[ScheduleOut] =
+    val teacherList = agenda.resources.teacher
+    val externalList = agenda.resources.external
+    val duration = agenda.duration
+
+    val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
+    AlgorithmMS03.algorithmGlobalGreedy(preVivaList, duration)
+
   def MS01_Algorithm(agenda: Agenda): Result[ScheduleOut] =
     val teacherList = agenda.resources.teacher
     val externalList = agenda.resources.external
     val duration = agenda.duration
 
     val preVivaList = agenda.vivas.map(PreViva.linkVivaWithResource(_, teacherList, externalList))
+    algorithmFCFS(preVivaList, duration)
 
-    val ms01 = algorithmFCFS(preVivaList, duration)
-    ms01 match
-      case Right(schedule) => println("FCFS: " + schedule.preference)
-      case Left(error) => println("FCFS: " + error)
-  
-    val ms03 = algorithmGreedy(preVivaList, duration)
-    ms03 match
-      case Right(schedule) => println("GRDY: " + schedule.preference)
-      case Left(error) => println("GRDY: " + error)
-    println("--------------------")
-    ms03
 
 
   def algorithmFCFS(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
@@ -55,7 +53,7 @@ object Algorithm:
       val sortedScheduledVivas = scheduledVivas.sortBy(v => (LocalDateTime.parse(v.start, formatter), v.preference))
       ScheduleOut.from(sortedScheduledVivas)
     }
-
+//old algorithm
   def algorithmGreedy(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
     @tailrec
     def scheduleVivas(remainingVivas: Seq[PreViva], scheduledVivas: List[PosViva], usedSlots: List[(HashSet[ID], Availability)]): Result[List[PosViva]] =

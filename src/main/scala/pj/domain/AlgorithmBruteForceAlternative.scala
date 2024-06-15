@@ -77,10 +77,10 @@ object AlgorithmBruteForceAlternative:
           if current.map(_.preference).sum > best.map(_.preference).sum then current else best
         }
         val totalPreference = bestSchedule.map(_.preference).sum
-        println(s"\n========== Best Schedule from Brute Force ==========\n")
-        println(s"Total Preference = $totalPreference")
+//        println(s"\n========== Best Schedule from Brute Force ==========\n")
+//        println(s"Total Preference = $totalPreference")
         bestSchedule.foreach { viva =>
-          println(f"Best Schedule Viva: ${viva.title}%-10s | Preference: ${viva.preference}%2d | Start: ${viva.start} | End: ${viva.end}")
+//          println(f"Best Schedule Viva: ${viva.title}%-10s | Preference: ${viva.preference}%2d | Start: ${viva.start} | End: ${viva.end}")
         }
         Right(ScheduleOut.from(bestSchedule))
 
