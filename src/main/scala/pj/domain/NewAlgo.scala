@@ -2,6 +2,9 @@ package pj.domain
 
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
+import pj.opaqueTypes.OTime
+import pj.opaqueTypes.OTime.OTime
+import pj.opaqueTypes.Preference.Preference
 
 import java.time.{Duration, LocalDateTime}
 import java.time.format.DateTimeFormatter
@@ -13,57 +16,143 @@ object NewAlgo:
     val resources = agenda.resources
     val duration = agenda.duration.toDuration
 
+    case class ResourceAvailability(resourceId: ID, availabilities: List[Availability])
+
     // Helper function to get all resource availabilities
-    def getResourceAvailabilities(resourceIds: List[ID]): List[Availability] =
-      val allTeachers = resources.teacher.filter(t => resourceIds.contains(t.id)).flatMap(_.availability)
-      val allExternals = resources.external.filter(e => resourceIds.contains(e.id)).flatMap(_.availability)
-      allTeachers ++ allExternals
+    def getResourceAvailabilities(resourceId: ID, availabilities: Map[ID, List[Availability]]): List[Availability] =
+      availabilities.getOrElse(resourceId, List())
+
+    // Function to check if two time intervals overlap
+    def overlaps(aStart: LocalDateTime, aEnd: LocalDateTime, bStart: LocalDateTime, bEnd: LocalDateTime): Boolean =
+      aStart.isBefore(bEnd) && bStart.isBefore(aEnd)
+
+    // Function to generate smaller time slots of the required duration
+    def generateTimeSlots(availability: Availability, duration: Duration): List[(LocalDateTime, LocalDateTime)] =
+      @scala.annotation.tailrec
+      def loop(start: LocalDateTime, end: LocalDateTime, acc: List[(LocalDateTime, LocalDateTime)]): List[(LocalDateTime, LocalDateTime)] =
+        if (start.plus(duration).isAfter(end)) acc
+        else loop(start.plus(duration), end, (start, start.plus(duration)) :: acc)
+      loop(availability.start.toLocalDateTime, availability.end.toLocalDateTime, List.empty).reverse
 
     // Find all possible slots for a viva
-    def findPossibleSlots(viva: Viva): List[(Viva, Availability)] =
-      val requiredResourceIds: List[ID] = List(Some(viva.president.id), Some(viva.advisor.id)).flatten ++ viva.coAdvisor.map(_.id) ++ viva.supervisor.map(_.id)
-      val availabilities = getResourceAvailabilities(requiredResourceIds)
-      availabilities.filter(a => Duration.between(a.start.toTemporal, a.end.toTemporal).compareTo(duration) >= 0).map(a => (viva, a))
+    def findPossibleSlots(viva: Viva, availabilities: Map[ID, List[Availability]]): List[(LocalDateTime, LocalDateTime)] =
+      val requiredResourceIds = List(viva.president.id, viva.advisor.id) ++ viva.supervisor.map(_.id) ++ viva.coAdvisor.map(_.id)
+      val availableSlots = requiredResourceIds.flatMap(getResourceAvailabilities(_, availabilities))
+      availableSlots.flatMap(generateTimeSlots(_, duration))
 
-    // Function to check if a slot is available
-    def isSlotAvailable(scheduledVivas: List[PosViva], newSlot: (Viva, Availability)): Boolean =
-      val (_, availability) = newSlot
-      !scheduledVivas.exists { sv =>
-        LocalDateTime.parse(sv.start).isBefore(availability.end.toLocalDateTime) && LocalDateTime.parse(sv.end).isAfter(availability.start.toLocalDateTime)
+    // Function to check if a slot is available for all required resources
+    def areAllResourcesAvailable(slot: (LocalDateTime, LocalDateTime), viva: Viva, scheduledVivas: List[PosViva], availabilities: Map[ID, List[Availability]]): Boolean =
+      val (slotStart, slotEnd) = slot
+      val requiredResourceIds = List(viva.president.id, viva.advisor.id) ++ viva.supervisor.map(_.id)
+      requiredResourceIds.forall { id =>
+        getResourceAvailabilities(id, availabilities).exists { a =>
+          (a.start.toLocalDateTime.isBefore(slotStart) || a.start.toLocalDateTime.equals(slotStart)) &&
+            (a.end.toLocalDateTime.isAfter(slotEnd) || a.end.toLocalDateTime.equals(slotEnd)) &&
+            !scheduledVivas.exists { sv =>
+              val start = LocalDateTime.parse(sv.start)
+              val end = LocalDateTime.parse(sv.end)
+              overlaps(slotStart, slotEnd, start, end)
+            }
+        }
       }
 
-    // Calculate the total preference for a viva
-    def calculatePreference(viva: Viva, availability: Availability): Int =
-      val requiredResourceIds: List[ID] = List(Some(viva.president.id), Some(viva.advisor.id)).flatten ++ viva.coAdvisor.map(_.id) ++ viva.supervisor.map(_.id)
-      val availabilities = getResourceAvailabilities(requiredResourceIds).filter(a =>
-        !availability.start.isAfter(a.end) && !availability.end.isBefore(a.start)
-      )
-      availabilities.map(_.preference.toInteger).sum
+    // Convert LocalDateTime to OTime
+    def toOTime(localDateTime: LocalDateTime): OTime =
+      OTime.from(localDateTime)
+
+    // Function to update resource availabilities after scheduling a viva
+    def updateAvailabilities(slot: (LocalDateTime, LocalDateTime), viva: Viva, availabilities: Map[ID, List[Availability]]): Map[ID, List[Availability]] =
+      val (slotStart, slotEnd) = slot
+      val slotStartOTime = toOTime(slotStart)
+      val slotEndOTime = toOTime(slotEnd)
+      val requiredResourceIds = List(viva.president.id, viva.advisor.id) ++ viva.supervisor.map(_.id)
+      requiredResourceIds.foldLeft(availabilities) { case (acc, id) =>
+        val updatedAvailabilities = getResourceAvailabilities(id, acc).flatMap { a =>
+          if (a.start.isBefore(slotStartOTime) && a.end.isAfter(slotEndOTime))
+            List(
+              Availability(a.start, slotStartOTime, a.preference),
+              Availability(slotEndOTime, a.end, a.preference)
+            )
+          else if (a.start.isBefore(slotStartOTime) && a.end.isAfter(slotStartOTime))
+            List(Availability(a.start, slotStartOTime, a.preference))
+          else if (a.start.isBefore(slotEndOTime) && a.end.isAfter(slotEndOTime))
+            List(Availability(slotEndOTime, a.end, a.preference))
+          else
+            List(a)
+        }
+        acc + (id -> updatedAvailabilities)
+      }
+
+    // Calculate the total preference for an availability slot
+    def calculatePreference(viva: Viva, slot: (LocalDateTime, LocalDateTime), availabilities: Map[ID, List[Availability]]): Int =
+      val requiredResourceIds = List(viva.president.id, viva.advisor.id) ++ viva.supervisor.map(_.id)
+      requiredResourceIds.flatMap(getResourceAvailabilities(_, availabilities)).filter(a =>
+        !slot._1.isAfter(a.end.toLocalDateTime) && !slot._2.isBefore(a.start.toLocalDateTime)
+      ).map(_.preference.toInteger).sum
 
     // Recursive function to schedule vivas
-    def scheduleVivas(vivas: Seq[Viva], scheduledVivas: List[PosViva]): List[PosViva] =
-      vivas.headOption match
-        case Some(viva) =>
-          val allPossibleSlots = findPossibleSlots(viva).sortBy(-_._2.preference)
-          allPossibleSlots.foldLeft(scheduledVivas) { (acc, slot) =>
-            if (isSlotAvailable(acc, slot))
-              val (viva, availability) = slot
-              val start = availability.start
-              val endTest = start.plusSeconds(duration.toSeconds)
-              val preference = calculatePreference(viva, availability)
+    def scheduleVivas(vivas: List[Viva], scheduledVivas: List[PosViva], availabilities: Map[ID, List[Availability]]): List[PosViva] =
+      vivas match
+        case viva :: rest =>
+          val allPossibleSlots = findPossibleSlots(viva, availabilities).sortBy(-calculatePreference(viva, _, availabilities))
+          val slotOpt = allPossibleSlots.collectFirst:
+            case slot if areAllResourcesAvailable(slot, viva, scheduledVivas, availabilities) =>
+              slot
+          slotOpt match
+            case Some(slot) =>
+              val (start, end) = slot
+              val preference = calculatePreference(viva, slot, availabilities)
               val presidentName = resources.teacher.find(_.id == viva.president.id).map(_.name.toString).getOrElse("")
               val advisorName = resources.teacher.find(_.id == viva.advisor.id).map(_.name.toString).getOrElse("")
               val coAdvisorNames = viva.coAdvisor.flatMap(id => resources.teacher.find(_.id == id.id).map(_.name.toString))
               val supervisorNames = viva.supervisor.flatMap(id => resources.external.find(_.id == id.id).map(_.name.toString))
-              val posViva = PosViva(viva.student.toString, viva.title.toString, start.toLocalDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), endTest.toLocalDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), preference, presidentName, advisorName, supervisorNames, coAdvisorNames)
-              scheduleVivas(vivas.drop(1), posViva :: acc)
-            else
-              acc
-          }
-        case None => scheduledVivas
+              val posViva = PosViva(
+                viva.student.toString,
+                viva.title.toString,
+                start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                preference,
+                presidentName,
+                advisorName,
+                supervisorNames,
+                coAdvisorNames)
+              val updatedAvailabilities = updateAvailabilities(slot, viva, availabilities)
+              scheduleVivas(rest, posViva :: scheduledVivas, updatedAvailabilities)
+            case None =>
+              // Handle the case where no valid slot is found
+              // For now, adding viva to the schedule with zero preference to ensure all are scheduled
+              findPossibleSlots(viva, availabilities).headOption match
+                case Some(fallbackSlot) =>
+                  val (start, end) = fallbackSlot
+                  val preference = calculatePreference(viva, fallbackSlot, availabilities)
+                  val presidentName = resources.teacher.find(_.id == viva.president.id).map(_.name.toString).getOrElse("")
+                  val advisorName = resources.teacher.find(_.id == viva.advisor.id).map(_.name.toString).getOrElse("")
+                  val coAdvisorNames = viva.coAdvisor.flatMap(id => resources.teacher.find(_.id == id.id).map(_.name.toString))
+                  val supervisorNames = viva.supervisor.flatMap(id => resources.external.find(_.id == id.id).map(_.name.toString))
+                  val posViva = PosViva(
+                    viva.student.toString,
+                    viva.title.toString,
+                    start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    preference,
+                    presidentName,
+                    advisorName,
+                    supervisorNames,
+                    coAdvisorNames)
+                  val updatedAvailabilities = updateAvailabilities(fallbackSlot, viva, availabilities)
+                  scheduleVivas(rest, posViva :: scheduledVivas, updatedAvailabilities)
+                case None =>
+                  // No possible slots found, this should not happen given the inputs
+                  scheduledVivas
+        case Nil => scheduledVivas.reverse
+
+    // Initialize availabilities
+    val initialAvailabilities: Map[ID, List[Availability]] = (resources.teacher.map(t => t.id -> t.availability) ++
+      resources.external.map(e => e.id -> e.availability)).toMap
 
     // Start scheduling
-    val scheduledVivas = scheduleVivas(vivas, List.empty[PosViva])
+    val scheduledVivas = scheduleVivas(vivas.toList, List.empty[PosViva], initialAvailabilities)
 
+    val totalPreference = scheduledVivas.map(_.preference).sum
     val scheduleOut = ScheduleOut.from(scheduledVivas)
     Right(scheduleOut)
