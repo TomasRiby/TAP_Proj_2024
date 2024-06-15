@@ -122,9 +122,9 @@ programming techniques.
 
 ## Milestones Development Process
 
-### MS01
+### MS01 - First Come First Served
 
-#### Overview (Main Decisions)
+#### Overview
 
 The initial milestone of our project was developed using the Test Driven Development (TDD) methodology, a strategy
 particularly beneficial at the onset when the domain model concepts were still being defined and no code base existed.
@@ -138,11 +138,59 @@ By continuously updating and referring to our comprehensive suite of unit tests,
 rectify defects arising from recent changes, ensuring a stable and reliable codebase.
 
 The Classes were created in the `io` package for reading XML files and loading data into memory.
+In this milestone, a minimum viable product (MVP) is expected. The generation of the viva schedule happens in a
+First Come First Served (FCFS) manner relative to the input file. Each viva is to be scheduled to the first date/time
+in which all its resources are available. The schedule will be successful if all the vivas can be scheduled and fail
+otherwise.
+
+#### Approach
+
+The implementation of the FCFS algorithm involves scheduling each viva to the earliest available date and time when all
+required resources are available. This process is performed iteratively for each viva in the order they appear in the
+input list.
+
+#### Steps
+
+1. **Extract Resources and Duration**: The algorithm starts by extracting the list of teachers, external participants,
+and the duration of each viva from the provided agenda.
+
+2. **PreViva Creation**: For each viva, a `PreViva` object is created. This object links the viva with the necessary
+resources (teachers and external participants).
+
+3. **First Come First Served Scheduling**:
+    - The algorithm iterates over each `PreViva` object.
+    - For each `PreViva`, it checks the availability of all required resources.
+    - It updates the list of used slots based on the previously scheduled vivas to ensure no resource is double-booked.
+    - It identifies all possible time slots where the viva can be scheduled, taking into account the duration and
+availability of resources.
+    - It selects the first available slot that satisfies all requirements and schedules the viva in that slot.
+
+4. **Result Compilation**: The scheduled vivas are compiled into a `ScheduleOut` object. If any viva cannot be scheduled
+due to resource constraints, the scheduling process fails.
+
+#### Error Handling
+
+The algorithm includes error handling to manage situations where it is impossible to schedule a viva due to resource
+unavailability. In such cases, it returns an appropriate error message indicating the failure to complete the schedule.
+
+#### Unit Tests
+
+Unit tests are created to verify the correctness of individual components of the algorithm. These tests ensure that:
+- The availability of resources is correctly identified and updated.
+- The `PreViva` objects are accurately linked with the required resources.
+- The scheduling logic correctly identifies and selects the first available slot for each viva.
+
+#### Functional Tests
+
+Functional tests validate the overall functionality of the scheduling algorithm. These tests involve running the
+algorithm with sample input data and verifying that the output schedule meets all requirements.
+Scenarios tested include:
+- Successful scheduling of all vivas with sufficient resource availability.
+- Handling of cases where some vivas cannot be scheduled due to resource constraints.
 
 
 
-
-### MS02
+### MS02 - Property-based Tests
 
 The primary objective of this second milestone is to develop property tests using ScalaCheck to ensure the algorithm's properties are functioning as intended. In addition to verifying the algorithm's performance, this milestone also aims to highlight the issues associated with the first come, first served algorithm that was developed in the first milestone. This dual focus will not only validate the current implementation but also provide critical insights into the limitations and potential improvements for the initial algorithm.
 
