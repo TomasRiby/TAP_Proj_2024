@@ -352,6 +352,17 @@ The implementation of the Preference Maximization algorithm involves scheduling 
 total preferences across all resources. The process is designed to evaluate and choose the best global schedule rather
 than focusing on individual preferences.
 
+To address this need, we decided to implement the greedy algorithm.
+A greedy algorithm is a form of optimization algorithm that iteratively makes the locally optimal choice with the
+objective of finding a globally optimal solution. This algorithm operates on the principle of selecting the best
+immediate option without taking into account the potential long-term repercussions.
+
+Greedy algorithms are often used in various fields such as operations research, computer science, and economics,
+where they can provide efficient solutions for problems that can be broken down into smaller, manageable sub-problems.
+
+![greedy.gif](assets/greedy.gif)
+
+
 #### Steps
 
 1. **Extract Resources and Duration**: The algorithm starts by extracting the list of teachers, external participants,
