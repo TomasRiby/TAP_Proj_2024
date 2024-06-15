@@ -352,12 +352,13 @@ The implementation of the Preference Maximization algorithm involves scheduling 
 total preferences across all resources. The process is designed to evaluate and choose the best global schedule rather
 than focusing on individual preferences.
 
-To address this need, we decided to implement the greedy algorithm.
-A greedy algorithm is a form of optimization algorithm that iteratively makes the locally optimal choice with the
+To address this need, we decided to implement the `greedy algorithm`.
+
+A `greedy algorithm` is a form of optimization algorithm that iteratively makes the locally optimal choice with the
 objective of finding a globally optimal solution. This algorithm operates on the principle of selecting the best
 immediate option without taking into account the potential long-term repercussions.
 
-Greedy algorithms are often used in various fields such as operations research, computer science, and economics,
+`Greedy algorithms` are often used in various fields such as operations research, computer science, and economics,
 where they can provide efficient solutions for problems that can be broken down into smaller, manageable sub-problems.
 
 ![greedy.gif](assets/greedy.gif)
@@ -409,7 +410,7 @@ for all involved resources. The developed algorithm shifts from a simple First C
 sophisticated method that evaluates and optimizes the overall satisfaction of preferences across all scheduling
 elements. This transition ensures a more efficient and effective scheduling process that balances the needs and
 preferences of students, teachers, and external participants.
-The implementation of the global greedy algorithm allows for a comprehensive evaluation of all possible schedules,
+The implementation of the global `greedy algorithm` allows for a comprehensive evaluation of all possible schedules,
 ensuring that the selected schedule maximizes total preferences while still respecting the constraints of resource
 availability and duration requirements. This approach acknowledges that achieving the highest preference for individual
 vivas may not always lead to the best overall schedule, and thus, it intelligently balances individual and collective
