@@ -5,14 +5,40 @@
 - [The Viva to be Scheduled Problem](#the-viva-to-be-scheduled-problem)
     - [The Problem](#the-problem)
     - [Domain Model](#domain-model)
+        - [Entities and Attributes](#entities-and-attributes)
+        - [Relationships Between Entities](#relationships-between-entities)
     - [Objective](#objective)
     - [Milestones Development Process](#milestones-development-process)
-        - [MS01](#ms01)
-            - [Overview (Main Decisions)](#overview-main-decisions)
-            - [Possible alternatives](#possible-alternatives)
-            - [Possible future improvements](#possible-future-improvements)
-        - [MS02](#ms02)
-
+        - [MS01 - First Come First Served](#ms01---first-come-first-served)
+            - [Overview](#overview)
+            - [Approach](#approach)
+            - [Steps](#steps)
+            - [Error Handling](#error-handling)
+            - [Unit Tests](#unit-tests)
+            - [Functional Tests](#functional-tests)
+        - [MS02 - Property-based Tests](#ms02---property-based-tests)
+            - [Property Tests](#property-tests)
+                - [ScheduleTest](#scheduletest)
+                - [ResourceCannotBeOverlapped](#resourcecannotbeoverlapped)
+                - [No Availability Overpasses the Day](#no-availability-overpasses-the-day)
+                - [Each External and Teacher Has at Least One Availability from the List](#each-external-and-teacher-has-at-least-one-availability-from-the-list)
+                - [Each PreViva in the Generated List is Valid](#each-previva-in-the-generated-list-is-valid)
+                - [No list of PreVivas is empty](#no-list-of-previvas-is-empty)
+                - [Each PreViva Contains at Least One Availability from availListGenerated](#each-previva-contains-at-least-one-availability-from-availlistgenerated)
+                - [Each Viva Has Unique IDs Across President, Advisor, Supervisors, and CoAdvisors](#each-viva-has-unique-ids-across-president-advisor-supervisors-and-coadvisors)
+            - [VivaTest](#vivatest)
+            - [IDTest](#idtest)
+            - [linkVivaWithResourceTest](#linkvivawithresourcetest)
+            - [MS01_Algorithm](#ms01_algorithm)
+            - [PreVivaTest](#previvatest)
+            - [updateAvailabilitySlotsTest](#updateavailabilityslotstest)
+        - [MS03 - Preference Maximization](#ms03---preference-maximization)
+            - [Approach](#approach-1)
+            - [Steps](#steps-1)
+            - [Error Handling](#error-handling-1)
+            - [Unit Tests](#unit-tests-1)
+            - [Functional Tests](#functional-tests-1)
+            - [Conclusion](#conclusion)
 
 ## The Problem
 
@@ -38,12 +64,82 @@ methodical approach to tackling this complex problem.
 ![img.png](./assets/domain-v4.png)
 
 The domain was created based on an analysis conducted on the input XML files for the problem's use case.
-The domain classes consist of Agenda, Viva, and Resources, which comprises a list of Teachers and Externals.
 
-Both Teachers and Externals have availabilities that include start and end datetime, as well as the subject's
-preferences.
-The Resources class was introduced to combine both Externals and Teachers, providing a unified structure for managing
-resource's availability.
+### Entities and Attributes
+
+1. **Viva**
+    - Attributes:
+        - `student: Name` - Name of the student.
+        - `title: Name` - Title of the thesis.
+        - `president: President` - President of the committee.
+        - `advisor: Advisor` - Advisor of the thesis.
+        - `supervisor: Supervisor` - Supervisor of the thesis.
+        - `coAdvisor: Coadvisor` - Co-advisor of the thesis.
+
+2. **Agenda**
+    - Attributes:
+        - `vivas: Seq[Viva]` - Sequence of scheduled thesis defenses (vivas).
+        - `resource: Resource` - Allocated resources.
+        - `duration: ODuration` - Duration of the defense.
+
+3. **Resource**
+    - Attributes:
+        - `external: List<External>` - List of external participants.
+        - `teacher: List<Teacher>` - List of teachers.
+
+4. **Teacher**
+    - Attributes:
+        - `id: ID` - Identifier of the teacher.
+        - `name: Name` - Name of the teacher.
+        - `availability: Seq[Availability]` - Availability of the teacher.
+
+5. **External**
+    - Attributes:
+        - `id: ID` - Identifier of the external participant.
+        - `name: Name` - Name of the external participant.
+        - `availability: Seq[Availability]` - Availability of the external participant.
+
+6. **Availability**
+    - Attributes:
+        - `start: Time` - Start time.
+        - `end: Time` - End time.
+        - `preference: Preference` - Time preference.
+
+7. **PreViva**
+    - Attributes:
+        - `student: Name` - Name of the student.
+        - `title: Name` - Title of the thesis.
+        - `roleLinkedWithResourceList: List[RoleLinkedWithResource]` - List of roles linked with resources.
+
+8. **RoleLinkedWithResource**
+    - Attributes:
+        - `role: President | Advisor | Supervisor | Coadvisor` - Role (President, Advisor, Supervisor, Co-advisor).
+        - `name: Name` - Name of the person.
+        - `listAvailability: List[Availability]` - List of availabilities.
+
+9. **ScheduleOut**
+    - Attributes:
+        - `posVivas: List[PosViva]` - List of scheduled post-defenses.
+
+10. **PosViva**
+    - Attributes:
+        - `student: String` - Name of the student.
+        - `title: String` - Title of the thesis.
+        - `start: String` - Start time.
+        - `end: String` - End time.
+        - `preference: Int` - Time preference.
+        - `president: String` - President of the committee.
+        - `advisor: String` - Advisor of the thesis.
+        - `supervisors: List[String]` - List of supervisors.
+        - `coAdvisors: List[String]` - List of co-advisors.
+
+### Relationships Between Entities
+- **Viva** is related to **Agenda** through a composition relationship, where an agenda can have multiple vivas.
+- **Agenda** is related to **Resource**, indicating that each agenda uses a set of resources.
+- **Resource** is related to **Teacher** and **External**, indicating that resources include both teachers and external participants.
+- **Teacher** and **External** are related to **Availability**, indicating the availability of these resources.
+- **PreViva** and **RoleLinkedWithResource** manage specific roles linked to resources and their availabilities before the defense is scheduled.
+- **ScheduleOut** and **PosViva** handle the output of the defense scheduling, detailing the final schedule.
 
 ## Objective
 
@@ -52,9 +148,9 @@ programming techniques.
 
 ## Milestones Development Process
 
-### MS01
+### MS01 - First Come First Served
 
-#### Overview (Main Decisions)
+#### Overview
 
 The initial milestone of our project was developed using the Test Driven Development (TDD) methodology, a strategy
 particularly beneficial at the onset when the domain model concepts were still being defined and no code base existed.
@@ -68,74 +164,59 @@ By continuously updating and referring to our comprehensive suite of unit tests,
 rectify defects arising from recent changes, ensuring a stable and reliable codebase.
 
 The Classes were created in the `io` package for reading XML files and loading data into memory.
-To separate responsibilities and ease maintenance in case of issues, a class was created for each context, such
-as `AgendaIO`, `VivaIO`, and finally `ResourceIO`, which encompasses the concepts of teachers and externals.
+In this milestone, a minimum viable product (MVP) is expected. The generation of the viva schedule happens in a
+First Come First Served (FCFS) manner relative to the input file. Each viva is to be scheduled to the first date/time
+in which all its resources are available. The schedule will be successful if all the vivas can be scheduled and fail
+otherwise.
 
-The decision to group the concepts of teachers and externals was made due to the similarity in their data structure.
-Consolidating them into a single Resource simplifies computing their data for the final goal of the proposed problem, as
-there's no need to compare between two different data structures.
+#### Approach
 
-#### Function `makeTheAlgorithmHappen` - The algorithm
+The implementation of the FCFS algorithm involves scheduling each viva to the earliest available date and time when all
+required resources are available. This process is performed iteratively for each viva in the order they appear in the
+input list.
 
-The `makeTheAlgorithmHappen` function is responsible for scheduling events, such as "vivas" (academic defenses or presentations), considering the availability of teachers and external agents. The function takes an agenda structure containing availability information and details about the "vivas," as well as the expected duration for each event.
+#### Steps
 
-##### Parameters
+1. **Extract Resources and Duration**: The algorithm starts by extracting the list of teachers, external participants,
+and the duration of each viva from the provided agenda.
 
-- `agenda: Agenda`: Structure that contains the resources (teachers and external agents) and details of the "vivas".
+2. **PreViva Creation**: For each viva, a `PreViva` object is created. This object links the viva with the necessary
+resources (teachers and external participants).
 
-##### Returns
+3. **First Come First Served Scheduling**:
+    - The algorithm iterates over each `PreViva` object.
+    - For each `PreViva`, it checks the availability of all required resources.
+    - It updates the list of used slots based on the previously scheduled vivas to ensure no resource is double-booked.
+    - It identifies all possible time slots where the viva can be scheduled, taking into account the duration and
+availability of resources.
+    - It selects the first available slot that satisfies all requirements and schedules the viva in that slot.
 
-- `Result[ScheduleOut]`: A result that contains the list of scheduled events or an error if scheduling is impossible.
+4. **Result Compilation**: The scheduled vivas are compiled into a `ScheduleOut` object. If any viva cannot be scheduled
+due to resource constraints, the scheduling process fails.
 
-##### Functionality
+#### Error Handling
 
-1. **Information Extraction**: Initially, the function extracts the list of teachers, external agents, and the event duration from the agenda structure.
+The algorithm includes error handling to manage situations where it is impossible to schedule a viva due to resource
+unavailability. In such cases, it returns an appropriate error message indicating the failure to complete the schedule.
 
-2. **Creation of PreVivaList**: The function maps the "vivas" to a list of `PreViva`, associating each "viva" with the corresponding resources (teachers and external agents).
+#### Unit Tests
 
-3. **Availability Mapping**: The availabilities are grouped into a map where the key is a set of roles (president, advisor, supervisor, co-advisor) and the value is a list of lists of availabilities.
+Unit tests are created to verify the correctness of individual components of the algorithm. These tests ensure that:
+- The availability of resources is correctly identified and updated.
+- The `PreViva` objects are accurately linked with the required resources.
+- The scheduling logic correctly identifies and selects the first available slot for each viva.
 
-4. **FCFS (First-Come, First-Served) Algorithm**: The function uses an FCFS algorithm to attempt scheduling the "vivas". The algorithm:
-    - Iterates over the `PreViva` list and attempts to schedule each event considering the availability of the required resources.
-    - Finds all possible availability slots for the event duration.
-    - Updates the availability slots considering the already used slots.
-    - Chooses the first possible availability slot and updates the list of used slots.
-    - If a slot is available, creates a `PosViva` object with the scheduled event details and continues to the next event.
-    - If no slot is available, returns an impossible schedule error.
+#### Functional Tests
 
-5. **Formatting the Result**: Finally, the function returns the list of scheduled events, sorted by start date and time.
-
-##### Auxiliary Functions
-
-- **preVivaToMap**: Converts the `PreViva` list into an availability map.
-- **algorithmFCFS**: Implements the FCFS scheduling algorithm.
-
-
-#### Possible future improvements
-
-As we move forward, several areas stand out for enhancement.
-
-- **Implementation of More Tests**: While our current test suite provides valuable coverage, more test will fortify the
-  reliability of our software. Introducing functional tests to validate interactions between components will further
-  validate the correctness of our codebase.
-
-- **Improvement of Project Structure**: Enhancing the organization and clarity of our project structure will improve
-  development processes and facilitate collaboration among team members.
-
-- **Optimization of Code**: Identifying and addressing certain code duplication and inefficiencies within our codebase
-  will enhance the efficiency and readability of our application.
-
-- **Creation of More Input Test Files**: Increasing our collection of input test files with more diverse agendas will
-  enhance the comprehensiveness of our testing efforts. Also, with this, we can uncover more error cases that might
-  otherwise go unnoticed, bolstering the resilience and adaptability of our software.
-
-By prioritizing these among other possible improvements, we aim to elevate the quality, reliability, and performance of
-our application project, allowing us to deliver a solution that exceeds expectations and withstands the demands of
-evolving requirements.
+Functional tests validate the overall functionality of the scheduling algorithm. These tests involve running the
+algorithm with sample input data and verifying that the output schedule meets all requirements.
+Scenarios tested include:
+- Successful scheduling of all vivas with sufficient resource availability.
+- Handling of cases where some vivas cannot be scheduled due to resource constraints.
 
 
 
-### MS02
+### MS02 - Property-based Tests
 
 The primary objective of this second milestone is to develop property tests using ScalaCheck to ensure the algorithm's properties are functioning as intended. In addition to verifying the algorithm's performance, this milestone also aims to highlight the issues associated with the first come, first served algorithm that was developed in the first milestone. This dual focus will not only validate the current implementation but also provide critical insights into the limitations and potential improvements for the initial algorithm.
 
@@ -209,7 +290,7 @@ development and testing processes and ensuring the delivery of high-quality soft
     - If all IDs within a viva are unique, the test passes. Otherwise, it fails, ensuring that no duplicate IDs exist across the different roles in a viva.
 
 
-### VivaTest
+#### VivaTest
 
 - **generatePresident**: Generates a `President` ID that is not already in the provided list of IDs. Ensures unique ID assignment for the President role.
 - **generateAdvisor**: Generates an `Advisor` ID that is not already in the provided list of IDs. Ensures unique ID assignment for the Advisor role.
@@ -225,7 +306,7 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **No CoAdvisors have the same ID within a Viva**: Ensures that there are no duplicate CoAdvisor IDs within each `Viva`.
     - **Each Viva has unique IDs across President, Advisor, Supervisors, and CoAdvisors**: Confirms that all IDs within a `Viva` are unique across all roles.
 
-### IDTest
+#### IDTest
 
 - **generateID**: Generates a general `ID` with a prefix of either "T" for Teacher or "E" for External followed by a 3-digit number. Validates the correctness of the generated ID.
 - **generateTeacherID**: Generates a `TeacherID` with a prefix "T" followed by a 3-digit number. Ensures the generated ID conforms to the Teacher ID format.
@@ -242,7 +323,7 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **Teacher IDs are unique**: Ensures that all `TeacherIDs` in the generated list are unique.
     - **External IDs are unique**: Ensures that all `ExternalIDs` in the generated list are unique.
 
-### linkVivaWithResourceTest
+#### linkVivaWithResourceTest
 
 - **generateVivaWithTeachersAndExternals**: Generates a `Viva` object along with lists of `Teacher` and `External` objects based on a given day. Ensures that IDs are properly assigned and do not overlap.
 - **generateAValidAgendaViva**: Generates a list of `Viva` objects, lists of `Teacher` and `External` objects, and a duration, ensuring that all generated entities are valid and consistent with each other.
@@ -251,13 +332,13 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **the lengths of generated lists should match the number of distinct IDs**: Verifies that the lengths of generated teacher and external ID lists match the number of distinct IDs, ensuring no duplication.
     - **Testing linkVivaWithResource**: A placeholder property to ensure that the `generateAValidAgendaViva` function works as expected, producing valid and consistent data.
 
-### makeTheAlgorithmHappen
+#### MS01_Algorithm
 
 - **generatePossibleSchedule**: Generates a possible schedule (`ScheduleOut`) by creating a list of `PreViva` objects, calculating their duration, and generating a schedule using the `algorithm` function. Ensures that the scheduling algorithm produces valid outputs.
 - **Properties**:
     - **Putting the generated PreVivas in the algorithm**: Ensures that the generated schedule does not have overlapping `PosViva` intervals. Converts `start` and `end` strings to `OTime` objects and verifies that no two intervals overlap, ensuring the correctness of the scheduling algorithm.
 
-### PreVivaTest
+#### PreVivaTest
 
 - **generatePreVivaList**: Generates a list of `PreViva` objects along with an `ODuration`. Utilizes a valid agenda to create linked viva sessions and resources.
 - **Properties**:
@@ -267,7 +348,7 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **PreViva objects conform to requirements**: Ensures that all generated `PreViva` objects meet the necessary requirements and constraints.
 
 
-### updateAvailabilitySlotsTest
+#### updateAvailabilitySlotsTest
 
 - **createODuration**: Helper method to create an `ODuration` from hours, minutes, and seconds. Validates the format and correctness of the duration string.
 - **nonEmptyAvailabilityList**: Generates a non-empty list of `Availability` objects, ensuring there is always at least one availability slot.
@@ -280,3 +361,92 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **All used slots are reflected in updated slots**: Ensures that all used slots are properly accounted for in the updated slots.
     - **Original slots included when no used slots**: Verifies that original availability slots are included in the updated slots when there are no used slots.
     - **All availabilities are considered**: Ensures that all original availability slots are taken into account when updating the slots.
+
+
+
+### MS03 - Preference Maximization
+
+This milestone incorporates the preferences of all resources involved in scheduling a viva and aims to produce a
+schedule that maximizes the total preferences of all the elements for every viva. It is important to note that
+maximizing the preference for each individual viva does not necessarily lead to an overall maximization of total
+preferences. Sometimes, allowing one viva to not be at its maximum preference can enable several others to achieve
+better preference values. Unit and functional tests should be produced for this milestone.
+
+#### Approach
+
+The implementation of the Preference Maximization algorithm involves scheduling vivas in a manner that maximizes the
+total preferences across all resources. The process is designed to evaluate and choose the best global schedule rather
+than focusing on individual preferences.
+
+To address this need, we decided to implement the `greedy algorithm`.
+
+A `greedy algorithm` is a form of optimization algorithm that iteratively makes the locally optimal choice with the
+objective of finding a globally optimal solution. This algorithm operates on the principle of selecting the best
+immediate option without taking into account the potential long-term repercussions.
+
+`Greedy algorithms` are often used in various fields such as operations research, computer science, and economics,
+where they can provide efficient solutions for problems that can be broken down into smaller, manageable sub-problems.
+
+![greedy.gif](assets/greedy.gif)
+
+
+#### Steps
+
+1. **Extract Resources and Duration**: The algorithm starts by extracting the list of teachers, external participants,
+and the duration of each viva from the provided agenda.
+
+2. **PreViva Creation**: For each viva, a `PreViva` object is created. This object links the viva with the necessary
+resources (teachers and external participants).
+
+3. **Global Greedy Scheduling**:
+    - The algorithm generates all possible schedules for the remaining vivas, taking into account the used slots and the
+required duration.
+    - It evaluates each potential schedule based on the total preferences and selects the best one.
+    - The chosen schedule is then used to update the list of scheduled vivas and the used slots.
+    - This process is repeated recursively until all vivas are scheduled or it is determined that scheduling is
+impossible.
+
+4. **Result Compilation**: The scheduled vivas are compiled into a `ScheduleOut` object. If any viva cannot be scheduled
+due to resource constraints, the scheduling process fails.
+
+#### Error Handling
+
+The algorithm includes error handling to manage situations where it is impossible to schedule a viva due to resource 
+unavailability. In such cases, it returns an appropriate error message indicating the failure to complete the schedule.
+
+#### Unit Tests
+
+Unit tests are created to verify the correctness of individual components of the algorithm. These tests ensure that:
+- The availability of resources is correctly identified and updated.
+- The `PreViva` objects are accurately linked with the required resources.
+- The scheduling logic correctly identifies and selects the best possible slot based on total preferences for each viva.
+
+#### Functional Tests
+
+Functional tests validate the overall functionality of the scheduling algorithm. These tests involve running the
+algorithm with sample input data and verifying that the output schedule maximizes the total preferences. Scenarios
+tested include:
+- Successful scheduling of all vivas with optimal resource preference maximization.
+- Handling of cases where some vivas cannot be scheduled due to resource constraints.
+
+#### Conclusion
+
+Milestone 3 represents a significant enhancement in the viva scheduling system by incorporating preference maximization
+for all involved resources. The developed algorithm shifts from a simple First Come First Served approach to a more
+sophisticated method that evaluates and optimizes the overall satisfaction of preferences across all scheduling
+elements. This transition ensures a more efficient and effective scheduling process that balances the needs and
+preferences of students, teachers, and external participants.
+The implementation of the global `greedy algorithm` allows for a comprehensive evaluation of all possible schedules,
+ensuring that the selected schedule maximizes total preferences while still respecting the constraints of resource
+availability and duration requirements. This approach acknowledges that achieving the highest preference for individual
+vivas may not always lead to the best overall schedule, and thus, it intelligently balances individual and collective
+preferences.
+The inclusion of rigorous unit and functional tests underscores the robustness and reliability of the solution.
+Unit tests verify the correctness of each component, ensuring that resource availabilities are accurately identified
+and updated, and that `PreViva` objects are correctly linked with necessary resources. Functional tests validate the
+algorithm's ability to produce an optimal schedule that maximizes total preferences, even in complex scenarios where 
+resources are limited or heavily contested.
+In summary, the preference maximization algorithm developed in Milestone 3 offers a sophisticated and practical
+solution for scheduling thesis defenses. It ensures a high level of satisfaction for all participants by optimizing
+the use of available resources and respecting individual preferences. The result is a more balanced and efficient
+scheduling system that meets the needs of the academic community while enhancing the overall scheduling experience.
