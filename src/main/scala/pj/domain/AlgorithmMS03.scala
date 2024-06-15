@@ -29,8 +29,8 @@ object AlgorithmMS03:
         None
     }
 
-    println("Starting Brute Force Algorithm")
-    val bfResult = algorithmBF(preVivaList, duration)
+    println("Starting Brute Force Algorithm with Heuristics")
+    val bfResult = algorithmBF(preVivaList, duration, maxCombinations = 1000)
     bfResult.foreach { result =>
       println(s"Brute Force Result: ${result.posVivas.map(_.preference).sum}")
       result.posVivas.foreach { viva =>
@@ -55,8 +55,8 @@ object AlgorithmMS03:
       ScheduleOut.from(sortedScheduledVivas)
     }
 
-  def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration): Result[ScheduleOut] =
-    val allCombinations = preVivaList.permutations.toList
+  def algorithmBF(preVivaList: Seq[PreViva], duration: ODuration, maxCombinations: Int): Result[ScheduleOut] =
+    val allCombinations = preVivaList.permutations.take(maxCombinations).toList
     val validSchedules = allCombinations.flatMap { combination =>
       val result = schedulePreVivas(combination, duration)
       result match

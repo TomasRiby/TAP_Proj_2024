@@ -14,8 +14,8 @@ import scala.xml.Node
 class Test extends AnyFunSuite:
 
   test("God Saver"):
-    val dir = "files/assessment/ms01/"
-    val fileName = "valid_agenda_03_in.xml"
+    val dir = "files/assessment/ms03/"
+    val fileName = "valid_agenda_40_in.xml"
     val filePath = dir + fileName
     val result = for {
       fileLoaded <- FileIO.load(filePath)
