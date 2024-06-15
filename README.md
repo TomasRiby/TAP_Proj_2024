@@ -148,6 +148,9 @@ programming techniques.
 
 ## Milestones Development Process
 
+<details>
+<summary><strong>MS01 - First Come First Served</strong></summary>
+
 ### MS01 - First Come First Served
 
 #### Overview
@@ -214,7 +217,11 @@ Scenarios tested include:
 - Successful scheduling of all vivas with sufficient resource availability.
 - Handling of cases where some vivas cannot be scheduled due to resource constraints.
 
+</details>
 
+
+<details>
+<summary><strong>MS02 - Property-based Tests</strong></summary>
 
 ### MS02 - Property-based Tests
 
@@ -362,7 +369,11 @@ development and testing processes and ensuring the delivery of high-quality soft
     - **Original slots included when no used slots**: Verifies that original availability slots are included in the updated slots when there are no used slots.
     - **All availabilities are considered**: Ensures that all original availability slots are taken into account when updating the slots.
 
+</details>
 
+
+<details>
+<summary><strong>MS03 - Preference Maximization</strong></summary>
 
 ### MS03 - Preference Maximization
 
@@ -450,3 +461,5 @@ In summary, the preference maximization algorithm developed in Milestone 3 offer
 solution for scheduling thesis defenses. It ensures a high level of satisfaction for all participants by optimizing
 the use of available resources and respecting individual preferences. The result is a more balanced and efficient
 scheduling system that meets the needs of the academic community while enhancing the overall scheduling experience.
+
+</details>
