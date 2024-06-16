@@ -142,18 +142,33 @@ class AlgorithmMS03Test extends AnyFlatSpec with Matchers with OptionValues with
     result._1.value._1 should be(start2.toLocalDateTime)
     result._1.value._3 should be(3)
 
-  it should "return None when no availabilities match the duration" in:
-    val start1 = OTime.createTime("2024-05-30T10:00:00").getOrElse(fail("Failed to create OTime"))
-    val end1 = OTime.createTime("2024-05-30T10:30:00").getOrElse(fail("Failed to create OTime"))
-    val start2 = OTime.createTime("2024-05-30T11:00:00").getOrElse(fail("Failed to create OTime"))
-    val end2 = OTime.createTime("2024-05-30T11:30:00").getOrElse(fail("Failed to create OTime"))
+  it should "mark the selected availability as usedSlot" in:
     val duration = createDuration("01:00:00")
+
+    val start1 = OTime.createTime("2024-05-30T10:00:00").getOrElse(fail("Failed to create OTime"))
+    val end1 = OTime.createTime("2024-05-30T11:00:00").getOrElse(fail("Failed to create OTime"))
+    val start2 = OTime.createTime("2024-05-30T11:00:00").getOrElse(fail("Failed to create OTime"))
+    val end2 = OTime.createTime("2024-05-30T12:00:00").getOrElse(fail("Failed to create OTime"))
+    val start3 = OTime.createTime("2024-05-30T12:00:00").getOrElse(fail("Failed to create OTime"))
+    val end3 = OTime.createTime("2024-05-30T13:00:00").getOrElse(fail("Failed to create OTime"))
 
     val availabilities = List(
       Availability.from(start1, end1, Preference.createPreference(2).getOrElse(fail("Failed to create Preference"))),
-      Availability.from(start2, end2, Preference.createPreference(3).getOrElse(fail("Failed to create Preference")))
+      Availability.from(start2, end2, Preference.createPreference(3).getOrElse(fail("Failed to create Preference"))),
+      Availability.from(start3, end3, Preference.createPreference(5).getOrElse(fail("Failed to create Preference")))
     )
 
-    val result = AlgorithmMS03.chooseBestPossibleAvailability(availabilities, duration, List.empty, HashSet.empty)
+    val usedSlots = List.empty[(HashSet[ID], Availability)]
+    val newIds = HashSet(ID.createTeacherId("T002").getOrElse(fail("Failed to create ID")))
 
-    result._1 shouldBe None
+    val result = AlgorithmMS03.chooseBestPossibleAvailability(availabilities, duration, usedSlots, newIds)
+
+    result._1 shouldBe defined
+    result._1.value._1 should be(start3.toLocalDateTime)
+    result._1.value._2 should be(end3.toLocalDateTime)
+    result._1.value._3 should be(5)
+
+    val selectedAvailability = Availability.from(start3, end3, Preference.createPreference(5).getOrElse(fail("Failed to create Preference")))
+    val usedSlot = result._2.find(_._2 == selectedAvailability)
+    usedSlot shouldBe defined
+    usedSlot.value._1 should contain(ID.createTeacherId("T002").getOrElse(fail("Failed to create ID")))
