@@ -9,7 +9,7 @@ import pj.MS02.handleAlgorithm.ComplexGenerator.linkVivaWithResourceTest.generat
 import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.OTimeTest.{generateADay, generateTime}
 import pj.MS02.handleAlgorithm.ComplexGenerator.opaque.PreferenceTest.generatePreference
 import pj.domain.*
-import pj.domain.Algorithm.{algorithmFCFS}
+import pj.domain.AlgorithmMS01.{algorithmFCFS}
 import pj.opaqueTypes.ID.ID
 import pj.opaqueTypes.ODuration.ODuration
 import pj.opaqueTypes.OTime

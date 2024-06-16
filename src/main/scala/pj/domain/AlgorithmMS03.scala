@@ -78,4 +78,3 @@ object AlgorithmMS03:
         case _ =>
           (bestOption, bestUsedSlots)
     }
-  
